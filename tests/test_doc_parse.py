@@ -46,6 +46,32 @@ def test_when_cant_detect_doc_style():
         tanchan.doc_parse.with_annotated_args(command)
 
 
+def test_when_invalid_doc_style_passed():
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context) -> None:
+        """Description."""
+
+    with pytest.raises(ValueError, match="Unsupported docstring style 'catgirl-ml'"):
+        tanchan.doc_parse.with_annotated_args(doc_style="catgirl-ml")(command)
+
+
+def test_as_slash_command_when_has_no_doc_string():
+    async def command(ctx: tanjun.abc.Context) -> None:
+        ...
+
+    with pytest.raises(ValueError, match="Callback has no doc string"):
+        tanchan.doc_parse.as_slash_command()(command)
+
+
+def test_with_annotated_args_when_has_no_doc_string():
+    @tanjun.as_slash_command("name", "description")
+    async def command(ctx: tanjun.abc.Context) -> None:
+        ...
+
+    with pytest.raises(ValueError, match="Callback has no doc string"):
+        tanchan.doc_parse.with_annotated_args()(command)
+
+
 def test_google():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
