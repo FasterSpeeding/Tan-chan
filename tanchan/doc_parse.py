@@ -194,58 +194,72 @@ def _line_empty(line: str) -> bool:
     return not line.strip()
 
 
-_GOOGLE_PARAMETER_MATCH = re.compile(r"^(\w+).*:(.*)$")
+class _Descriptions:
+    __slots__ = ("descriptions", "regex")
+
+    def __init__(self, regex: re.Pattern[str]) -> None:
+        self.descriptions: dict[str, str] = {}
+        self.regex = regex
+
+    def collect(self, lines: collections.Iterable[str]) -> None:
+        current_line: list[str] = []
+        for line in lines:
+            result = self.regex.search(line)
+            if not result:
+                current_line.append(line.strip())
+                continue
+
+            self._terminate_line(current_line)
+            groups = result.groups()
+            current_line.append(groups[0])
+            if len(groups) > 1 and (description := groups[1].strip()):
+                current_line.append(description)
+
+        self._terminate_line(current_line)
+
+    def _terminate_line(self, current_line: list[str]) -> None:
+        if current_line:
+            name = current_line.pop(0)
+            self.descriptions[name] = " ".join(current_line)
+            current_line.clear()
+
+
+# TODO: would dedenting the lines and having ^ at the start here be preferable?
+_GOOGLE_PARAMETER_MATCH = re.compile(r"(\w+).*:(.*)$")
 
 
 def _parse_google(doc_string: str, /) -> dict[str, str]:
+    descriptions = _Descriptions(_GOOGLE_PARAMETER_MATCH)
     lines = doc_string.splitlines()
     start_index: typing.Optional[int] = None
-    ranges: list[tuple[int, int]] = []
+
     for index, line in enumerate(lines):
         if line.lower().strip() == "args:":
             start_index = index + 1
 
         if start_index is not None and _line_empty(line):
-            ranges.append((start_index, index))
+            descriptions.collect(lines[start_index:index])
             start_index = None
 
     if start_index is not None:
-        ranges.append((start_index, len(lines)))
+        descriptions.collect(lines[start_index : len(lines)])
 
-    descriptions: dict[str, str] = {}
-    current_line: list[str] = []
-    for start, stop in ranges:
-        for line in lines[start:stop]:
-            result = _GOOGLE_PARAMETER_MATCH.search(line.lstrip())
-            if not result:
-                current_line.append(line.strip())
-                continue
-
-            if current_line:
-                name = current_line.pop(0)
-                descriptions[name] = " ".join(current_line)
-                current_line.clear()
-
-            name, description = result.groups()
-            current_line.append(name)
-            if description := description.strip():
-                current_line.append(description)
-
-        if current_line:
-            name = current_line.pop(0)
-            descriptions[name] = " ".join(current_line)
-
-    return descriptions
+    return descriptions.descriptions
 
 
-# TODO: support multi-line descriptions.
-_NUMPY_PARAMETER_MATCH = re.compile(r"(\w+)(?: *:.+)?\n +(.+)")
+_NUMPY_PARAMETER_MATCH = re.compile(r"^(\w+)(?: *:.+)?$")
+
+
+def _dedent_lines(lines: list[str]) -> collections.Iterable[str]:
+    indent = lines[0].removesuffix(lines[0].rstrip())
+    return (line.removeprefix(indent) for line in lines)
 
 
 def _parse_numpy(doc_string: str, /) -> dict[str, str]:
+    descriptions = _Descriptions(_NUMPY_PARAMETER_MATCH)
     lines = doc_string.splitlines()
     start_index: typing.Optional[int] = None
-    ranges: list[tuple[int, int]] = []
+
     for index, line in enumerate(lines):
         try:
             if not line.startswith("-") or line.replace("-", ""):
@@ -255,25 +269,20 @@ def _parse_numpy(doc_string: str, /) -> dict[str, str]:
                 start_index = index + 1
 
             elif start_index is not None and not lines[index - 1]:
-                ranges.append((start_index, index - 1))
+                descriptions.collect(_dedent_lines(lines[start_index : index - 1]))
                 start_index = None
 
             elif start_index is not None and _line_empty(lines[index - 2]):
-                ranges.append((start_index, index - 2))
+                descriptions.collect(_dedent_lines(lines[start_index : index - 2]))
                 start_index = None
 
         except KeyError:
             pass
 
     if start_index is not None:
-        ranges.append((start_index, len(lines)))
+        descriptions.collect(lines[start_index : len(lines)])
 
-    descriptions: dict[str, str] = {}
-
-    for start, stop in ranges:
-        descriptions.update(_NUMPY_PARAMETER_MATCH.findall("\n".join(lines[start:stop])))
-
-    return descriptions
+    return descriptions.descriptions
 
 
 _DocStyleUnion = typing.Literal["google", "numpy"]

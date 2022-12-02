@@ -64,7 +64,7 @@ def test_google():
 def test_google_with_type_hint():
     @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
     @tanchan.doc_parse.as_slash_command()
-    async def eat_command(ctx: tanjun.abc.Context, sicko: annotations.Int, echo: annotations.Str = "") -> None:
+    async def neat_command(ctx: tanjun.abc.Context, sicko: annotations.Int, echo: annotations.Str = "") -> None:
         """Meow meow.
 
         Args:
@@ -73,10 +73,10 @@ def test_google_with_type_hint():
             echo (hikari.SnowflakeIsh[int]): go to work
         """
 
-    builder = eat_command.build()
+    builder = neat_command.build()
 
-    assert builder.name == eat_command.name == "eat_command"
-    assert builder.description == eat_command.description == "Meow meow."
+    assert builder.name == neat_command.name == "neat_command"
+    assert builder.description == neat_command.description == "Meow meow."
 
     options = builder.options
     assert len(options) == 2
@@ -89,7 +89,7 @@ def test_google_with_type_hint():
 def test_google_multi_line():
     @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
     @tanchan.doc_parse.as_slash_command()
-    async def eat_command(ctx: tanjun.abc.Context, sick: annotations.Int, stuff: annotations.Str = "") -> None:
+    async def meat_command(ctx: tanjun.abc.Context, sick: annotations.Int, stuff: annotations.Str = "") -> None:
         """Meow.
 
         Args:
@@ -102,10 +102,10 @@ def test_google_multi_line():
                 blep blep
         """
 
-    builder = eat_command.build()
+    builder = meat_command.build()
 
-    assert builder.name == eat_command.name == "eat_command"
-    assert builder.description == eat_command.description == "Meow."
+    assert builder.name == meat_command.name == "meat_command"
+    assert builder.description == meat_command.description == "Meow."
 
     options = builder.options
     assert len(options) == 2
@@ -118,7 +118,7 @@ def test_google_multi_line():
 def test_google_when_starts_on_next_line():
     @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
     @tanchan.doc_parse.as_slash_command()
-    async def eat_command(
+    async def beat_command(
         ctx: tanjun.abc.Context, respect: annotations.Bool, guillotine: typing.Optional[annotations.User] = None
     ) -> None:
         """Nyaa nyaa.
@@ -136,10 +136,10 @@ def test_google_when_starts_on_next_line():
                 mind.
         """
 
-    builder = eat_command.build()
+    builder = beat_command.build()
 
-    assert builder.name == eat_command.name == "eat_command"
-    assert builder.description == eat_command.description == "Nyaa nyaa."
+    assert builder.name == beat_command.name == "beat_command"
+    assert builder.description == beat_command.description == "Nyaa nyaa."
 
     options = builder.options
     assert len(options) == 2
@@ -152,7 +152,7 @@ def test_google_when_starts_on_next_line():
 def test_google_with_other_section_after():
     @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
     @tanchan.doc_parse.as_slash_command()
-    async def eat_command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
+    async def command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
         """Nyaa.
 
         Args:
@@ -164,10 +164,10 @@ def test_google_with_other_section_after():
             Semantics. Kanye has lost it.
         """
 
-    builder = eat_command.build()
+    builder = command.build()
 
-    assert builder.name == eat_command.name == "eat_command"
-    assert builder.description == eat_command.description == "Nyaa."
+    assert builder.name == command.name == "command"
+    assert builder.description == command.description == "Nyaa."
 
     options = builder.options
     assert len(options) == 2
@@ -180,7 +180,7 @@ def test_google_with_other_section_after():
 def test_google_with_other_section_before():
     @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
     @tanchan.doc_parse.as_slash_command()
-    async def eat_command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
+    async def catgirls(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
         """Nyaa.
 
         Returns:
@@ -192,10 +192,36 @@ def test_google_with_other_section_before():
             extra: yeet
         """
 
-    builder = eat_command.build()
+    builder = catgirls.build()
 
-    assert builder.name == eat_command.name == "eat_command"
-    assert builder.description == eat_command.description == "Nyaa."
+    assert builder.name == catgirls.name == "catgirls"
+    assert builder.description == catgirls.description == "Nyaa."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "beep"
+    assert options[0].description == "im"
+    assert options[1].name == "sheep"
+    assert options[1].description == "a beep"
+
+
+def test_google_trails_off():
+    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.as_slash_command()
+    async def feet_command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
+        """Nyaa.
+
+        Args:
+            beep: im
+            sheep: a beep
+            extra: yeet
+
+        """
+
+    builder = feet_command.build()
+
+    assert builder.name == feet_command.name == "feet_command"
+    assert builder.description == feet_command.description == "Nyaa."
 
     options = builder.options
     assert len(options) == 2
@@ -208,7 +234,7 @@ def test_google_with_other_section_before():
 def test_numpy():
     @tanchan.doc_parse.with_annotated_args(doc_style="numpy", follow_wrapped=True)
     @tanchan.doc_parse.as_slash_command()
-    async def eat_command(
+    async def cc(
         ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Ranged[0.23, 321.2]] = None
     ) -> None:
         """I am very gay.
@@ -223,10 +249,10 @@ def test_numpy():
             mexican
         """
 
-    builder = eat_command.build()
+    builder = cc.build()
 
-    assert builder.name == eat_command.name == "eat_command"
-    assert builder.description == eat_command.description == "I am very gay."
+    assert builder.name == cc.name == "cc"
+    assert builder.description == cc.description == "I am very gay."
 
     options = builder.options
     assert len(options) == 2
@@ -339,3 +365,37 @@ def test_numpy_with_other_parameters():
     assert options[1].description == "home"
     assert options[2].name == "cat"
     assert options[2].description == "box"
+
+
+def test_numpy_for_multi_line_descriptions():
+    @tanchan.doc_parse.with_annotated_args(doc_style="numpy", follow_wrapped=True)
+    @tanchan.doc_parse.as_slash_command()
+    async def eep_command(
+        ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Ranged[0.23, 321.2]] = None
+    ) -> None:
+        """I am very catgirly.
+
+        Parameters
+        ----------
+        foo : sex
+            go home boss
+            nyaa extra
+        bar
+            meowers in the streets,
+            nyanners in the sheets
+        unknown
+            mexican
+            and japanese
+        """
+
+    builder = eep_command.build()
+
+    assert builder.name == eep_command.name == "eep_command"
+    assert builder.description == eep_command.description == "I am very catgirly."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "foo"
+    assert options[0].description == "go home boss nyaa extra"
+    assert options[1].name == "bar"
+    assert options[1].description == "meowers in the streets, nyanners in the sheets"
