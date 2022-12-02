@@ -52,7 +52,7 @@ def test_when_invalid_doc_style_passed():
         """Description."""
 
     with pytest.raises(ValueError, match="Unsupported docstring style 'catgirl-ml'"):
-        tanchan.doc_parse.with_annotated_args(doc_style="catgirl-ml")(command)
+        tanchan.doc_parse.with_annotated_args(doc_style="catgirl-ml")(command)  # type: ignore
 
 
 def test_as_slash_command_when_has_no_doc_string():
