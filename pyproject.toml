@@ -26,8 +26,7 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
-# dependencies = ["hikari-tanjun~=2.10.a1"]
-dependencies = ["hikari-tanjun @ git+https://github.com/FasterSpeeding/Tanjun.git"]
+dependencies = ["hikari-tanjun~=2.10.1a1"]
 dynamic = ["description"]
 
 [project.urls]
