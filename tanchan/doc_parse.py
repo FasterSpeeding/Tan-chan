@@ -225,11 +225,11 @@ class _Descriptions:
 
 
 # TODO: would dedenting the lines and having ^ at the start here be preferable?
-_GOOGLE_PARAMETER_MATCH = re.compile(r"(\w+).*:(.*)$")
+_GOOGLE_PATTERN = re.compile(r"(\w+).*:(.*)$")
 
 
 def _parse_google(doc_string: str, /) -> dict[str, str]:
-    descriptions = _Descriptions(_GOOGLE_PARAMETER_MATCH)
+    descriptions = _Descriptions(_GOOGLE_PATTERN)
     lines = doc_string.splitlines()
     start_index: typing.Optional[int] = None
 
@@ -247,7 +247,7 @@ def _parse_google(doc_string: str, /) -> dict[str, str]:
     return descriptions.descriptions
 
 
-_NUMPY_PARAMETER_MATCH = re.compile(r"^(\w+)(?: *:.+)?$")
+_NUMPY_PATTERN = re.compile(r"^(\w+)(?: *:.+)?$")
 
 
 def _dedent_lines(lines: list[str], /) -> collections.Iterable[str]:
@@ -256,7 +256,7 @@ def _dedent_lines(lines: list[str], /) -> collections.Iterable[str]:
 
 
 def _parse_numpy(doc_string: str, /) -> dict[str, str]:
-    descriptions = _Descriptions(_NUMPY_PARAMETER_MATCH)
+    descriptions = _Descriptions(_NUMPY_PATTERN)
     lines = doc_string.splitlines()
     start_index: typing.Optional[int] = None
 

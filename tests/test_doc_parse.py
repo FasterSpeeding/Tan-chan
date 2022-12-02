@@ -241,6 +241,35 @@ def test_google_with_other_section_after():
     assert options[1].description == "a beep"
 
 
+def test_google_with_other_section_after_squashed():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
+        """Nyaa.
+
+        Args:
+            beep: im
+            sheep: a beep
+            extra: yeet
+        Raises:
+            RuntimeError: VooDoo
+        Returns:
+            int: Semantics. Kanye has lost it.
+        """
+
+    builder = command.build()
+
+    assert builder.name == command.name == "command"
+    assert builder.description == command.description == "Nyaa."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "beep"
+    assert options[0].description == "im"
+    assert options[1].name == "sheep"
+    assert options[1].description == "a beep"
+
+
 def test_google_with_other_section_before():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
@@ -253,6 +282,35 @@ def test_google_with_other_section_before():
         Raises:
             RuntimeError: VooDoo
 
+        Args:
+            beep: im
+            sheep: a beep
+            extra: yeet
+        """
+
+    builder = catgirls.build()
+
+    assert builder.name == catgirls.name == "catgirls"
+    assert builder.description == catgirls.description == "Nyaa."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "beep"
+    assert options[0].description == "im"
+    assert options[1].name == "sheep"
+    assert options[1].description == "a beep"
+
+
+def test_google_with_other_section_before_squashed():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def catgirls(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
+        """Nyaa.
+
+        Returns:
+            Semantics: Kanye has lost it.
+        Raises:
+            RuntimeError: VooDoo
         Args:
             beep: im
             sheep: a beep
@@ -395,6 +453,107 @@ def test_numpy_ended_by_nameless_terminator_after():
     assert options[1].description == "nyaners"
 
 
+def test_numpy_ended_by_nameless_terminator_after_squashed():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def eep_command(ctx: tanjun.abc.Context, echo: annotations.Bool, zulu: annotations.Str = ""):
+        """You're a catgirl; I know right (sleepy). [];';-o0-
+
+        Parameters
+        ----------
+        echo : sex
+            go home big boss
+        zulu
+            nyaners
+        other
+            japanese
+        -----------
+        meow the yeet
+            woof
+        yeet : int
+            barf
+        """
+
+    builder = eep_command.build()
+
+    assert builder.name == eep_command.name == "eep_command"
+    assert builder.description == eep_command.description == "You're a catgirl; I know right (sleepy). [];';-o0-"
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "echo"
+    assert options[0].description == "go home big boss"
+    assert options[1].name == "zulu"
+    assert options[1].description == "nyaners"
+
+
+def test_numpy_after_named_section():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312):
+        """sleepers meow
+
+        Returns
+        -------
+        yellow : meow
+            Nom
+
+        Parameters
+        ----------
+        meow : sex
+            gimme gimme chocolate
+        nope
+            war moment
+        nyaa
+            other race
+        """
+
+    builder = aaaaaa.build()
+
+    assert builder.name == aaaaaa.name == "aaaaaa"
+    assert builder.description == aaaaaa.description == "sleepers meow"
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "meow"
+    assert options[0].description == "gimme gimme chocolate"
+    assert options[1].name == "nyaa"
+    assert options[1].description == "other race"
+
+
+def test_numpy_after_named_section_squashed():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312):
+        """sleepers meow
+
+        Returns
+        -------
+        yellow : meow
+            Nom
+        Parameters
+        ----------
+        meow : sex
+            gimme gimme chocolate
+        nope
+            war moment
+        nyaa
+            other race
+        """
+
+    builder = aaaaaa.build()
+
+    assert builder.name == aaaaaa.name == "aaaaaa"
+    assert builder.description == aaaaaa.description == "sleepers meow"
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "meow"
+    assert options[0].description == "gimme gimme chocolate"
+    assert options[1].name == "nyaa"
+    assert options[1].description == "other race"
+
+
 def test_numpy_ended_by_named_section():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
@@ -410,6 +569,39 @@ def test_numpy_ended_by_named_section():
         nyaa
             other race
 
+        Returns
+        -------
+        yellow : meow
+            Nom
+        """
+
+    builder = aaaaaa.build()
+
+    assert builder.name == aaaaaa.name == "aaaaaa"
+    assert builder.description == aaaaaa.description == "sleepers meow"
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "meow"
+    assert options[0].description == "gimme gimme chocolate"
+    assert options[1].name == "nyaa"
+    assert options[1].description == "other race"
+
+
+def test_numpy_ended_by_named_section_squashed():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312):
+        """sleepers meow
+
+        Parameters
+        ----------
+        meow : sex
+            gimme gimme chocolate
+        nope
+            war moment
+        nyaa
+            other race
         Returns
         -------
         yellow : meow
