@@ -1,0 +1,150 @@
+[build-system]
+requires = ["flit_core >=3.3,<4,!=3.7"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "tanchan"
+version = "2.10.0a1"
+readme = "README.md"
+requires-python = ">=3.9.0,<3.12"
+license = {file = "LICENSE"}
+authors = [ {name = "Faster Speeding", email="lucina@lmbyrne.dev"} ]
+keywords = ["hikari"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: BSD License",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Communications :: Chat",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+# dependencies = ["hikari-tanjun~=2.10.a1"]
+dependencies = ["hikari-tanjun @ git+https://github.com/FasterSpeeding/Tanjun.git"]
+dynamic = ["description"]
+
+[project.urls]
+Homepage = "https://github.com/FasterSpeeding/Tanchan"
+Repository = "https://github.com/FasterSpeeding/Tanchan"
+Documentation = "https://tanchan.cursed.solutions/"
+Changelog = "https://github.com/FasterSpeeding/tanchan/blob/master/CHANGELOG.md"
+
+[tool.black]
+include = ".*pyi?$"
+line-length = 120
+skip-magic-trailing-comma = true
+target-version = ["py39"]
+
+[tool.coverage.run]
+concurrency = ["multiprocessing"]
+parallel = true
+branch = true
+timid = false
+source = ["tanchan"]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "^\\s*\\.\\.\\.$",
+    "^\\s*@abc.abstractmethod$",
+    "^if typing.TYPE_CHECKING:$"
+]
+
+[tool.flake8]
+accept-encodings = "utf-8"
+count = true
+docstring-convention = "numpy"
+eradicate-aggressive = true
+# extend-select = ["TC100", "TC101"]
+force-future-annotations = true
+ignore-decorators = "overload"
+max-complexity = 20
+max-function-length = 100
+# Technically this is 120, but black has a policy of "1 or 2 over is fine if it is tidier", so we have to raise this.
+max-line-length = 130
+min_python_version = "3.9"
+pep585-activation = "always"
+show_source = false
+statistics = false
+ignore = [
+    "A003",    # class attribute is shadowing a builtin
+    "CFQ004",  # Function has too many returns.
+    "CFQ002",  # Function has too many arguments.
+    "D102",    # Missing docstring in public method.
+    "D105",    # Magic methods not having a docstring.
+    "D401",    # Conflits with property doc-strings too much.
+    "D404",    # Conflits with property doc-strings too much.
+    "D412",    # No blank lines allowed between a section header and its content
+    "E402",    # Module level import not at top of file (isn't compatible with our import style).
+    "IFS001",  # "use a oneliner here".
+    "N818",    # Exceptions should have an "Error" suffix in their name
+    "SIM105",  # Use contextlib.suppress
+    "TC003",   # Avoid specifying long messages outside the exception class (this hits way too many std exceptions rn)
+    "T101",    # TO-DO comment detection (T102 is FIX-ME and T103 is XXX).
+    "W503",    # line break before binary operator.
+    "W504",    # line break before binary operator (again, I guess).
+    "S101",    # Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+    "E203",    # whitespace before ':'
+    "E231",    # missing whitespace after ','
+]
+per-file-ignores = [
+    "noxfile.py: D100, D101, D103, INP001",
+    "tanchan/py.typed: D100",
+    "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101"
+]
+
+[tool.isort]
+profile = "black"
+force_single_line = true
+
+[tool.pyright]
+include = ["tanchan", "noxfile.py", "tests"]
+
+pythonVersion = "3.9"
+typeCheckingMode = "strict"
+reportMissingModuleSource = "error"
+reportMissingTypeStubs = "error"
+
+reportIncompatibleMethodOverride = "warning"    # This relies on ordering for key-word only arguments
+                                                # which is more annoying than it's worth
+reportUnknownMemberType = "warning"             # This messes with instance checking generic objects
+reportUnknownArgumentType = "warning"           # Pretty much the same as reportUnknownMemberType
+reportUnknownLambdaType = "warning"
+reportImportCycles = "warning"                  # This isn't necessarily an issue if it's type checking only.
+reportUnknownVariableType = "warning"           # Lotta false-positives, might fix/change later.
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+testpaths = ["tests"]
+required_plugins = ["pytest-asyncio", "pytest-timeout"]
+
+[tool.mypy]
+# some good strict settings
+python_version = 3.9
+strict = true
+warn_unreachable = true
+
+# more narrow type ignores
+show_error_codes = true
+
+# these are used by pyright
+warn_unused_ignores = false
+warn_redundant_casts = false
+
+# compatibility with pyright
+allow_redefinition = true
+disable_error_code = ["type-abstract"]
+
+[tool.slotscheck]
+strict-imports = true
+require-superclass = true
+require-subclass = true
