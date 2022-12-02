@@ -30,14 +30,49 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import typing
 
+import pytest
 import tanjun
 from tanjun import annotations
 
 import tanchan
 
 
+def test_when_cant_detect_doc_style():
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context) -> None:
+        """Description."""
+
+    with pytest.raises(RuntimeError, match="Couldn't detect the docstring style"):
+        tanchan.doc_parse.with_annotated_args(command)
+
+
 def test_google():
-    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def eat_command(ctx: tanjun.abc.Context, meow: annotations.Int, nyaa: annotations.Str = "") -> None:
+        """Meow meow meow.
+
+        Args:
+            meow: i'm ok man
+            extra: yeet
+            nyaa: go home
+        """
+
+    builder = eat_command.build()
+
+    assert builder.name == eat_command.name == "eat_command"
+    assert builder.description == eat_command.description == "Meow meow meow."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "meow"
+    assert options[0].description == "i'm ok man"
+    assert options[1].name == "nyaa"
+    assert options[1].description == "go home"
+
+
+def test_google_when_doc_style_explicitly_passed():
+    @tanchan.doc_parse.with_annotated_args(doc_style="google")
     @tanchan.doc_parse.as_slash_command()
     async def eat_command(ctx: tanjun.abc.Context, meow: annotations.Int, nyaa: annotations.Str = "") -> None:
         """Meow meow meow.
@@ -62,7 +97,7 @@ def test_google():
 
 
 def test_google_with_type_hint():
-    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def neat_command(ctx: tanjun.abc.Context, sicko: annotations.Int, echo: annotations.Str = "") -> None:
         """Meow meow.
@@ -87,7 +122,7 @@ def test_google_with_type_hint():
 
 
 def test_google_multi_line():
-    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def meat_command(ctx: tanjun.abc.Context, sick: annotations.Int, stuff: annotations.Str = "") -> None:
         """Meow.
@@ -116,7 +151,7 @@ def test_google_multi_line():
 
 
 def test_google_when_starts_on_next_line():
-    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def beat_command(
         ctx: tanjun.abc.Context, respect: annotations.Bool, guillotine: typing.Optional[annotations.User] = None
@@ -150,7 +185,7 @@ def test_google_when_starts_on_next_line():
 
 
 def test_google_with_other_section_after():
-    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
         """Nyaa.
@@ -178,7 +213,7 @@ def test_google_with_other_section_after():
 
 
 def test_google_with_other_section_before():
-    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def catgirls(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
         """Nyaa.
@@ -206,7 +241,7 @@ def test_google_with_other_section_before():
 
 
 def test_google_trails_off():
-    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def feet_command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
         """Nyaa.
@@ -232,7 +267,38 @@ def test_google_trails_off():
 
 
 def test_numpy():
-    @tanchan.doc_parse.with_annotated_args(doc_style="numpy", follow_wrapped=True)
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def cc(
+        ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Ranged[0.23, 321.2]] = None
+    ) -> None:
+        """I am very gay.
+
+        Parameters
+        ----------
+        foo : sex
+            go home boss
+        bar
+            meowers
+        unknown
+            mexican
+        """
+
+    builder = cc.build()
+
+    assert builder.name == cc.name == "cc"
+    assert builder.description == cc.description == "I am very gay."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "foo"
+    assert options[0].description == "go home boss"
+    assert options[1].name == "bar"
+    assert options[1].description == "meowers"
+
+
+def test_numpy_when_doc_style_explicitly_passed():
+    @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
     @tanchan.doc_parse.as_slash_command()
     async def cc(
         ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Ranged[0.23, 321.2]] = None
@@ -263,7 +329,7 @@ def test_numpy():
 
 
 def test_numpy_ended_by_nameless_terminator_after():
-    @tanchan.doc_parse.with_annotated_args(doc_style="numpy", follow_wrapped=True)
+    @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def eep_command(ctx: tanjun.abc.Context, echo: annotations.Bool, zulu: annotations.Str = ""):
         """You're a catgirl; I know right (sleepy). [];';-o0-
@@ -295,7 +361,7 @@ def test_numpy_ended_by_nameless_terminator_after():
 
 
 def test_numpy_ended_by_named_section():
-    @tanchan.doc_parse.with_annotated_args(doc_style="numpy", follow_wrapped=True)
+    @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312):
         """sleepers meow
@@ -327,7 +393,7 @@ def test_numpy_ended_by_named_section():
 
 
 def test_numpy_with_other_parameters():
-    @tanchan.doc_parse.with_annotated_args(doc_style="numpy", follow_wrapped=True)
+    @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def cool_girl(ctx: tanjun.abc.Context, the: annotations.User, go: annotations.Int, cat: annotations.Member):
         """blep
@@ -368,7 +434,7 @@ def test_numpy_with_other_parameters():
 
 
 def test_numpy_for_multi_line_descriptions():
-    @tanchan.doc_parse.with_annotated_args(doc_style="numpy", follow_wrapped=True)
+    @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def eep_command(
         ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Ranged[0.23, 321.2]] = None

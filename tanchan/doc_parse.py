@@ -291,13 +291,27 @@ _PARSERS: dict[_DocStyleUnion, collections.Callable[[str], dict[str, str]]] = {
     "numpy": _parse_numpy,
 }
 
+_MATCH_STYLE: list[tuple[re.Pattern[str], _DocStyleUnion]] = [
+    (re.compile(r"\n[\t ]*args:\n", re.IGNORECASE), "google"),
+    (re.compile(r"\n[\t ]*parameters\n[\t ]*-+", re.IGNORECASE), "numpy"),
+]
+
 
 def _parse_descriptions(
-    callback: collections.Callable[..., typing.Any], /, *, doc_style: _DocStyleUnion = "numpy"
+    callback: collections.Callable[..., typing.Any], /, *, doc_style: typing.Optional[_DocStyleUnion] = None
 ) -> dict[str, str]:
     doc_string = inspect.getdoc(callback)
     if not doc_string:
         raise ValueError("Callback has no doc string")
+
+    if doc_style is None:
+        for pattern, style in _MATCH_STYLE:
+            if pattern.search(doc_string):
+                doc_style = style
+                break
+
+        else:
+            raise RuntimeError("Couldn't detect the docstring style")
 
     if parser := _PARSERS.get(doc_style):
         return parser(doc_string)
@@ -321,7 +335,7 @@ def with_annotated_args(
     command: typing.Optional[_CommandUnionT] = None,
     /,
     *,
-    doc_style: _DocStyleUnion = "numpy",
+    doc_style: typing.Optional[_DocStyleUnion] = None,
     follow_wrapped: bool = False,
 ) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
     """Docstring parsing implementation of [tanjun.annotations.with_annotated_args][].
@@ -332,6 +346,11 @@ def with_annotated_args(
     ----------
     command : tanjun.SlashCommand | tanjun.MessageCommand
         The message or slash command to set the arguments for.
+    doc_style
+        The docstyle to parse slash command descriptions from.
+
+        This may be either `"google"` or `"numpy"`. If left as [None][] then
+        this will try to auto-detect the style.
     follow_wrapped
         Whether this should also set the arguments on any other command objects
         this wraps in a decorator call chain.
@@ -340,6 +359,11 @@ def with_annotated_args(
     -------
     tanjun.SlashCommand | tanjun.MessageCommand
         The command object to enable using this as a decorator.
+
+    Raises
+    ------
+    RuntimeError
+        If `doc_style` is [None][] and this failed to detect the docstring style.
     """
 
     def decorator(command: _CommandUnionT, /) -> _CommandUnionT:
