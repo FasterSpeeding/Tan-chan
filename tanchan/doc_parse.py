@@ -190,18 +190,18 @@ def as_slash_command(
     return decorator
 
 
-def _line_empty(line: str) -> bool:
+def _line_empty(line: str, /) -> bool:
     return not line.strip()
 
 
 class _Descriptions:
     __slots__ = ("descriptions", "regex")
 
-    def __init__(self, regex: re.Pattern[str]) -> None:
+    def __init__(self, regex: re.Pattern[str], /) -> None:
         self.descriptions: dict[str, str] = {}
         self.regex = regex
 
-    def collect(self, lines: collections.Iterable[str]) -> None:
+    def collect(self, lines: collections.Iterable[str], /) -> None:
         current_line: list[str] = []
         for line in lines:
             result = self.regex.search(line)
@@ -217,7 +217,7 @@ class _Descriptions:
 
         self._terminate_line(current_line)
 
-    def _terminate_line(self, current_line: list[str]) -> None:
+    def _terminate_line(self, current_line: list[str], /) -> None:
         if current_line:
             name = current_line.pop(0)
             self.descriptions[name] = " ".join(current_line)
@@ -250,7 +250,7 @@ def _parse_google(doc_string: str, /) -> dict[str, str]:
 _NUMPY_PARAMETER_MATCH = re.compile(r"^(\w+)(?: *:.+)?$")
 
 
-def _dedent_lines(lines: list[str]) -> collections.Iterable[str]:
+def _dedent_lines(lines: list[str], /) -> collections.Iterable[str]:
     indent = lines[0].removesuffix(lines[0].rstrip())
     return (line.removeprefix(indent) for line in lines)
 
