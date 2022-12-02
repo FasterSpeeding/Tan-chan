@@ -99,7 +99,8 @@ ignore = [
 per-file-ignores = [
     "noxfile.py: D100, D101, D103, INP001",
     "tanchan/py.typed: D100",
-    "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101"
+    "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101",
+    "tests/test_doc_parse.py: D100, D101, D103, D104, D400, D403, D406, D407, FA100, FA101",
 ]
 
 [tool.isort]

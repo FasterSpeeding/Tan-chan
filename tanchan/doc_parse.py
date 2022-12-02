@@ -194,15 +194,55 @@ def _line_empty(line: str) -> bool:
     return not line.strip()
 
 
-_NUMPY_PARAMETER_MATCH = re.compile(r"(\w+)(?:[: ].+)?\n\s+(.+)")
+_GOOGLE_PARAMETER_MATCH = re.compile(r"^(\w+).*:(.*)$")
 
 
-def _parse_numpy(callback: collections.Callable[..., typing.Any], /) -> dict[str, str]:
-    doc_string = inspect.getdoc(callback)
+def _parse_google(doc_string: str, /) -> dict[str, str]:
+    lines = doc_string.splitlines()
+    start_index: typing.Optional[int] = None
+    ranges: list[tuple[int, int]] = []
+    for index, line in enumerate(lines):
+        if line.lower().strip() == "args:":
+            start_index = index + 1
 
-    if not doc_string:
-        raise ValueError("Callback has no doc string")
+        if start_index is not None and _line_empty(line):
+            ranges.append((start_index, index))
+            start_index = None
 
+    if start_index is not None:
+        ranges.append((start_index, len(lines)))
+
+    descriptions: dict[str, str] = {}
+    current_line: list[str] = []
+    for start, stop in ranges:
+        for line in lines[start:stop]:
+            result = _GOOGLE_PARAMETER_MATCH.search(line.lstrip())
+            if not result:
+                current_line.append(line.strip())
+                continue
+
+            if current_line:
+                name = current_line.pop(0)
+                descriptions[name] = " ".join(current_line)
+                current_line.clear()
+
+            name, description = result.groups()
+            current_line.append(name)
+            if description := description.strip():
+                current_line.append(description)
+
+        if current_line:
+            name = current_line.pop(0)
+            descriptions[name] = " ".join(current_line)
+
+    return descriptions
+
+
+# TODO: support multi-line descriptions.
+_NUMPY_PARAMETER_MATCH = re.compile(r"(\w+)(?: *:.+)?\n +(.+)")
+
+
+def _parse_numpy(doc_string: str, /) -> dict[str, str]:
     lines = doc_string.splitlines()
     start_index: typing.Optional[int] = None
     ranges: list[tuple[int, int]] = []
@@ -236,16 +276,24 @@ def _parse_numpy(callback: collections.Callable[..., typing.Any], /) -> dict[str
     return descriptions
 
 
-_PARSERS: dict[str, collections.Callable[[collections.Callable[..., typing.Any]], dict[str, str]]] = {
-    "numpy": _parse_numpy
+_DocStyleUnion = typing.Literal["google", "numpy"]
+_PARSERS: dict[_DocStyleUnion, collections.Callable[[str], dict[str, str]]] = {
+    "google": _parse_google,
+    "numpy": _parse_numpy,
 }
 
 
-def _parse_descriptions(callback: collections.Callable[..., typing.Any], /, doc_type: str = "numpy") -> dict[str, str]:
-    if parser := _PARSERS.get(doc_type.lower()):
-        return parser(callback)
+def _parse_descriptions(
+    callback: collections.Callable[..., typing.Any], /, *, doc_style: _DocStyleUnion = "numpy"
+) -> dict[str, str]:
+    doc_string = inspect.getdoc(callback)
+    if not doc_string:
+        raise ValueError("Callback has no doc string")
 
-    raise ValueError(f"Unsupported docstring style {doc_type!r}")
+    if parser := _PARSERS.get(doc_style):
+        return parser(doc_string)
+
+    raise ValueError(f"Unsupported docstring style {doc_style!r}")
 
 
 @typing.overload
@@ -254,12 +302,18 @@ def with_annotated_args(command: _CommandUnionT, /) -> _CommandUnionT:
 
 
 @typing.overload
-def with_annotated_args(*, follow_wrapped: bool = False) -> collections.Callable[[_CommandUnionT], _CommandUnionT]:
+def with_annotated_args(
+    *, doc_style: _DocStyleUnion = "numpy", follow_wrapped: bool = False
+) -> collections.Callable[[_CommandUnionT], _CommandUnionT]:
     ...
 
 
 def with_annotated_args(
-    command: typing.Optional[_CommandUnionT] = None, /, *, follow_wrapped: bool = False
+    command: typing.Optional[_CommandUnionT] = None,
+    /,
+    *,
+    doc_style: _DocStyleUnion = "numpy",
+    follow_wrapped: bool = False,
 ) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
     """Docstring parsing implementation of [tanjun.annotations.with_annotated_args][].
 
@@ -281,7 +335,9 @@ def with_annotated_args(
 
     def decorator(command: _CommandUnionT, /) -> _CommandUnionT:
         tanjun.annotations.parse_annotated_args(
-            command, descriptions=_parse_descriptions(command.callback), follow_wrapped=follow_wrapped
+            command,
+            descriptions=_parse_descriptions(command.callback, doc_style=doc_style),
+            follow_wrapped=follow_wrapped,
         )
         return command
 

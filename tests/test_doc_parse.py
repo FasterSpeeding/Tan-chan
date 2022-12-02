@@ -36,8 +36,177 @@ from tanjun import annotations
 import tanchan
 
 
-def test():
-    @tanchan.doc_parse.with_annotated_args(follow_wrapped=True)
+def test_google():
+    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.as_slash_command()
+    async def eat_command(ctx: tanjun.abc.Context, meow: annotations.Int, nyaa: annotations.Str = "") -> None:
+        """Meow meow meow.
+
+        Args:
+            meow: i'm ok man
+            extra: yeet
+            nyaa: go home
+        """
+
+    builder = eat_command.build()
+
+    assert builder.name == eat_command.name == "eat_command"
+    assert builder.description == eat_command.description == "Meow meow meow."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "meow"
+    assert options[0].description == "i'm ok man"
+    assert options[1].name == "nyaa"
+    assert options[1].description == "go home"
+
+
+def test_google_with_type_hint():
+    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.as_slash_command()
+    async def eat_command(ctx: tanjun.abc.Context, sicko: annotations.Int, echo: annotations.Str = "") -> None:
+        """Meow meow.
+
+        Args:
+            sicko (int) : i'm ok girl
+            extra (hikari.Users[Meow]): yeet
+            echo (hikari.SnowflakeIsh[int]): go to work
+        """
+
+    builder = eat_command.build()
+
+    assert builder.name == eat_command.name == "eat_command"
+    assert builder.description == eat_command.description == "Meow meow."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "sicko"
+    assert options[0].description == "i'm ok girl"
+    assert options[1].name == "echo"
+    assert options[1].description == "go to work"
+
+
+def test_google_multi_line():
+    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.as_slash_command()
+    async def eat_command(ctx: tanjun.abc.Context, sick: annotations.Int, stuff: annotations.Str = "") -> None:
+        """Meow.
+
+        Args:
+            sick (int) : i'm ok girl
+                meow meow
+                echo echo
+            extra : yeet
+              echo yeet
+            stuff (hikari.SnowflakeIsh[int]): go to work
+                blep blep
+        """
+
+    builder = eat_command.build()
+
+    assert builder.name == eat_command.name == "eat_command"
+    assert builder.description == eat_command.description == "Meow."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "sick"
+    assert options[0].description == "i'm ok girl meow meow echo echo"
+    assert options[1].name == "stuff"
+    assert options[1].description == "go to work blep blep"
+
+
+def test_google_when_starts_on_next_line():
+    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.as_slash_command()
+    async def eat_command(
+        ctx: tanjun.abc.Context, respect: annotations.Bool, guillotine: typing.Optional[annotations.User] = None
+    ) -> None:
+        """Nyaa nyaa.
+
+        Args:
+            love:
+                Should be ok to be
+                insanely obvious.
+            guillotine:
+                Neon Genesis Evangelion gonna
+                happen soon.
+            respect:
+                I'm literally just writing
+                random words which come to
+                mind.
+        """
+
+    builder = eat_command.build()
+
+    assert builder.name == eat_command.name == "eat_command"
+    assert builder.description == eat_command.description == "Nyaa nyaa."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "respect"
+    assert options[0].description == "I'm literally just writing random words which come to mind."
+    assert options[1].name == "guillotine"
+    assert options[1].description == "Neon Genesis Evangelion gonna happen soon."
+
+
+def test_google_with_other_section_after():
+    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.as_slash_command()
+    async def eat_command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
+        """Nyaa.
+
+        Args:
+            beep: im
+            sheep: a beep
+            extra: yeet
+
+        Returns:
+            Semantics. Kanye has lost it.
+        """
+
+    builder = eat_command.build()
+
+    assert builder.name == eat_command.name == "eat_command"
+    assert builder.description == eat_command.description == "Nyaa."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "beep"
+    assert options[0].description == "im"
+    assert options[1].name == "sheep"
+    assert options[1].description == "a beep"
+
+
+def test_google_with_other_section_before():
+    @tanchan.doc_parse.with_annotated_args(doc_style="google", follow_wrapped=True)
+    @tanchan.doc_parse.as_slash_command()
+    async def eat_command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
+        """Nyaa.
+
+        Returns:
+            Semantics. Kanye has lost it.
+
+        Args:
+            beep: im
+            sheep: a beep
+            extra: yeet
+        """
+
+    builder = eat_command.build()
+
+    assert builder.name == eat_command.name == "eat_command"
+    assert builder.description == eat_command.description == "Nyaa."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "beep"
+    assert options[0].description == "im"
+    assert options[1].name == "sheep"
+    assert options[1].description == "a beep"
+
+
+def test_numpy():
+    @tanchan.doc_parse.with_annotated_args(doc_style="numpy", follow_wrapped=True)
     @tanchan.doc_parse.as_slash_command()
     async def eat_command(
         ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Ranged[0.23, 321.2]] = None
@@ -67,8 +236,8 @@ def test():
     assert options[1].description == "meowers"
 
 
-def test_ended_by_nameless_terminator_after():
-    @tanchan.doc_parse.with_annotated_args(follow_wrapped=True)
+def test_numpy_ended_by_nameless_terminator_after():
+    @tanchan.doc_parse.with_annotated_args(doc_style="numpy", follow_wrapped=True)
     @tanchan.doc_parse.as_slash_command()
     async def eep_command(ctx: tanjun.abc.Context, echo: annotations.Bool, zulu: annotations.Str = ""):
         """You're a catgirl; I know right (sleepy). [];';-o0-
@@ -84,7 +253,7 @@ def test_ended_by_nameless_terminator_after():
 
         -----------
         meow the yeet
-        """  # noqa: D400
+        """
 
     builder = eep_command.build()
 
@@ -99,8 +268,8 @@ def test_ended_by_nameless_terminator_after():
     assert options[1].description == "nyaners"
 
 
-def test_ended_by_named_section():
-    @tanchan.doc_parse.with_annotated_args(follow_wrapped=True)
+def test_numpy_ended_by_named_section():
+    @tanchan.doc_parse.with_annotated_args(doc_style="numpy", follow_wrapped=True)
     @tanchan.doc_parse.as_slash_command()
     async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312):
         """sleepers meow
@@ -116,7 +285,7 @@ def test_ended_by_named_section():
 
         Field
         ----
-        """  # noqa: D400, D403
+        """
 
     builder = aaaaaa.build()
 
@@ -131,15 +300,15 @@ def test_ended_by_named_section():
     assert options[1].description == "other race"
 
 
-def test_with_other_parameters():
-    @tanchan.doc_parse.with_annotated_args(follow_wrapped=True)
+def test_numpy_with_other_parameters():
+    @tanchan.doc_parse.with_annotated_args(doc_style="numpy", follow_wrapped=True)
     @tanchan.doc_parse.as_slash_command()
     async def cool_girl(ctx: tanjun.abc.Context, the: annotations.User, go: annotations.Int, cat: annotations.Member):
         """blep
 
         Parameters
         ----------
-        pat : sex
+        pat: sex
             get regulated
         the
             meows and nyaas. yeet; [';#][]
@@ -155,7 +324,7 @@ def test_with_other_parameters():
             home
         nope
             yep
-        """  # noqa: D400, D403
+        """
 
     builder = cool_girl.build()
 
