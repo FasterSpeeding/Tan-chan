@@ -221,8 +221,11 @@ def test_google_with_other_section_after():
             sheep: a beep
             extra: yeet
 
+        Raises:
+            RuntimeError: VooDoo
+
         Returns:
-            Semantics. Kanye has lost it.
+            int: Semantics. Kanye has lost it.
         """
 
     builder = command.build()
@@ -245,7 +248,10 @@ def test_google_with_other_section_before():
         """Nyaa.
 
         Returns:
-            Semantics. Kanye has lost it.
+            Semantics: Kanye has lost it.
+
+        Raises:
+            RuntimeError: VooDoo
 
         Args:
             beep: im
@@ -371,6 +377,9 @@ def test_numpy_ended_by_nameless_terminator_after():
 
         -----------
         meow the yeet
+            woof
+        yeet : int
+            barf
         """
 
     builder = eep_command.build()
@@ -401,8 +410,10 @@ def test_numpy_ended_by_named_section():
         nyaa
             other race
 
-        Field
-        ----
+        Returns
+        -------
+        yellow : meow
+            Nom
         """
 
     builder = aaaaaa.build()
@@ -433,8 +444,10 @@ def test_numpy_with_other_parameters():
         cat
             box
 
-        Name
-        ----
+        Returns
+        -------
+        yellow : meow
+            Nom
 
         Other Parameters
         ----------------
