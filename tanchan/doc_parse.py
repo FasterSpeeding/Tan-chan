@@ -81,8 +81,8 @@ def as_slash_command(
 ) -> _ResultProto:
     r"""Build a [tanjun.SlashCommand][] by decorating a function.
 
-    This will use the function's name as the command's name and parse the
-    description from the callback's docstring (Unlike [tanjun.as_slash_command][]).
+    This uses the function's name as the command's name and the first line of
+    its docstring as the command's description.
 
     !!! note
         Under the standard implementation, `is_global` is used to determine whether
@@ -340,7 +340,8 @@ def with_annotated_args(
 ) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
     """Docstring parsing implementation of [tanjun.annotations.with_annotated_args][].
 
-    This will parse slash command option descriptions from the command's docstring.
+    This will parse descriptions from the command's docstring for a slash
+    command's options.
 
     Parameters
     ----------
