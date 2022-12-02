@@ -283,7 +283,8 @@ def type_check(session: nox.Session) -> None:
     """Statically analyse and veirfy this project using Pyright."""
     install_requirements(session, ".", *_dev_dep("nox", "tests", "type-checking"))
     _run_pyright(session)
-    # TODO: add allowed to fail MyPy call once it stops giving an insane amount of false-positives
+    session.run("python", "-m", "mypy", "--version")
+    session.run("python", "-m", "mypy", "tanchan", "--show-error-codes")
 
 
 @nox.session(name="verify-types", reuse_venv=True)
