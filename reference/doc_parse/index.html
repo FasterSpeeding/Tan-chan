@@ -465,7 +465,7 @@
 <a id="tanchan.doc_parse"></a>
   <div class="doc doc-contents first">
   
-      <p><a class="autorefs autorefs-external" href="https://tanjun.cursed.solutions/reference/annotations/#tanjun.annotations">tanjun.annotations</a> extention which uses docstring parsing.</p>
+      <p><a class="autorefs autorefs-external" href="https://tanjun.cursed.solutions/reference/annotations/#tanjun.annotations">tanjun.annotations</a> extension which uses docstring parsing.</p>
 
   
 
@@ -494,8 +494,8 @@
   <div class="doc doc-contents ">
   
       <p>Build a <a class="autorefs autorefs-external" href="https://tanjun.cursed.solutions/reference/#tanjun.SlashCommand">tanjun.SlashCommand</a> by decorating a function.</p>
-<p>This will use the function's name as the command's name and parse the
-description from the callback's docstring (Unlike <a class="autorefs autorefs-external" href="https://tanjun.cursed.solutions/reference/#tanjun.as_slash_command">tanjun.as_slash_command</a>).</p>
+<p>This uses the function's name as the command's name and the first line of
+its docstring as the command's description.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Under the standard implementation, <code>is_global</code> is used to determine whether
@@ -504,7 +504,7 @@ or when <code>declare_global_commands</code> is True</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p><code>default_member_permissions</code>, "dm_enabled" and <code>is_global</code> are
+<p><code>default_member_permissions</code>, <code>dm_enabled</code> and <code>is_global</code> are
 ignored for commands within slash command groups.</p>
 </div>
 <div class="admonition note">
@@ -727,7 +727,8 @@ and will manage loading the other command into a component when using
   <div class="doc doc-contents ">
   
       <p>Docstring parsing implementation of <a class="autorefs autorefs-external" href="https://tanjun.cursed.solutions/reference/annotations/#tanjun.annotations.with_annotated_args">tanjun.annotations.with_annotated_args</a>.</p>
-<p>This will parse slash command option descriptions from the command's docstring.</p>
+<p>This will parse descriptions from the command's docstring for a slash
+command's options.</p>
 
   <table>
     <thead>
