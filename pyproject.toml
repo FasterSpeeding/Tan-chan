@@ -31,10 +31,10 @@ dependencies = ["hikari-tanjun @ git+https://github.com/FasterSpeeding/Tanjun.gi
 dynamic = ["description"]
 
 [project.urls]
-Homepage = "https://github.com/FasterSpeeding/Tanchan"
-Repository = "https://github.com/FasterSpeeding/Tanchan"
-Documentation = "https://tanchan.cursed.solutions/"
-Changelog = "https://github.com/FasterSpeeding/tanchan/blob/master/CHANGELOG.md"
+Homepage = "https://github.com/FasterSpeeding/Tan-chan"
+Repository = "https://github.com/FasterSpeeding/Tan-chan"
+Documentation = "https://tan-chan.cursed.solutions/"
+Changelog = "https://github.com/FasterSpeeding/tan-chan/blob/master/CHANGELOG.md"
 
 [tool.black]
 include = ".*pyi?$"
