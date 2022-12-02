@@ -90,7 +90,7 @@ def as_slash_command(
         or when `declare_global_commands` is True
 
     !!! warning
-        `default_member_permissions`, "dm_enabled" and `is_global` are
+        `default_member_permissions`, `dm_enabled` and `is_global` are
         ignored for commands within slash command groups.
 
     !!! note
