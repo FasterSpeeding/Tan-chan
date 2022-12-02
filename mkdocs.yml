@@ -64,4 +64,4 @@ plugins:
 watch:
   - CHANGELOG.md
   - README.md
-  - tanchi
+  - tanchan

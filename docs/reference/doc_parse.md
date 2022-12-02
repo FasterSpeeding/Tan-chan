@@ -1,3 +1,3 @@
-# tanchi.doc_parse
+# tanchan.doc_parse
 
-::: tanchi.doc_parse
+::: tanchan.doc_parse

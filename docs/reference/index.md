@@ -1,3 +1,3 @@
-# tanchi
+# tanchan
 
-::: tanchi
+::: tanchan
