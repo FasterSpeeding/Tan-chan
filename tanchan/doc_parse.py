@@ -28,7 +28,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Utility functions used to use docstring parsing with Tanjun's annotation parsing."""
+"""[tanjun.annotations][] extention which uses docstring parsing."""
 from __future__ import annotations as _
 
 __all__: list[str] = ["as_slash_command", "with_annotated_args"]
