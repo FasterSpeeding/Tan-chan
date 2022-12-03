@@ -377,10 +377,10 @@ def with_annotated_args(
     command : tanjun.SlashCommand | tanjun.MessageCommand
         The message or slash command to set the arguments for.
     doc_style
-        The docstyle to parse slash command descriptions from.
+        The docstyle to parse slash command option descriptions from.
 
-        This may be either `"google"` or `"numpy"`. If left as [None][] then
-        this will try to auto-detect the style.
+        This may be either `"google"`, `"numpy"`, or`reST`.
+        If left as [None][] then this will try to auto-detect the style.
     follow_wrapped
         Whether this should also set the arguments on any other command objects
         this wraps in a decorator call chain.
