@@ -194,6 +194,13 @@ def _line_empty(line: str, /) -> bool:
     return not line.strip()
 
 
+def _terminate_line(descriptions: dict[str, str], current_line: list[str], /) -> None:
+    if current_line:
+        name = current_line.pop(0)
+        descriptions[name] = " ".join(current_line)
+        current_line.clear()
+
+
 class _Descriptions:
     __slots__ = ("descriptions", "regex")
 
@@ -209,19 +216,13 @@ class _Descriptions:
                 current_line.append(line.strip())
                 continue
 
-            self._terminate_line(current_line)
+            _terminate_line(self.descriptions, current_line)
             groups = result.groups()
             current_line.append(groups[0])
             if len(groups) > 1 and (description := groups[1].strip()):
                 current_line.append(description)
 
-        self._terminate_line(current_line)
-
-    def _terminate_line(self, current_line: list[str], /) -> None:
-        if current_line:
-            name = current_line.pop(0)
-            self.descriptions[name] = " ".join(current_line)
-            current_line.clear()
+        _terminate_line(self.descriptions, current_line)
 
 
 # TODO: would dedenting the lines and having ^ at the start here be preferable?
@@ -285,15 +286,43 @@ def _parse_numpy(doc_string: str, /) -> dict[str, str]:
     return descriptions.descriptions
 
 
-_DocStyleUnion = typing.Literal["google", "numpy"]
+_REST_PATTERN = re.compile(r"^:(\w+) (\w+):(.*)$")
+
+
+def _parse_rest(doc_string: str, /) -> dict[str, str]:
+    current_line: list[str] = []
+    descriptions: dict[str, str] = {}
+
+    for line in doc_string.splitlines():
+        match = _REST_PATTERN.match(line)
+        if not match:  # TODO: does this want to be indentation aware?
+            current_line.append(line.strip())
+            continue
+
+        category, name, description = match.groups()
+        _terminate_line(descriptions, current_line)
+        if category != "param":
+            continue
+
+        current_line.append(name)
+        if description := description.strip():
+            current_line.append(description)
+
+    _terminate_line(descriptions, current_line)
+    return descriptions
+
+
+_DocStyleUnion = typing.Literal["google", "numpy", "reST"]
 _PARSERS: dict[_DocStyleUnion, collections.Callable[[str], dict[str, str]]] = {
     "google": _parse_google,
     "numpy": _parse_numpy,
+    "reST": _parse_rest,
 }
 
 _MATCH_STYLE: list[tuple[re.Pattern[str], _DocStyleUnion]] = [
     (re.compile(r"\n[\t ]*args:\n", re.IGNORECASE), "google"),
     (re.compile(r"\n[\t ]*parameters\n[\t ]*-+", re.IGNORECASE), "numpy"),
+    (re.compile(r"\n:param \w+:"), "reST"),
 ]
 
 

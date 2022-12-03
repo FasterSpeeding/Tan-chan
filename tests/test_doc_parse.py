@@ -696,3 +696,63 @@ def test_numpy_for_multi_line_descriptions():
     assert options[0].description == "go home boss nyaa extra"
     assert options[1].name == "bar"
     assert options[1].description == "meowers in the streets, nyanners in the sheets"
+
+
+def test_sphinx():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def sphinx_command(
+        ctx: tanjun.abc.Context, user: annotations.User, channel: typing.Optional[annotations.Channel] = None
+    ) -> None:
+        """I love cats.
+
+        :param user: The user of my dreams.
+        :type user: hikari.User
+        :param not_found: Not found parameter.
+        :type not_found: NoReturn
+        :param channel: The channel of my dreams.
+        :type channel: hikari.PartialChannel
+        """
+
+    builder = sphinx_command.build()
+
+    assert builder.name == sphinx_command.name == "sphinx_command"
+    assert builder.description == sphinx_command.description == "I love cats."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "user"
+    assert options[0].description == "The user of my dreams."
+    assert options[1].name == "channel"
+    assert options[1].description == "The channel of my dreams."
+
+
+def test_sphinx_for_multi_line_descriptions():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def sphinx_command(
+        ctx: tanjun.abc.Context, member: annotations.Member, state: typing.Optional[annotations.Bool] = None
+    ) -> None:
+        """I love cats.
+
+        :param member: The member of my dreams.
+            If you sleep if you sleep.
+        :type member: hikari.Member
+        :param state: The state of my dreams.
+            If i bool, if i bool.
+        :type state: bool
+        :param not_found: Not found parameter.
+        :type not_found: NoReturn
+        """
+
+    builder = sphinx_command.build()
+
+    assert builder.name == sphinx_command.name == "sphinx_command"
+    assert builder.description == sphinx_command.description == "I love cats."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "member"
+    assert options[0].description == "The user of my dreams."
+    assert options[1].name == "channel"
+    assert options[1].description == "The channel of my dreams. If i bool, if i bool."
