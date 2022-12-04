@@ -736,7 +736,7 @@ def test_sphinx_for_multi_line_descriptions():
         """I love cats.
 
         :param member: The member of my dreams.
-            If you sleep if you sleep.
+            If you sleep, if you sleep.
         :type member: hikari.Member
         :param state: The state of my dreams.
             If I bool, if I bool.
@@ -753,6 +753,6 @@ def test_sphinx_for_multi_line_descriptions():
     options = builder.options
     assert len(options) == 2
     assert options[0].name == "member"
-    assert options[0].description == "The user of my dreams. If you sleep if you sleep."
-    assert options[1].name == "channel"
-    assert options[1].description == "The channel of my dreams. If I bool, if I bool."
+    assert options[0].description == "The member of my dreams. If you sleep, if you sleep."
+    assert options[1].name == "state"
+    assert options[1].description == "The state of my dreams. If I bool, if I bool."
