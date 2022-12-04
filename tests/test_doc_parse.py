@@ -739,7 +739,7 @@ def test_sphinx_for_multi_line_descriptions():
             If you sleep if you sleep.
         :type member: hikari.Member
         :param state: The state of my dreams.
-            If i bool, if i bool.
+            If I bool, if I bool.
         :type state: bool
         :param not_found: Not found parameter.
         :type not_found: NoReturn
@@ -753,6 +753,6 @@ def test_sphinx_for_multi_line_descriptions():
     options = builder.options
     assert len(options) == 2
     assert options[0].name == "member"
-    assert options[0].description == "The user of my dreams."
+    assert options[0].description == "The user of my dreams. If you sleep if you sleep."
     assert options[1].name == "channel"
-    assert options[1].description == "The channel of my dreams. If i bool, if i bool."
+    assert options[1].description == "The channel of my dreams. If I bool, if I bool."
