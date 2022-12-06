@@ -13,6 +13,7 @@ on:
       - "!dev-requirements/constraints.in"
 
 permissions:
+  contents: write
   pull-requests: write
 
 jobs:
