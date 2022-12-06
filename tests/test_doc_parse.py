@@ -122,6 +122,19 @@ def test_google_when_doc_style_explicitly_passed():
     assert options[1].description == "go home"
 
 
+def test_google_when_no_args():
+    @tanchan.doc_parse.with_annotated_args(doc_style="google")
+    @tanchan.doc_parse.as_slash_command()
+    async def eat_command(ctx: tanjun.abc.Context) -> None:
+        """Meow meow meow.
+
+        Returns:
+            meow: i'm ok man
+        """
+
+    assert len(eat_command.build().options) == 0
+
+
 def test_google_with_type_hint():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
@@ -418,6 +431,21 @@ def test_numpy_when_doc_style_explicitly_passed():
     assert options[1].description == "meowers"
 
 
+def test_numpy_when_no_parameters():
+    @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
+    @tanchan.doc_parse.as_slash_command()
+    async def cc(ctx: tanjun.abc.Context) -> None:
+        """I am very gay.
+
+        Returns
+        ----------
+        int
+            Voodoo baby.
+        """
+
+    assert len(cc.build().options) == 0
+
+
 def test_numpy_ended_by_nameless_terminator_after():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
@@ -698,20 +726,20 @@ def test_numpy_for_multi_line_descriptions():
     assert options[1].description == "meowers in the streets, nyanners in the sheets"
 
 
-def test_sphinx():
+def test_rest():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
-        ctx: tanjun.abc.Context, user: annotations.User, channel: typing.Optional[annotations.Channel] = None
+        ctx: tanjun.abc.Context, cat: annotations.User, pan: typing.Optional[annotations.Channel] = None
     ) -> None:
         """I love cats.
 
-        :param user: The user of my dreams.
-        :type user: hikari.User
+        :param cat: The user of my dreams.
+        :type cat: hikari.User
         :param not_found: Not found parameter.
         :type not_found: NoReturn
-        :param channel: The channel of my dreams.
-        :type channel: hikari.PartialChannel
+        :param pan: The channel of my dreams.
+        :type pan: hikari.PartialChannel
         """
 
     builder = sphinx_command.build()
@@ -721,13 +749,68 @@ def test_sphinx():
 
     options = builder.options
     assert len(options) == 2
-    assert options[0].name == "user"
+    assert options[0].name == "cat"
     assert options[0].description == "The user of my dreams."
-    assert options[1].name == "channel"
+    assert options[1].name == "pan"
     assert options[1].description == "The channel of my dreams."
 
 
-def test_sphinx_for_multi_line_descriptions():
+def test_rest_when_doc_style_explicitly_passed():
+    @tanchan.doc_parse.with_annotated_args(doc_style="reST")
+    @tanchan.doc_parse.as_slash_command()
+    async def a_command(
+        ctx: tanjun.abc.Context, user: annotations.User, channel: typing.Optional[annotations.Channel] = None
+    ) -> None:
+        """I love meowers.
+
+        :param user: The meow.
+        :type user: hikari.Member
+        :param not_found: Not found.
+        :type not_found: NoReturn
+        :param channel: The cat.
+        :type channel: hikari.GuildChannel
+        """
+
+    builder = a_command.build()
+
+    assert builder.name == a_command.name == "a_command"
+    assert builder.description == a_command.description == "I love meowers."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "user"
+    assert options[0].description == "The meow."
+    assert options[1].name == "channel"
+    assert options[1].description == "The cat."
+
+
+def test_rest_with_no_type_hints():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def b_command(
+        ctx: tanjun.abc.Context, beep: annotations.User, op: typing.Optional[annotations.Channel] = None
+    ) -> None:
+        """I love nyans.
+
+        :param beep: Nyanners.
+        :param not_found: Not found.
+        :param op: The catty cat.
+        """
+
+    builder = b_command.build()
+
+    assert builder.name == b_command.name == "b_command"
+    assert builder.description == b_command.description == "I love nyans."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "beep"
+    assert options[0].description == "Nyanners."
+    assert options[1].name == "op"
+    assert options[1].description == "The catty cat."
+
+
+def test_rest_for_multi_line_descriptions():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
@@ -743,6 +826,41 @@ def test_sphinx_for_multi_line_descriptions():
         :type state: bool
         :param not_found: Not found parameter.
         :type not_found: NoReturn
+        """
+
+    builder = sphinx_command.build()
+
+    assert builder.name == sphinx_command.name == "sphinx_command"
+    assert builder.description == sphinx_command.description == "I love cats."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "member"
+    assert options[0].description == "The member of my dreams. If you sleep, if you sleep."
+    assert options[1].name == "state"
+    assert options[1].description == "The state of my dreams. If I bool, if I bool."
+
+
+# TODO: test_google_when_starts_on_next_line???
+
+
+def test_rest_trails_off():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def sphinx_command(
+        ctx: tanjun.abc.Context, member: annotations.Member, state: typing.Optional[annotations.Bool] = None
+    ) -> None:
+        """I love cats.
+
+        :param member: The member of my dreams.
+            If you sleep, if you sleep.
+        :type member: hikari.Member
+        :param state: The state of my dreams.
+            If I bool, if I bool.
+        :type state: bool
+        :param not_found: Not found parameter.
+        :type not_found: NoReturn
+
         """
 
     builder = sphinx_command.build()
