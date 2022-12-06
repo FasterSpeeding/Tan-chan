@@ -438,7 +438,7 @@ def test_numpy_when_no_parameters():
         """I am very gay.
 
         Returns
-        ----------
+        -------
         int
             Voodoo baby.
         """
