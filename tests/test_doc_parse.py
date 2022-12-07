@@ -63,6 +63,17 @@ def test_as_slash_command_when_has_no_doc_string():
         tanchan.doc_parse.as_slash_command()(command)
 
 
+def test_as_slash_command_when_name_override_passed():
+    @tanchan.doc_parse.as_slash_command(name="overridden_name")
+    async def command(ctx: tanjun.abc.Context) -> None:
+        """Meow me meow."""
+
+    builder = command.build()
+
+    assert builder.name == command.name == "overridden_name"
+    assert builder.description == command.description == "Meow me meow."
+
+
 def test_with_annotated_args_when_has_no_doc_string():
     @tanjun.as_slash_command("name", "description")
     async def command(ctx: tanjun.abc.Context) -> None:

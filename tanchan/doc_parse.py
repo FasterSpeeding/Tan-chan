@@ -135,7 +135,8 @@ def as_slash_command(
     name
         The command's name.
 
-        If left as [None][] then the command callback's name is used.
+        This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming)
+        and if left as [None][] then the command callback's name is used.
     sort_options
         Whether this command should sort its set options based on whether
         they're required.
