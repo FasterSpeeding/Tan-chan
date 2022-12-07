@@ -40,16 +40,34 @@ import tanchan
 def test_when_cant_detect_doc_style():
     @tanchan.doc_parse.as_slash_command()
     async def command(ctx: tanjun.abc.Context) -> None:
-        """Description."""
+        """Description.
+
+        Not empty.
+        """
 
     with pytest.raises(RuntimeError, match="Couldn't detect the docstring style"):
         tanchan.doc_parse.with_annotated_args(command)
 
 
+def test_when_only_description_in_docstring():
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def aaaaaa_command(ctx: tanjun.abc.Context) -> None:
+        """Meow description."""
+
+    assert aaaaaa_command.name == aaaaaa_command.name == "aaaaaa_command"
+    assert aaaaaa_command.description == aaaaaa_command.description == "Meow description."
+
+    assert len(aaaaaa_command.build().options) == 0
+
+
 def test_when_invalid_doc_style_passed():
     @tanchan.doc_parse.as_slash_command()
     async def command(ctx: tanjun.abc.Context) -> None:
-        """Description."""
+        """Description.
+
+        Not empty.
+        """
 
     with pytest.raises(ValueError, match="Unsupported docstring style 'catgirl-ml'"):
         tanchan.doc_parse.with_annotated_args(doc_style="catgirl-ml")(command)  # type: ignore
