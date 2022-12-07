@@ -488,7 +488,7 @@
 
 
 <a href="#tanchan.doc_parse.as_slash_command" class="headerlink" title="Permanent link">#</a></h2>
-<div class="highlight"><pre><span></span><code><span class="n">as_slash_command</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">always_defer</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default_member_permissions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dm_enabled</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_global</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort_options</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">validate_arg_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">as_slash_command</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">always_defer</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default_member_permissions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">default_to_ephemeral</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dm_enabled</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_global</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sort_options</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">validate_arg_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -614,6 +614,24 @@ will be used.</p>
                 <span class="doc-param-default">
                   <b>DEFAULT:</b> 
                     <code>True</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>name</code></td>
+          <td class="doc-param-details">
+            <p>The command's name.</p>
+<p>This must fit <a href="https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming">discord's requirements</a>
+and if left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> then the command callback's name is used.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/stdtypes.html#str">str</a>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
                 </span>
             </p>
           </td>
