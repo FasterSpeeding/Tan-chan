@@ -363,7 +363,7 @@ def with_annotated_args(command: _CommandUnionT, /) -> _CommandUnionT:
 
 @typing.overload
 def with_annotated_args(
-    *, doc_style: _DocStyleUnion = "numpy", follow_wrapped: bool = False
+    *, doc_style: typing.Optional[_DocStyleUnion] = None, follow_wrapped: bool = False
 ) -> collections.Callable[[_CommandUnionT], _CommandUnionT]:
     ...
 

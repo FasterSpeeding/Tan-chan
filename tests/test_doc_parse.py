@@ -49,8 +49,9 @@ def test_when_cant_detect_doc_style():
         tanchan.doc_parse.with_annotated_args(command)
 
 
-def test_when_only_description_in_docstring():
-    @tanchan.doc_parse.with_annotated_args
+@pytest.mark.parametrize("doc_style", [None, "google", "numpy", "reST"])
+def test_when_only_description_in_docstring(doc_style: typing.Optional[typing.Literal["google", "numpy", "reST"]]):
+    @tanchan.doc_parse.with_annotated_args(doc_style=doc_style)
     @tanchan.doc_parse.as_slash_command()
     async def aaaaaa_command(ctx: tanjun.abc.Context) -> None:
         """Meow description."""
@@ -92,13 +93,16 @@ def test_as_slash_command_when_name_override_passed():
     assert builder.description == command.description == "Meow me meow."
 
 
-def test_with_annotated_args_when_has_no_doc_string():
+@pytest.mark.parametrize("doc_style", [None, "google", "numpy", "reST"])
+def test_with_annotated_args_when_has_no_doc_string(
+    doc_style: typing.Optional[typing.Literal["google", "numpy", "reST"]]
+):
     @tanjun.as_slash_command("name", "description")
     async def command(ctx: tanjun.abc.Context) -> None:
         ...
 
     with pytest.raises(ValueError, match="Callback has no doc string"):
-        tanchan.doc_parse.with_annotated_args()(command)
+        tanchan.doc_parse.with_annotated_args(doc_style=doc_style)(command)
 
 
 def test_google():
