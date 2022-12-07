@@ -76,6 +76,7 @@ def as_slash_command(
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
+    name: typing.Optional[str] = None,
     sort_options: bool = True,
     validate_arg_keys: bool = True,
 ) -> _ResultProto:
@@ -131,6 +132,11 @@ def as_slash_command(
         will be used.
     is_global
         Whether this command is a global command.
+    name
+        The command's name.
+
+        This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming)
+        and if left as [None][] then the command callback's name is used.
     sort_options
         Whether this command should sort its set options based on whether
         they're required.
@@ -175,7 +181,7 @@ def as_slash_command(
 
         return tanjun.SlashCommand(
             callback,
-            callback.__name__,
+            name or callback.__name__,
             doc_string.split("\n", 1)[0].strip(),
             always_defer=always_defer,
             default_member_permissions=default_member_permissions,
