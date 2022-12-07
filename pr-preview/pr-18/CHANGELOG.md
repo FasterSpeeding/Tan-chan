@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Support for Sphinx style reST docs to doc parse.
+- Optional `name` argument to [tanchan.docs_parse.as_slash_command][] which
+  allows overriding the command's name.
 
 ## [0.1.0] - 2022-12-02
 ### Added
