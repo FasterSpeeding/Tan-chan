@@ -841,7 +841,37 @@ def test_rest_for_multi_line_descriptions():
     assert options[1].description == "The state of my dreams. If I bool, if I bool."
 
 
-# TODO: test_google_when_starts_on_next_line???
+def test_rest_when_starts_on_next_line():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def sphinx_command(
+        ctx: tanjun.abc.Context, me: annotations.Channel, aaa: typing.Optional[annotations.Int] = None
+    ) -> None:
+        """I love cats.
+
+        :param not_found: Not found parameter.
+        :type not_found: NoReturn
+        :param me:
+            Meow, I'm a kitty cat and I dance
+            dance and dance and I dance dance dance.
+        :type member: hikari.PartialChannel
+        :param aaa:
+            Cats I'm a kitty girl and I Nyaa Nyaa
+            Nyaa and i Nyaa Nyaa Nyaa.
+        :type aaa: int
+        """
+
+    builder = sphinx_command.build()
+
+    assert builder.name == sphinx_command.name == "sphinx_command"
+    assert builder.description == sphinx_command.description == "I love cats."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "me"
+    assert options[0].description == "Meow, I'm a kitty cat and I dance dance and dance and I dance dance dance."
+    assert options[1].name == "aaa"
+    assert options[1].description == "Cats I'm a kitty girl and I Nyaa Nyaa Nyaa and i Nyaa Nyaa Nyaa."
 
 
 def test_rest_trails_off():
