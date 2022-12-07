@@ -6,25 +6,22 @@
 
 ```py
 import tanjun
-from tanchan import docparse
-
+from tanchan import doc_parse
 
 # This command will show up as "meow" in the command menu
-@docprase.as_slash_command()
+@doc_parse.as_slash_command()
 async def meow(ctx: tanjun.abc.SlashContext) -> None:
     """Meow command's description."""
-    raise NotImplementedError
-
+    ...
 
 get_group = tanjun.slash_command_group("get", "Get command group")
 
-
 # This command will show up as "get user" in the command menu
 @get_group.with_command
-@docparse.as_slash_command()
+@doc_parse.as_slash_command()
 async def user(ctx: tanjun.abc.SlashContext) -> None:
     """Get a user."""
-    raise NotImplementedError
+    ...
 ```
 
 [tanchan.doc_parse.as_slash_command][] acts as an extension to [tanjun.as_slash_command][]
@@ -33,62 +30,59 @@ as the command's description.
 
 
 ```py
+import typing
+
 import tanjun
-from tanchan import docparse
+from tanchan import doc_parse
 from tanjun import annotations
 
-
-# Google'S doc style.
-@docprase.with_annotated_args
-@docparse.as_slash_command()
+# Google's doc style.
+@doc_parse.with_annotated_args
+@doc_parse.as_slash_command()
 async def ban(
     ctx: tanjun.abc.SlashContext,
     user: annotations.User,
-    reason: annotations.Length[460] | None = None
+    reason: typing.Optional[annotations.Length[460]] = None,
 ) -> None:
-    """Kick a member from this guild.
+    """Ban a user from this guild.
 
     Args:
-        user
-            The user to ban from this guild.
-        reason
-            The reason for the ban.
+        user: The user to ban from this guild.
+        reason: The reason for the ban.
             If not provided then a generic reason will be used.
     """
 
-
 # NumPy's doc style.
-@docprase.with_annotated_args
-@docparse.as_slash_command()
+@doc_parse.with_annotated_args
+@doc_parse.as_slash_command()
 async def kick(
     ctx: tanjun.abc.SlashContext,
-    user: annotations.Member,
-    reason: annotations.Length[460] | None = None
+    member: annotations.Member,
+    reason: typing.Optional[annotations.Length[460]] = None,
 ) -> None:
     """Kick a member from this guild.
 
     Parameters
     ----------
-    user
-        The guild member to kick
+    member
+        The guild member to kick.
     reason
         The reason for the kick.
         If not provided then a generic reason will be used.
     """
 
-
 # Sphinx's "reST" doc style.
-@docprase.with_annotated_args
-@docparse.as_slash_command()
+@doc_parse.with_annotated_args
+@doc_parse.as_slash_command()
 async def echo(
     ctx: tanjun.abc.SlashContext,
     content: annotations.Str,
-    channel: annotations.Channel | None = None
+    channel: typing.Optional[annotations.Channel] = None,
 ) -> None:
     """Make the bot echo a message.
 
     :param content: The message to echo.
-    :param private: The channel to echo to.
+    :param channel: The channel to echo to.
         If not provided then the current channel will be targeted.
     """
 ```
