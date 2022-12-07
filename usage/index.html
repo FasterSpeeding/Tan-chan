@@ -17,10 +17,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.472b142f.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.975780f9.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.08040f6c.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.2505c338.min.css">
         
       
       
@@ -291,9 +291,40 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Usage
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         Usage
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#doc-parse" class="md-nav__link">
+    Doc parse
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -367,6 +398,21 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#doc-parse" class="md-nav__link">
+    Doc parse
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -381,7 +427,88 @@
 
 
 <h1 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">#</a></h1>
-<p>Coming soon.</p>
+<h2 id="doc-parse">Doc parse<a class="headerlink" href="#doc-parse" title="Permanent link">#</a></h2>
+<p><a class="autorefs autorefs-internal" href="../reference/doc_parse/#tanchan.doc_parse">tanchan.doc_parse</a> exposes two methods which help with declaring slash commands:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tanjun</span>
+<span class="kn">from</span> <span class="nn">tanchan</span> <span class="kn">import</span> <span class="n">doc_parse</span>
+
+<span class="c1"># This command will show up as &quot;meow&quot; in the command menu</span>
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">meow</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Meow command&#39;s description.&quot;&quot;&quot;</span>
+    <span class="o">...</span>
+
+<span class="n">get_group</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">slash_command_group</span><span class="p">(</span><span class="s2">&quot;get&quot;</span><span class="p">,</span> <span class="s2">&quot;Get command group&quot;</span><span class="p">)</span>
+
+<span class="c1"># This command will show up as &quot;get user&quot; in the command menu</span>
+<span class="nd">@get_group</span><span class="o">.</span><span class="n">with_command</span>
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">user</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Get a user.&quot;&quot;&quot;</span>
+    <span class="o">...</span>
+</code></pre></div>
+<p><a class="autorefs autorefs-internal" href="../reference/doc_parse/#tanchan.doc_parse.as_slash_command">tanchan.doc_parse.as_slash_command</a> acts as an extension to <a class="autorefs autorefs-external" href="https://tanjun.cursed.solutions/reference/#tanjun.as_slash_command">tanjun.as_slash_command</a>
+which uses the function's name as the command's name and the first line of its docstring
+as the command's description.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="kn">import</span> <span class="nn">tanjun</span>
+<span class="kn">from</span> <span class="nn">tanchan</span> <span class="kn">import</span> <span class="n">doc_parse</span>
+<span class="kn">from</span> <span class="nn">tanjun</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="c1"># Google&#39;s doc style.</span>
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">with_annotated_args</span>
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">ban</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
+    <span class="n">user</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">User</span><span class="p">,</span>
+    <span class="n">reason</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">Length</span><span class="p">[</span><span class="mi">460</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Ban a user from this guild.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user: The user to ban from this guild.</span>
+<span class="sd">        reason: The reason for the ban.</span>
+<span class="sd">            If not provided then a generic reason will be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="c1"># NumPy&#39;s doc style.</span>
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">with_annotated_args</span>
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">kick</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
+    <span class="n">member</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">Member</span><span class="p">,</span>
+    <span class="n">reason</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">Length</span><span class="p">[</span><span class="mi">460</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Kick a member from this guild.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    member</span>
+<span class="sd">        The guild member to kick.</span>
+<span class="sd">    reason</span>
+<span class="sd">        The reason for the kick.</span>
+<span class="sd">        If not provided then a generic reason will be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="c1"># Sphinx&#39;s &quot;reST&quot; doc style.</span>
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">with_annotated_args</span>
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">echo</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span>
+    <span class="n">content</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">Str</span><span class="p">,</span>
+    <span class="n">channel</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="n">annotations</span><span class="o">.</span><span class="n">Channel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Make the bot echo a message.</span>
+
+<span class="sd">    :param content: The message to echo.</span>
+<span class="sd">    :param channel: The channel to echo to.</span>
+<span class="sd">        If not provided then the current channel will be targeted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</code></pre></div>
+<p><a class="autorefs autorefs-internal" href="../reference/doc_parse/#tanchan.doc_parse.with_annotated_args">tanchan.doc_parse.with_annotated_args</a> uses the functionality exposed in <a class="autorefs autorefs-external" href="https://tanjun.cursed.solutions/reference/annotations/#tanjun.annotations">tanjun.annotations</a>
+but with the added feature that slash command option descriptions are parsed from the docstring.
+This supports Google's doc style, NumPy's doc style, and Sphinx's "reST" doc style.</p>
 
 
 
@@ -458,8 +585,9 @@
     <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.d6c3db9e.min.js"></script>
+      <script src="../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
       
+    
     
   </body>
 </html>
