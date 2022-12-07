@@ -12,7 +12,8 @@ python -m pip install -U tanchan
 
 # Quick Usage
 
-For usage see the [documentation](https://tanchan.cursed.solutions/).
+For usage see the [documentation](https://tanchan.cursed.solutions/) and the
+[usage guide](https://tanchan.cursed.solutions/usage/).
 
 # Support
 
