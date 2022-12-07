@@ -235,9 +235,8 @@ class _Descriptions:
 _GOOGLE_PATTERN = re.compile(r"(\w+).*:(.*)$")
 
 
-def _parse_google(doc_string: str, /) -> dict[str, str]:
+def _parse_google(lines: list[str], /) -> dict[str, str]:
     descriptions = _Descriptions(_GOOGLE_PATTERN)
-    lines = doc_string.splitlines()
     start_index: typing.Optional[int] = None
 
     for index, line in enumerate(lines):
@@ -262,9 +261,8 @@ def _dedent_lines(lines: list[str], /) -> collections.Iterable[str]:
     return (line.removeprefix(indent) for line in lines)
 
 
-def _parse_numpy(doc_string: str, /) -> dict[str, str]:
+def _parse_numpy(lines: list[str], /) -> dict[str, str]:
     descriptions = _Descriptions(_NUMPY_PATTERN)
-    lines = doc_string.splitlines()
     start_index: typing.Optional[int] = None
 
     for index, line in enumerate(lines):
@@ -295,11 +293,11 @@ def _parse_numpy(doc_string: str, /) -> dict[str, str]:
 _REST_PATTERN = re.compile(r"^:(\w+) (\w+):(.*)$")
 
 
-def _parse_rest(doc_string: str, /) -> dict[str, str]:
+def _parse_rest(lines: list[str], /) -> dict[str, str]:
     current_line: list[str] = []
     descriptions: dict[str, str] = {}
 
-    for line in doc_string.splitlines():
+    for line in lines:
         match = _REST_PATTERN.match(line)
         if not match:  # TODO: does this want to be indentation aware?
             current_line.append(line.strip())
@@ -319,7 +317,7 @@ def _parse_rest(doc_string: str, /) -> dict[str, str]:
 
 
 _DocStyleUnion = typing.Literal["google", "numpy", "reST"]
-_PARSERS: dict[_DocStyleUnion, collections.Callable[[str], dict[str, str]]] = {
+_PARSERS: dict[_DocStyleUnion, collections.Callable[[list[str]], dict[str, str]]] = {
     "google": _parse_google,
     "numpy": _parse_numpy,
     "reST": _parse_rest,
@@ -339,6 +337,10 @@ def _parse_descriptions(
     if not doc_string:
         raise ValueError("Callback has no doc string")
 
+    lines = doc_string.splitlines()[1:]
+    if not lines:
+        return {}
+
     if doc_style is None:
         for pattern, style in _MATCH_STYLE:
             if pattern.search(doc_string):
@@ -349,7 +351,7 @@ def _parse_descriptions(
             raise RuntimeError("Couldn't detect the docstring style")
 
     if parser := _PARSERS.get(doc_style):
-        return parser(doc_string)
+        return parser(lines)
 
     raise ValueError(f"Unsupported docstring style {doc_style!r}")
 
@@ -361,7 +363,7 @@ def with_annotated_args(command: _CommandUnionT, /) -> _CommandUnionT:
 
 @typing.overload
 def with_annotated_args(
-    *, doc_style: _DocStyleUnion = "numpy", follow_wrapped: bool = False
+    *, doc_style: typing.Optional[_DocStyleUnion] = None, follow_wrapped: bool = False
 ) -> collections.Callable[[_CommandUnionT], _CommandUnionT]:
     ...
 

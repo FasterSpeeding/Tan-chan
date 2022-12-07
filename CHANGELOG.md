@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optional `name` argument to [tanchan.docs_parse.as_slash_command][] which
   allows overriding the command's name.
 
+### Fixed
+- [tanchan.doc_parse.as_slash_command][] no-longer errors when the callback's
+  docstring is just the description and `doc_style` is [None][].
+- [tanjun.doc_parse.with_annotated_args][] now allows [None][] to be explicitly
+  passed to `doc_style` typing wise.
+
 ## [0.1.0] - 2022-12-02
 ### Added
 - An extension to [tanjun.annotations][] which allows for parsing slash command
