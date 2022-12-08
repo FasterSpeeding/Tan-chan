@@ -937,3 +937,36 @@ def test_rest_trails_off():
     assert options[0].description == "The member of my dreams. If you sleep, if you sleep."
     assert options[1].name == "state"
     assert options[1].description == "The state of my dreams. If I bool, if I bool."
+
+
+def test_rest_trails_off_with_multi_line_description():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def sphinx_command(
+        ctx: tanjun.abc.Context, member: annotations.Member, state: typing.Optional[annotations.Bool] = None
+    ) -> None:
+        """I love cats.
+
+        :param member: The member of my dreams.
+            If you sleep, if you sleep.
+        :type member: hikari.Member
+        :param state: The state of my dreams.
+            If I bool, if I bool.
+        :type state: bool
+        :param not_found: Not found parameter.
+        :type not_found: NoReturn
+            Meow meow.
+
+        """
+
+    builder = sphinx_command.build()
+
+    assert builder.name == sphinx_command.name == "sphinx_command"
+    assert builder.description == sphinx_command.description == "I love cats."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "member"
+    assert options[0].description == "The member of my dreams. If you sleep, if you sleep."
+    assert options[1].name == "state"
+    assert options[1].description == "The state of my dreams. If I bool, if I bool."
