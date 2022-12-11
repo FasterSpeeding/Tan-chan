@@ -96,7 +96,7 @@ ignore = [
     "E231",    # missing whitespace after ','
 ]
 per-file-ignores = [
-    "noxfile.py: D100, D101, D103, INP001",
+    "noxfile.py: D100, FA101, F401, F403, INP001",
     "tanchan/py.typed: D100",
     "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101",
     "tests/test_doc_parse.py: D100, D101, D103, D104, D400, D403, D406, D407, D410, D411, FA100, FA101",
@@ -156,8 +156,9 @@ default_sessions = [
     "verify-types",
 ]
 extra_test_installs = ["."]
+mypy_targets = ["./tanchan"]
 project_name = "tanchan"
-top_level_targets = ["./tanchan", "./tests"]
+top_level_targets = ["./noxfile.py", "./tanchan", "./tests"]
 
 [tool.piped.github_actions.freeze_for_pr]
 [tool.piped.github_actions.lint]
