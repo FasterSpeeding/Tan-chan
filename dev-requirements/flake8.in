@@ -41,4 +41,4 @@ flake8-variables-names==0.0.5
 pep8-naming==0.13.2
 tryceratops==1.1
 
-# see https://github.com/DmytroLitvinov/awesome-flake8-extensions
+# See https://github.com/DmytroLitvinov/awesome-flake8-extensions.
