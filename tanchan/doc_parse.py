@@ -387,7 +387,7 @@ def with_annotated_args(
     doc_style
         The docstyle to parse slash command option descriptions from.
 
-        This may be either `"google"`, `"numpy"`, or`reST`.
+        This may be either `"google"`, `"numpy"`, or `"reST"`.
         If left as [None][] then this will try to auto-detect the style.
     follow_wrapped
         Whether this should also set the arguments on any other command objects
