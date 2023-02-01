@@ -26,7 +26,7 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
-dependencies = ["hikari-tanjun>=2.10.1a1, <3"]
+dependencies = ["hikari-tanjun>=2.11.3, <3"]
 dynamic = ["description"]
 
 [project.urls]
@@ -145,7 +145,7 @@ top_level_targets = ["./noxfile.py", "./tanchan", "./tests"]
 [tool.piped.github_actions.publish]
 [tool.piped.github_actions.py_test]
 codeclimate_token = "4bf1f4002804f947bebae669d631cad28e39b6516f6c3d4ead820c07949e57d1"
-python_versions = ["3.9", "3.10.5", "3.11"]
+python_versions = ["3.9", "3.10", "3.11"]
 
 [tool.piped.github_actions.reformat]
 [tool.piped.github_actions.release_docs]
