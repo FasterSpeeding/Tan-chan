@@ -44,29 +44,28 @@ if typing.TYPE_CHECKING:
 
     import hikari
 
-    _CommandT = typing.Union[
-        tanjun.abc.MenuCommand["_CommandCallbackSigT", typing.Any],
-        tanjun.abc.MessageCommand["_CommandCallbackSigT"],
-        tanjun.abc.SlashCommand["_CommandCallbackSigT"],
+    _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
+    _AnyCommandT = typing.Union[
+        tanjun.MenuCommand[_AnyCallbackSigT, typing.Any],
+        tanjun.MessageCommand[_AnyCallbackSigT],
+        tanjun.SlashCommand[_AnyCallbackSigT],
     ]
-    _CallbackishT = typing.Union["_CommandCallbackSigT", _CommandT["_CommandCallbackSigT"]]
-
-    _CommandCallbackSigT = typing.TypeVar("_CommandCallbackSigT", bound=tanjun.abc.CommandCallbackSig)
+    _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]
     _CommandUnionT = typing.TypeVar(
         "_CommandUnionT", bound=typing.Union[tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any]]
     )
+    _SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=tanjun.abc.SlashCallbackSig)
 
-    class _ResultProto(typing.Protocol):
+    # While these overloads may seem redundant/unnecessary, MyPy cannot understand
+    # this when expressed through `callback: _CallbackIshT[_SlashCallbackSigT]`.
+    class _AsSlashResultProto(typing.Protocol):
         @typing.overload
-        def __call__(self, _: _CommandT[_CommandCallbackSigT], /) -> tanjun.SlashCommand[_CommandCallbackSigT]:
+        def __call__(self, _: _SlashCallbackSigT, /) -> tanjun.SlashCommand[_SlashCallbackSigT]:
             ...
 
         @typing.overload
-        def __call__(self, _: _CommandCallbackSigT, /) -> tanjun.SlashCommand[_CommandCallbackSigT]:
+        def __call__(self, _: _AnyCommandT[_SlashCallbackSigT], /) -> tanjun.SlashCommand[_SlashCallbackSigT]:
             ...
-
-        def __call__(self, _: _CallbackishT[_CommandCallbackSigT], /) -> tanjun.SlashCommand[_CommandCallbackSigT]:
-            raise NotImplementedError
 
 
 def as_slash_command(
@@ -79,7 +78,7 @@ def as_slash_command(
     name: typing.Optional[str] = None,
     sort_options: bool = True,
     validate_arg_keys: bool = True,
-) -> _ResultProto:
+) -> _AsSlashResultProto:
     r"""Build a [tanjun.SlashCommand][] by decorating a function.
 
     This uses the function's name as the command's name and the first line of
@@ -149,7 +148,7 @@ def as_slash_command(
 
     Returns
     -------
-    collections.abc.Callable[[tanjun.abc.CommandCallbackSig], SlashCommand]
+    collections.abc.Callable[[tanjun.abc.SlashCallbackSig], SlashCommand]
         The decorator callback used to make a [tanjun.SlashCommand][].
 
         This can either wrap a raw command callback or another callable command instance
@@ -167,7 +166,7 @@ def as_slash_command(
         * If the description is over 100 characters long.
     """  # noqa: D202, E501
 
-    def decorator(callback: _CallbackishT[_CommandCallbackSigT], /) -> tanjun.SlashCommand[_CommandCallbackSigT]:
+    def decorator(callback: _CallbackishT[_SlashCallbackSigT], /) -> tanjun.SlashCommand[_SlashCallbackSigT]:
         if isinstance(callback, (tanjun.abc.MenuCommand, tanjun.abc.MessageCommand, tanjun.abc.SlashCommand)):
             wrapped_command = callback
             callback = callback.callback
