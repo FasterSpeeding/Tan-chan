@@ -34,9 +34,7 @@ import pytest
 import tanjun
 
 import tanchan
-
-if typing.TYPE_CHECKING:
-    from tanjun import annotations
+from tanjun import annotations
 
 
 def test_when_cant_detect_doc_style():
