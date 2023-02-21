@@ -63,7 +63,7 @@ accept-encodings = "utf-8"
 count = true
 docstring-convention = "numpy"
 eradicate-aggressive = true
-# extend-select = ["TC100", "TC101"]
+extend-select = ["TC100", "TC101"]
 force-future-annotations = true
 ignore-decorators = "overload"
 max-complexity = 20
@@ -99,7 +99,8 @@ per-file-ignores = [
     "noxfile.py: D100, FA101, F401, F403, INP001",
     "tanchan/py.typed: D100",
     "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101",
-    "tests/test_doc_parse.py: D100, D101, D103, D104, D400, D403, D406, D407, D410, D411, FA100, FA101",
+    "tests/test_doc_parse.py: D100, D101, D103, D104, D400, D403, D406, D407, D410, D411, FA100, FA101, TC101, TC002",
+    "tests/test_usage_guilde.py: CCE002, D100, D101, D103, D104, FA100, FA101, TC002",
 ]
 
 [tool.isort]
