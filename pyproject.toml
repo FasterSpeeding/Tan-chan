@@ -164,7 +164,6 @@ include = ["tanchan", "noxfile.py", "tests"]
 pythonVersion = "3.9"
 typeCheckingMode = "strict"
 reportMissingModuleSource = "error"
-reportMissingTypeStubs = "error"
 
 # Error code which are disabled even when general strict.
 reportShadowedImports = "error"
