@@ -86,9 +86,9 @@ pytest-sugar==0.9.6 ; python_full_version >= "3.9.0" and python_version < "3.12"
 pytest-xdist==3.2.0 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:336098e3bbd8193276867cc87db8b22903c3927665dff9d1ac8684c02f597b68 \
     --hash=sha256:fa10f95a2564cd91652f2d132725183c3b590d9fdcdec09d3677386ecf4c1ce9
-pytest==7.2.1 ; python_full_version >= "3.9.0" and python_version < "3.12" \
-    --hash=sha256:c7c6ca206e93355074ae32f7403e8ea12163b1163c976fee7d4d84027c162be5 \
-    --hash=sha256:d45e0952f3727241918b8fd0f376f5ff6b301cc0777c6f9a556935c92d8a7d42
+pytest==7.2.2 ; python_full_version >= "3.9.0" and python_version < "3.12" \
+    --hash=sha256:130328f552dcfac0b1cec75c12e3f005619dc5f874f0a06e8ff7263f0ee6225e \
+    --hash=sha256:c99ab0c73aceb050f68929bc93af19ab6db0558791c6a0715723abe9d0ade9d4
 termcolor==2.2.0 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:91ddd848e7251200eac969846cbae2dacd7d71c2871e92733289e7e3666f48e7 \
     --hash=sha256:dfc8ac3f350788f23b2947b3e6cfa5a53b630b612e6cd8965a015a776020b99a
