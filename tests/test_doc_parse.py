@@ -1025,12 +1025,12 @@ class TestSlashCommandGroup:
     def test_as_sub_command_when_optional_parameters_passed(self):
         group = tanchan.doc_parse.SlashCommandGroup("name", "description")
 
-        @group.as_sub_command(name="xd_nuz", description="descripto", default_to_ephemeral=True)
+        @group.as_sub_command(name="xd_nuz", description="descriptor", default_to_ephemeral=True)
         async def super_nyaa(ctx: tanjun.abc.Context):
             """Command meow."""
 
         assert super_nyaa.name == "xd_nuz"
-        assert super_nyaa.description == "descripto"
+        assert super_nyaa.description == "descriptor"
         assert super_nyaa.defaults_to_ephemeral is True
 
     def test_as_sub_command_when_has_no_doc_string(self):
