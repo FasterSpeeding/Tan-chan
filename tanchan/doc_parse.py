@@ -31,7 +31,7 @@
 """[tanjun.annotations][] extension which uses docstring parsing."""
 from __future__ import annotations as _
 
-__all__: list[str] = ["as_slash_command", "with_annotated_args", "SlashCommandGroup", "slash_command_group"]
+__all__: list[str] = ["SlashCommandGroup", "as_slash_command", "slash_command_group", "with_annotated_args"]
 
 import inspect
 import re
