@@ -33,11 +33,11 @@
 # Leads to too many false positives
 
 import typing
-
-import pytest
 from unittest import mock
-import tanjun
+
 import hikari
+import pytest
+import tanjun
 from tanjun import annotations
 
 import tanchan
@@ -100,7 +100,10 @@ def test_as_slash_command_when_overrides_passed():
 
 
 def test_as_slash_command_when_dict_overrides_passed():
-    @tanchan.doc_parse.as_slash_command(name={hikari.Locale.BG: "background", "default": "hihi", hikari.Locale.EN_GB: "scott"}, description={hikari.Locale.DA: "drum man", "default": "Meow meow!", hikari.Locale.EL: "salvador"})
+    @tanchan.doc_parse.as_slash_command(
+        name={hikari.Locale.BG: "background", "default": "hihi", hikari.Locale.EN_GB: "scott"},
+        description={hikari.Locale.DA: "drum man", "default": "Meow meow!", hikari.Locale.EL: "salvador"},
+    )
     async def command(ctx: tanjun.abc.Context) -> None:
         """Meow me meow."""
 
@@ -1003,7 +1006,9 @@ class TestSlashCommandGroup:
         assert super_name_nyaa.description == "Command me meowy."
         assert super_name_nyaa.defaults_to_ephemeral is None
 
-    @pytest.mark.parametrize("wrapped_type", [tanjun.abc.MenuCommand, tanjun.abc.MessageCommand, tanjun.abc.SlashCommand])
+    @pytest.mark.parametrize(
+        "wrapped_type", [tanjun.abc.MenuCommand, tanjun.abc.MessageCommand, tanjun.abc.SlashCommand]
+    )
     def test_as_sub_command_when_wrapping_other_command(self, wrapped_type: type[typing.Any]):
         def meow_callback() -> None:
             """Meow indeed mr Bond."""
@@ -1028,7 +1033,6 @@ class TestSlashCommandGroup:
         assert super_nyaa.description == "descripto"
         assert super_nyaa.defaults_to_ephemeral is True
 
-
     def test_as_sub_command_when_has_no_doc_string(self):
         group = tanchan.doc_parse.SlashCommandGroup("name", "description")
 
@@ -1041,14 +1045,17 @@ class TestSlashCommandGroup:
     def test_as_sub_command_when_dict_overrides_passed(self):
         group = tanchan.doc_parse.SlashCommandGroup("name", "description")
 
-        @group.as_sub_command(name={hikari.Locale.EN_GB: "hhh", hikari.Locale.FR: "hon_hon"}, description={hikari.Locale.HR: "H", hikari.Locale.DE: "nein"})
+        @group.as_sub_command(
+            name={hikari.Locale.EN_GB: "hhh", hikari.Locale.FR: "hon_hon"},
+            description={hikari.Locale.HR: "H", hikari.Locale.DE: "nein"},
+        )
         async def super_(ctx: tanjun.abc.Context):
             """meow."""
 
         assert super_.name == "hhh"
-        assert super_.name_localisations =={hikari.Locale.EN_GB: "hhh", hikari.Locale.FR: "hon_hon"}
+        assert super_.name_localisations == {hikari.Locale.EN_GB: "hhh", hikari.Locale.FR: "hon_hon"}
         assert super_.description == "H"
-        assert super_.description_localisations =={hikari.Locale.HR: "H", hikari.Locale.DE: "nein"}
+        assert super_.description_localisations == {hikari.Locale.HR: "H", hikari.Locale.DE: "nein"}
 
     def test_make_sub_group(self):
         group = tanchan.doc_parse.slash_command_group("echo", "meow")
@@ -1084,7 +1091,9 @@ def test_slash_command_group():
 
 
 def test_slash_command_group_with_optional_args():
-    group = tanchan.doc_parse.slash_command_group("name_her", "Describe her", default_member_permissions=123321, dm_enabled=True, is_global=False)
+    group = tanchan.doc_parse.slash_command_group(
+        "name_her", "Describe her", default_member_permissions=123321, dm_enabled=True, is_global=False
+    )
 
     assert group.name == "name_her"
     assert group.description == "Describe her"
