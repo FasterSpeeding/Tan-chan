@@ -28,8 +28,14 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-import typing
 
+# pyright: reportUnknownArgumentType=none
+# Leads to too many false positives
+
+import typing
+from unittest import mock
+
+import hikari
 import pytest
 import tanjun
 from tanjun import annotations
@@ -82,15 +88,31 @@ def test_as_slash_command_when_has_no_doc_string():
         tanchan.doc_parse.as_slash_command()(command)
 
 
-def test_as_slash_command_when_name_override_passed():
-    @tanchan.doc_parse.as_slash_command(name="overridden_name")
+def test_as_slash_command_when_overrides_passed():
+    @tanchan.doc_parse.as_slash_command(name="overridden_name", description="Meow meow meow meow!")
     async def command(ctx: tanjun.abc.Context) -> None:
         """Meow me meow."""
 
     builder = command.build()
 
     assert builder.name == command.name == "overridden_name"
-    assert builder.description == command.description == "Meow me meow."
+    assert builder.description == command.description == "Meow meow meow meow!"
+
+
+def test_as_slash_command_when_dict_overrides_passed():
+    @tanchan.doc_parse.as_slash_command(
+        name={hikari.Locale.BG: "background", "default": "hihi", hikari.Locale.EN_GB: "scott"},
+        description={hikari.Locale.DA: "drum man", "default": "Meow meow!", hikari.Locale.EL: "salvador"},
+    )
+    async def command(ctx: tanjun.abc.Context) -> None:
+        """Meow me meow."""
+
+    builder = command.build()
+
+    assert builder.name == command.name == "hihi"
+    assert builder.name_localizations == {hikari.Locale.BG: "background", hikari.Locale.EN_GB: "scott"}
+    assert builder.description == command.description == "Meow meow!"
+    assert builder.description_localizations == {hikari.Locale.DA: "drum man", hikari.Locale.EL: "salvador"}
 
 
 @pytest.mark.parametrize("doc_style", [None, "google", "numpy", "reST"])
@@ -970,3 +992,111 @@ def test_rest_trails_off_with_multi_line_description():
     assert options[0].description == "The member of my dreams. If you sleep, if you sleep."
     assert options[1].name == "state"
     assert options[1].description == "The state of my dreams. If I bool, if I bool."
+
+
+class TestSlashCommandGroup:
+    def test_as_sub_command(self):
+        group = tanchan.doc_parse.SlashCommandGroup("name", "description")
+
+        @group.as_sub_command()
+        async def super_name_nyaa(ctx: tanjun.abc.Context):
+            """Command me meowy."""
+
+        assert super_name_nyaa.name == "super_name_nyaa"
+        assert super_name_nyaa.description == "Command me meowy."
+        assert super_name_nyaa.defaults_to_ephemeral is None
+
+    @pytest.mark.parametrize(
+        "wrapped_type", [tanjun.abc.MenuCommand, tanjun.abc.MessageCommand, tanjun.abc.SlashCommand]
+    )
+    def test_as_sub_command_when_wrapping_other_command(self, wrapped_type: type[typing.Any]):
+        def meow_callback() -> None:
+            """Meow indeed mr Bond."""
+
+        group = tanchan.doc_parse.SlashCommandGroup("name", "description")
+        wrapped_cmd = mock.MagicMock(wrapped_type, callback=meow_callback)
+
+        command = group.as_sub_command()(wrapped_cmd)
+
+        assert command.name == "meow_callback"
+        assert command.description == "Meow indeed mr Bond."
+        assert command.callback is meow_callback
+
+    def test_as_sub_command_when_optional_parameters_passed(self):
+        group = tanchan.doc_parse.SlashCommandGroup("name", "description")
+
+        @group.as_sub_command(name="xd_nuz", description="descriptor", default_to_ephemeral=True)
+        async def super_nyaa(ctx: tanjun.abc.Context):
+            """Command meow."""
+
+        assert super_nyaa.name == "xd_nuz"
+        assert super_nyaa.description == "descriptor"
+        assert super_nyaa.defaults_to_ephemeral is True
+
+    def test_as_sub_command_when_has_no_doc_string(self):
+        group = tanchan.doc_parse.SlashCommandGroup("name", "description")
+
+        async def command(ctx: tanjun.abc.Context) -> None:
+            ...
+
+        with pytest.raises(ValueError, match="Callback has no doc string"):
+            group.as_sub_command()(command)
+
+    def test_as_sub_command_when_dict_overrides_passed(self):
+        group = tanchan.doc_parse.SlashCommandGroup("name", "description")
+
+        @group.as_sub_command(
+            name={hikari.Locale.EN_GB: "hhh", hikari.Locale.FR: "hon_hon"},
+            description={hikari.Locale.HR: "H", hikari.Locale.DE: "nein"},
+        )
+        async def super_(ctx: tanjun.abc.Context):
+            """meow."""
+
+        assert super_.name == "hhh"
+        assert super_.name_localisations == {hikari.Locale.EN_GB: "hhh", hikari.Locale.FR: "hon_hon"}
+        assert super_.description == "H"
+        assert super_.description_localisations == {hikari.Locale.HR: "H", hikari.Locale.DE: "nein"}
+
+    def test_make_sub_group(self):
+        group = tanchan.doc_parse.slash_command_group("echo", "meow")
+
+        sub_group = group.make_sub_group("aaaa", "very descript of you Sherlock")
+
+        assert isinstance(sub_group, tanchan.doc_parse.SlashCommandGroup)
+        assert sub_group in group.commands
+        assert sub_group.name == "aaaa"
+        assert sub_group.description == "very descript of you Sherlock"
+        assert sub_group.defaults_to_ephemeral is None
+
+    def test_make_sub_group_when_optional_args_passed(self):
+        group = tanchan.doc_parse.slash_command_group("echo", "meow")
+
+        sub_group = group.make_sub_group("fancy", "music time!!!", default_to_ephemeral=True)
+
+        assert isinstance(sub_group, tanchan.doc_parse.SlashCommandGroup)
+        assert sub_group in group.commands
+        assert sub_group.name == "fancy"
+        assert sub_group.description == "music time!!!"
+        assert sub_group.defaults_to_ephemeral is True
+
+
+def test_slash_command_group():
+    group = tanchan.doc_parse.slash_command_group("name_me", "Describe me")
+
+    assert group.name == "name_me"
+    assert group.description == "Describe me"
+    assert group.default_member_permissions is None
+    assert group.is_dm_enabled is None
+    assert group.is_global is True
+
+
+def test_slash_command_group_with_optional_args():
+    group = tanchan.doc_parse.slash_command_group(
+        "name_her", "Describe her", default_member_permissions=123321, dm_enabled=True, is_global=False
+    )
+
+    assert group.name == "name_her"
+    assert group.description == "Describe her"
+    assert group.default_member_permissions == 123321
+    assert group.is_dm_enabled is True
+    assert group.is_global is False

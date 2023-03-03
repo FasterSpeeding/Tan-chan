@@ -31,7 +31,7 @@
 """[tanjun.annotations][] extension which uses docstring parsing."""
 from __future__ import annotations as _
 
-__all__: list[str] = ["as_slash_command", "with_annotated_args"]
+__all__: list[str] = ["SlashCommandGroup", "as_slash_command", "slash_command_group", "with_annotated_args"]
 
 import inspect
 import re
@@ -46,9 +46,9 @@ if typing.TYPE_CHECKING:
 
     _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
     _AnyCommandT = typing.Union[
-        tanjun.MenuCommand[_AnyCallbackSigT, typing.Any],
-        tanjun.MessageCommand[_AnyCallbackSigT],
-        tanjun.SlashCommand[_AnyCallbackSigT],
+        tanjun.abc.MenuCommand[_AnyCallbackSigT, typing.Any],
+        tanjun.abc.MessageCommand[_AnyCallbackSigT],
+        tanjun.abc.SlashCommand[_AnyCallbackSigT],
     ]
     _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]
     _CommandUnionT = typing.TypeVar(
@@ -68,14 +68,61 @@ if typing.TYPE_CHECKING:
             ...
 
 
+def _make_slash_command(
+    callback: _CallbackishT[_SlashCallbackSigT],
+    /,
+    *,
+    always_defer: bool,
+    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
+    default_to_ephemeral: typing.Optional[bool],
+    description: typing.Union[str, collections.Mapping[str, str], None] = None,
+    dm_enabled: typing.Optional[bool] = None,
+    is_global: bool = True,
+    name: typing.Union[str, collections.Mapping[str, str], None],
+    sort_options: bool,
+    validate_arg_keys: bool,
+) -> tanjun.SlashCommand[_SlashCallbackSigT]:
+    if isinstance(callback, (tanjun.abc.MenuCommand, tanjun.abc.MessageCommand, tanjun.abc.SlashCommand)):
+        wrapped_command = callback
+        callback = callback.callback
+
+    else:
+        wrapped_command = None
+
+    if description is None:
+        doc_string = inspect.getdoc(callback)
+        if not doc_string:
+            raise ValueError("Callback has no doc string")
+
+        description = doc_string.split("\n", 1)[0].strip()
+
+    if name is None:
+        name = callback.__name__
+
+    return tanjun.SlashCommand(
+        callback,
+        name,
+        description,
+        always_defer=always_defer,
+        default_member_permissions=default_member_permissions,
+        default_to_ephemeral=default_to_ephemeral,
+        dm_enabled=dm_enabled,
+        is_global=is_global,
+        sort_options=sort_options,
+        validate_arg_keys=validate_arg_keys,
+        _wrapped_command=wrapped_command,
+    )
+
+
 def as_slash_command(
     *,
     always_defer: bool = False,
     default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
     default_to_ephemeral: typing.Optional[bool] = None,
+    description: typing.Union[str, collections.Mapping[str, str], None] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
-    name: typing.Optional[str] = None,
+    name: typing.Union[str, collections.Mapping[str, str], None] = None,
     sort_options: bool = True,
     validate_arg_keys: bool = True,
 ) -> _AsSlashResultProto:
@@ -167,29 +214,17 @@ def as_slash_command(
     """  # noqa: D202, E501
 
     def decorator(callback: _CallbackishT[_SlashCallbackSigT], /) -> tanjun.SlashCommand[_SlashCallbackSigT]:
-        if isinstance(callback, (tanjun.abc.MenuCommand, tanjun.abc.MessageCommand, tanjun.abc.SlashCommand)):
-            wrapped_command = callback
-            callback = callback.callback
-
-        else:
-            wrapped_command = None
-
-        doc_string = inspect.getdoc(callback)
-        if not doc_string:
-            raise ValueError("Callback has no doc string")
-
-        return tanjun.SlashCommand(
+        return _make_slash_command(
             callback,
-            name or callback.__name__,
-            doc_string.split("\n", 1)[0].strip(),
             always_defer=always_defer,
             default_member_permissions=default_member_permissions,
             default_to_ephemeral=default_to_ephemeral,
+            description=description,
             dm_enabled=dm_enabled,
             is_global=is_global,
+            name=name,
             sort_options=sort_options,
             validate_arg_keys=validate_arg_keys,
-            _wrapped_command=wrapped_command,
         )
 
     return decorator
@@ -415,3 +450,235 @@ def with_annotated_args(
         return decorator(command)
 
     return decorator
+
+
+class SlashCommandGroup(tanjun.SlashCommandGroup):
+    """Extended implementation of [tanjun.SlashCommandGroup][] with some doc parsing."""
+
+    __slots__ = ()
+
+    def as_sub_command(
+        self,
+        name: typing.Union[str, collections.Mapping[str, str], None] = None,
+        description: typing.Union[str, collections.Mapping[str, str], None] = None,
+        *,
+        always_defer: bool = False,
+        default_to_ephemeral: typing.Optional[bool] = None,
+        sort_options: bool = True,
+        validate_arg_keys: bool = True,
+    ) -> collections.Callable[[_CallbackishT[_SlashCallbackSigT]], tanjun.SlashCommand[_SlashCallbackSigT]]:
+        r"""Build a [tanjun.SlashCommand][] in this command group by decorating a function.
+
+        !!! note
+            If you want your first response to be ephemeral while using
+            `always_defer`, you must set `default_to_ephemeral` to `True`.
+
+        Parameters
+        ----------
+        name
+            The command's name (supports [localisation](https://tanjun.cursed.solutions/usage/#localisation)).
+
+            If left as [None][] then the command callback's name will be used.
+
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
+        description
+            The command's description.
+
+            If left as [None][] then the first line of the command callback's
+            description will be used.
+
+            This should be inclusively between 1-100 characters in length.
+        always_defer
+            Whether the contexts this command is executed with should always be deferred
+            before being passed to the command's callback.
+        default_to_ephemeral
+            Whether this command's responses should default to ephemeral unless flags
+            are set to override this.
+
+            If this is left as [None][] then the default set on the parent command(s),
+            component or client will be in effect.
+        sort_options
+            Whether this command should sort its set options based on whether
+            they're required.
+
+            If this is [True][] then the options are re-sorted to meet the requirement
+            from Discord that required command options be listed before optional
+            ones.
+        validate_arg_keys
+            Whether to validate that option keys match the command callback's signature.
+
+        Returns
+        -------
+        collections.abc.Callable[[tanjun.abc.SlashCallbackSig], SlashCommand]
+            The decorator callback used to make a sub-command.
+
+            This can either wrap a raw command callback or another callable command instance
+            (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][] [tanjun.SlashCommand][]).
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+
+            * If the command name doesn't fit Discord's requirements.
+            * If the command name has uppercase characters.
+            * If the description is over 100 characters long.
+        """  # noqa: D202, E501
+
+        def decorator(callback: _CallbackishT[_SlashCallbackSigT]) -> tanjun.SlashCommand[_SlashCallbackSigT]:
+            return _make_slash_command(
+                callback,
+                always_defer=always_defer,
+                default_to_ephemeral=default_to_ephemeral,
+                description=description,
+                name=name,
+                sort_options=sort_options,
+                validate_arg_keys=validate_arg_keys,
+            )
+
+        return decorator
+
+    def make_sub_group(
+        self,
+        name: typing.Union[str, collections.Mapping[str, str]],
+        description: typing.Union[str, collections.Mapping[str, str]],
+        /,
+        *,
+        default_to_ephemeral: typing.Optional[bool] = None,
+    ) -> SlashCommandGroup:
+        r"""Create a sub-command group in this group.
+
+        !!! note
+            Unlike message command groups, slash command groups cannot
+            be callable functions themselves.
+
+        Parameters
+        ----------
+        name
+            The name of the command group (supports [localisation](https://tanjun.cursed.solutions/usage/#localisation)).
+
+            This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
+        description
+            The description of the command group.
+        default_to_ephemeral
+            Whether this command's responses should default to ephemeral unless flags
+            are set to override this.
+
+            If this is left as [None][] then the default set on the parent command(s),
+            component or client will be in effect.
+
+        Returns
+        -------
+        SlashCommandGroup
+            The created sub-command group.
+
+        Raises
+        ------
+        ValueError
+            Raises a value error for any of the following reasons:
+
+            * If the command name doesn't fit Discord's requirements.
+            * If the command name has uppercase characters.
+            * If the description is over 100 characters long.
+        """  # noqa: E501
+        return self.with_command(slash_command_group(name, description, default_to_ephemeral=default_to_ephemeral))
+
+
+def slash_command_group(
+    name: typing.Union[str, collections.Mapping[str, str]],
+    description: typing.Union[str, collections.Mapping[str, str]],
+    /,
+    *,
+    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
+    default_to_ephemeral: typing.Optional[bool] = None,
+    dm_enabled: typing.Optional[bool] = None,
+    is_global: bool = True,
+) -> SlashCommandGroup:
+    r"""Create a slash command group.
+
+    !!! note
+        Unlike message command groups, slash command groups cannot
+        be callable functions themselves.
+
+    !!! warning
+        `default_member_permissions`, `dm_enabled` and `is_global` are
+        ignored for command groups within other slash command groups.
+
+    !!! note
+        Under the standard implementation, `is_global` is used to determine whether
+        the command should be bulk set by [tanjun.Client.declare_global_commands][]
+        or when `declare_global_commands` is True
+
+    Examples
+    --------
+    Sub-commands can be added to the created slash command object through
+    the following decorator based approach:
+
+    ```python
+    help_group = tanjun.slash_command_group("help", "get help")
+
+    @help_group.with_command
+    @tanjun.with_str_slash_option("command_name", "command name")
+    @tanjun.as_slash_command("command", "Get help with a command")
+    async def help_command_command(ctx: tanjun.abc.SlashContext, command_name: str) -> None:
+        ...
+
+    @help_group.with_command
+    @tanjun.as_slash_command("me", "help me")
+    async def help_me_command(ctx: tanjun.abc.SlashContext) -> None:
+        ...
+
+    component = tanjun.Component().add_slash_command(help_group)
+    ```
+
+    Parameters
+    ----------
+    name
+        The name of the command group (supports [localisation](https://tanjun.cursed.solutions/usage/#localisation)).
+
+        This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming).
+    description
+        The description of the command group (supports [localisation](https://tanjun.cursed.solutions/usage/#localisation)).
+
+        This should be inclusively between 1-100 characters in length.
+    default_member_permissions
+        Member permissions necessary to utilize this command by default.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
+    default_to_ephemeral
+        Whether this command's responses should default to ephemeral unless flags
+        are set to override this.
+
+        If this is left as [None][] then the default set on the parent command(s),
+        component or client will be in effect.
+    dm_enabled
+        Whether this command is enabled in DMs with the bot.
+
+        If this is [None][] then the configuration for the parent component or client
+        will be used.
+    is_global
+        Whether this command is a global command.
+
+    Returns
+    -------
+    SlashCommandGroup
+        The command group.
+
+    Raises
+    ------
+    ValueError
+        Raises a value error for any of the following reasons:
+
+        * If the command name doesn't fit Discord's requirements.
+        * If the command name has uppercase characters.
+        * If the description is over 100 characters long.
+    """  # noqa: E501
+    return SlashCommandGroup(
+        name,
+        description,
+        default_member_permissions=default_member_permissions,
+        default_to_ephemeral=default_to_ephemeral,
+        dm_enabled=dm_enabled,
+        is_global=is_global,
+    )
