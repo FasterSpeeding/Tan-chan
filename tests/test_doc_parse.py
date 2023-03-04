@@ -1002,6 +1002,7 @@ class TestSlashCommandGroup:
         async def super_name_nyaa(ctx: tanjun.abc.Context):
             """Command me meowy."""
 
+        assert super_name_nyaa in group.commands
         assert super_name_nyaa.name == "super_name_nyaa"
         assert super_name_nyaa.description == "Command me meowy."
         assert super_name_nyaa.defaults_to_ephemeral is None

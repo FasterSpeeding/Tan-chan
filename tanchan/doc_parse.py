@@ -526,7 +526,7 @@ class SlashCommandGroup(tanjun.SlashCommandGroup):
         """  # noqa: D202, E501
 
         def decorator(callback: _CallbackishT[_SlashCallbackSigT]) -> tanjun.SlashCommand[_SlashCallbackSigT]:
-            return _make_slash_command(
+            return self.with_command(_make_slash_command(
                 callback,
                 always_defer=always_defer,
                 default_to_ephemeral=default_to_ephemeral,
@@ -534,7 +534,7 @@ class SlashCommandGroup(tanjun.SlashCommandGroup):
                 name=name,
                 sort_options=sort_options,
                 validate_arg_keys=validate_arg_keys,
-            )
+            ))
 
         return decorator
 
