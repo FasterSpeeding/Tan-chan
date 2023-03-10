@@ -36,6 +36,7 @@ Documentation = "https://tan-chan.cursed.solutions/"
 Changelog = "https://github.com/FasterSpeeding/tan-chan/blob/master/CHANGELOG.md"
 
 [tool.black]
+extend-exclude = "^\\/tanchan\\/_internal\\/vendor\\/.*$"
 include = ".*pyi?$"
 line-length = 120
 skip-magic-trailing-comma = true
@@ -57,12 +58,14 @@ exclude_lines = [
     "^\\s*@abc.abstractmethod$",
     "^if typing.TYPE_CHECKING:$"
 ]
+omit = ["tanchan/_internal/vendor/*"]
 
 [tool.flake8]
 accept-encodings = "utf-8"
 count = true
 docstring-convention = "numpy"
 eradicate-aggressive = true
+exclude = ["tanchan/_internal/vendor/**"]
 extend-select = ["TC100", "TC101"]
 force-future-annotations = true
 ignore-decorators = "overload"
@@ -106,6 +109,7 @@ per-file-ignores = [
 [tool.isort]
 profile = "black"
 force_single_line = true
+skip = ["tanchan/_internal/vendor"]
 
 [tool.mypy]
 # some good strict settings
@@ -124,6 +128,9 @@ warn_redundant_casts = false
 allow_redefinition = true
 disable_error_code = ["type-abstract"]
 
+# Ignore vendored modules
+exclude = ["tanchan/_internal/vendor/"]
+
 [tool.piped]
 default_sessions = [
     "reformat",
@@ -138,6 +145,7 @@ default_sessions = [
 extra_test_installs = ["."]
 mypy_allowed_to_fail = true
 mypy_targets = ["./tanchan"]
+path_ignore = "tanchan\\/_internal\\/vendor\\/"
 project_name = "tanchan"
 top_level_targets = ["./noxfile.py", "./tanchan", "./tests"]
 
@@ -159,6 +167,7 @@ python_versions = ["3.9", "3.10", "3.11"]
 [tool.piped.github_actions.verify_types]
 
 [tool.pyright]
+exclude = ["tanchan/_internal/vendor"]
 include = ["tanchan", "noxfile.py", "tests"]
 
 pythonVersion = "3.9"
@@ -192,3 +201,4 @@ required_plugins = []
 strict-imports = true
 require-superclass = true
 require-subclass = true
+exclude-modules = "tanchan._internal.vendor"
