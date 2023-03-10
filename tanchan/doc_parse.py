@@ -380,10 +380,6 @@ def _parse_descriptions(
     if doc_style and doc_style not in _PARSERS:
         raise ValueError(f"Unsupported docstring style {doc_style!r}")
 
-    doc_string = inspect.getdoc(callback)
-    if not doc_string:
-        raise ValueError("Callback has no doc string")
-
     kwargs: dict[str, typing.Any] = {}
     for parameter in inspect.signature(callback, eval_str=True).parameters.values():
         if parameter.kind is not parameter.KEYWORD_ONLY:
@@ -405,18 +401,23 @@ def _parse_descriptions(
             if parser:
                 kwargs.update(parser(typed_dict_doc.splitlines()))
 
-    lines = doc_string.splitlines()[1:]
-    if not lines:
-        return kwargs
-
-    doc_style = doc_style or _get_docstyle(doc_string)
-    if not doc_style:
-        if kwargs:
+    if doc_string := inspect.getdoc(callback):
+        lines = doc_string.splitlines()[1:]
+        if not lines:
             return kwargs
 
-        raise RuntimeError("Couldn't detect the docstring style")
+        doc_style = doc_style or _get_docstyle(doc_string)
+        if not doc_style:
+            if kwargs:
+                return kwargs
 
-    kwargs.update(_PARSERS[doc_style](lines))
+            raise RuntimeError("Couldn't detect the docstring style")
+
+        kwargs.update(_PARSERS[doc_style](lines))
+
+    elif not kwargs:
+        raise ValueError("Callback has no doc string")
+
     return kwargs
 
 
