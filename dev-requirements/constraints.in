@@ -1,2 +1,2 @@
 hikari-tanjun>=2.11.3, <3
-typing-extensions>=4.5.0
+typing-extensions>=4.5, <5
