@@ -400,6 +400,8 @@ def _parse_descriptions(
             typed_dict_doc_style = doc_style or _get_docstyle(typed_dict_doc)
             parser = _PARSERS.get(typed_dict_doc_style) if typed_dict_doc_style else None
 
+            # We don't error when it couldn't detect the style here as this could
+            # be inheriting the docstring from another typeddict class.
             if parser:
                 kwargs.update(parser(typed_dict_doc.splitlines()))
 
