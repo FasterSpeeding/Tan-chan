@@ -33,11 +33,13 @@ from __future__ import annotations as _
 
 __all__: list[str] = ["SlashCommandGroup", "as_slash_command", "slash_command_group", "with_annotated_args"]
 
-import inspect
 import re
 import typing
 
 import tanjun
+import typing_extensions
+
+from ._internal import inspect
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -364,30 +366,56 @@ _MATCH_STYLE: list[tuple[re.Pattern[str], _DocStyleUnion]] = [
 ]
 
 
+def _get_docstyle(doc_string: str) -> typing.Optional[_DocStyleUnion]:
+    for pattern, style in _MATCH_STYLE:
+        if pattern.search(doc_string):
+            return style
+
+    return None
+
+
 def _parse_descriptions(
     callback: collections.Callable[..., typing.Any], /, *, doc_style: typing.Optional[_DocStyleUnion] = None
 ) -> dict[str, str]:
+    if doc_style and doc_style not in _PARSERS:
+        raise ValueError(f"Unsupported docstring style {doc_style!r}")
+
     doc_string = inspect.getdoc(callback)
     if not doc_string:
         raise ValueError("Callback has no doc string")
 
+    kwargs: dict[str, typing.Any] = {}
+    for parameter in inspect.signature(callback, eval_str=True).parameters.values():
+        if parameter.kind is not parameter.KEYWORD_ONLY:
+            continue
+
+        if typing_extensions.get_origin(parameter.annotation) is not typing_extensions.Unpack:
+            break
+
+        typed_dict = typing_extensions.get_args(parameter.annotation)[0]
+        if not typing_extensions.is_typeddict(typed_dict):
+            break
+
+        if typed_dict_doc := inspect.getdoc(typed_dict):
+            typed_dict_doc_style = doc_style or _get_docstyle(typed_dict_doc)
+            parser = _PARSERS.get(typed_dict_doc_style) if typed_dict_doc_style else None
+
+            if parser:
+                kwargs.update(parser(typed_dict_doc.splitlines()))
+
     lines = doc_string.splitlines()[1:]
     if not lines:
-        return {}
+        return kwargs
 
-    if doc_style is None:
-        for pattern, style in _MATCH_STYLE:
-            if pattern.search(doc_string):
-                doc_style = style
-                break
+    doc_style = doc_style or _get_docstyle(doc_string)
+    if not doc_style:
+        if kwargs:
+            return kwargs
 
-        else:
-            raise RuntimeError("Couldn't detect the docstring style")
+        raise RuntimeError("Couldn't detect the docstring style")
 
-    if parser := _PARSERS.get(doc_style):
-        return parser(lines)
-
-    raise ValueError(f"Unsupported docstring style {doc_style!r}")
+    kwargs.update(_PARSERS[doc_style](lines))
+    return kwargs
 
 
 @typing.overload
