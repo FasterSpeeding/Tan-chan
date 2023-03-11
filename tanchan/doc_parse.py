@@ -382,7 +382,7 @@ def _parse_descriptions(
 
     kwargs: dict[str, typing.Any] = {}
     for parameter in inspect.signature(callback, eval_str=True).parameters.values():
-        if parameter.kind is not parameter.KEYWORD_ONLY:
+        if parameter.kind is not parameter.VAR_KEYWORD:
             continue
 
         if typing_extensions.get_origin(parameter.annotation) is not typing_extensions.Unpack:
