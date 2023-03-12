@@ -403,7 +403,7 @@ def test_google_with_other_section_before_squashed():
     assert options[1].description == "a beep"
 
 
-def test_google_trails_off():
+def test_google_when_trails_off():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def feet_command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
@@ -415,6 +415,33 @@ def test_google_trails_off():
             extra: yeet
 
         """
+
+    builder = feet_command.build()
+
+    assert builder.name == feet_command.name == "feet_command"
+    assert builder.description == feet_command.description == "Nyaa."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "beep"
+    assert options[0].description == "im"
+    assert options[1].name == "sheep"
+    assert options[1].description == "a beep"
+
+
+def test_google_with_empty_args_section():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def feet_command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
+        """Nyaa.
+
+        Args:
+            beep: im
+            sheep: a beep
+            extra: yeet
+
+        Args:
+        """  # noqa: D414
 
     builder = feet_command.build()
 
@@ -786,6 +813,68 @@ def test_numpy_for_multi_line_descriptions():
     assert options[1].description == "meowers in the streets, nyanners in the sheets"
 
 
+def test_numpy_when_trails_off():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def eep_command(
+        ctx: tanjun.abc.Context, foo: annotations.Str
+    ) -> None:
+        """I am very catgirly.
+
+        Parameters
+        ----------
+        unknown
+            mexican
+            and japanese
+        foo : sex
+            go home boss
+            nyaa extra
+
+        """
+
+    builder = eep_command.build()
+
+    assert builder.name == eep_command.name == "eep_command"
+    assert builder.description == eep_command.description == "I am very catgirly."
+
+    options = builder.options
+    assert len(options) == 1
+    assert options[0].name == "foo"
+    assert options[0].description == "go home boss nyaa extra"
+
+
+def test_numpy_when_empty_section():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def eep_command(
+        ctx: tanjun.abc.Context, foo: annotations.Str
+    ) -> None:
+        """I am very catgirly.
+
+        Parameters
+        ----------
+        unknown
+            mexican
+            and japanese
+        foo : sex
+            go home boss
+            nyaa extra
+
+        Parameters
+        ----------
+        """  # noqa: D414
+
+    builder = eep_command.build()
+
+    assert builder.name == eep_command.name == "eep_command"
+    assert builder.description == eep_command.description == "I am very catgirly."
+
+    options = builder.options
+    assert len(options) == 1
+    assert options[0].name == "foo"
+    assert options[0].description == "go home boss nyaa extra"
+
+
 def test_rest():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
@@ -934,7 +1023,7 @@ def test_rest_when_starts_on_next_line():
     assert options[1].description == "Cats I'm a kitty girl and I Nyaa Nyaa Nyaa and i Nyaa Nyaa Nyaa."
 
 
-def test_rest_trails_off():
+def test_rest_when_trails_off():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
@@ -966,7 +1055,7 @@ def test_rest_trails_off():
     assert options[1].description == "The state of my dreams. If I bool, if I bool."
 
 
-def test_rest_trails_off_with_multi_line_description():
+def test_rest_when_trails_off_with_multi_line_description():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
@@ -1275,7 +1364,7 @@ def test_errors_when_typed_dict_doc_has_no_params_and_function_has_no_doc():
         """Meow doc.
 
         Parameters
-        ---------
+        ----------  # noqa: D414
         """
 
     @tanchan.doc_parse.as_slash_command(name="meow", description="yeet")
@@ -1292,12 +1381,12 @@ def test_errors_when_unpack_isnt_typed_dict():
         """Meow doc.
 
         Parameters
-        ---------
+        ----------
         foo
             Meow meow
         """
 
-        foo: annotations.Bool  # pyright: ignore [ reportUninitializedInstanceVariable ]
+        value: annotations.Bool  # pyright: ignore [ reportUninitializedInstanceVariable ]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command(name="meow", description="yeet")
@@ -1307,7 +1396,7 @@ def test_errors_when_unpack_isnt_typed_dict():
         """Bat me meow.
 
         Parameters
-        ---------
+        ----------
         meow
             Meow me and meow.
         """
