@@ -33,11 +33,13 @@ from __future__ import annotations as _
 
 __all__: list[str] = ["SlashCommandGroup", "as_slash_command", "slash_command_group", "with_annotated_args"]
 
-import inspect
 import re
 import typing
 
 import tanjun
+import typing_extensions
+
+from ._internal import inspect
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -147,12 +149,7 @@ def as_slash_command(
     Examples
     --------
     ```py
-    @as_slash_command("ping", "Get the bot's latency")
-    async def ping_command(self, ctx: tanjun.abc.SlashContext) -> None:
-        start_time = time.perf_counter()
-        await ctx.rest.fetch_my_user()
-        time_taken = (time.perf_counter() - start_time) * 1_000
-        await ctx.respond(f"PONG\n - REST: {time_taken:.0f}mss")
+    --8<-- "./docs_src/doc_parse.py:24:30"
     ```
 
     Parameters
@@ -364,30 +361,59 @@ _MATCH_STYLE: list[tuple[re.Pattern[str], _DocStyleUnion]] = [
 ]
 
 
+def _get_docstyle(doc_string: str) -> typing.Optional[_DocStyleUnion]:
+    for pattern, style in _MATCH_STYLE:
+        if pattern.search(doc_string):
+            return style
+
+    return None
+
+
 def _parse_descriptions(
     callback: collections.Callable[..., typing.Any], /, *, doc_style: typing.Optional[_DocStyleUnion] = None
 ) -> dict[str, str]:
-    doc_string = inspect.getdoc(callback)
-    if not doc_string:
-        raise ValueError("Callback has no doc string")
+    if doc_style and doc_style not in _PARSERS:
+        raise ValueError(f"Unsupported docstring style {doc_style!r}")
 
-    lines = doc_string.splitlines()[1:]
-    if not lines:
-        return {}
+    kwargs: dict[str, typing.Any] = {}
+    for parameter in inspect.signature(callback, eval_str=True).parameters.values():
+        if parameter.kind is not parameter.VAR_KEYWORD:
+            continue
 
-    if doc_style is None:
-        for pattern, style in _MATCH_STYLE:
-            if pattern.search(doc_string):
-                doc_style = style
-                break
+        if typing_extensions.get_origin(parameter.annotation) is not typing_extensions.Unpack:
+            break
 
-        else:
+        typed_dict = typing_extensions.get_args(parameter.annotation)[0]
+        if not typing_extensions.is_typeddict(typed_dict):
+            break
+
+        if typed_dict_doc := inspect.getdoc(typed_dict):
+            typed_dict_doc_style = doc_style or _get_docstyle(typed_dict_doc)
+            parser = _PARSERS.get(typed_dict_doc_style) if typed_dict_doc_style else None
+
+            # We don't error when it couldn't detect the style here as this could
+            # be inheriting the docstring from another typeddict class.
+            if parser:
+                kwargs.update(parser(typed_dict_doc.splitlines()))
+
+    if doc_string := inspect.getdoc(callback):
+        lines = doc_string.splitlines()[1:]
+        if not lines:
+            return kwargs
+
+        doc_style = doc_style or _get_docstyle(doc_string)
+        if not doc_style:
+            if kwargs:
+                return kwargs
+
             raise RuntimeError("Couldn't detect the docstring style")
 
-    if parser := _PARSERS.get(doc_style):
-        return parser(lines)
+        kwargs.update(_PARSERS[doc_style](lines))
 
-    raise ValueError(f"Unsupported docstring style {doc_style!r}")
+    elif not kwargs:
+        raise ValueError("Callback has no doc string")
+
+    return kwargs
 
 
 @typing.overload
@@ -409,10 +435,23 @@ def with_annotated_args(
     doc_style: typing.Optional[_DocStyleUnion] = None,
     follow_wrapped: bool = False,
 ) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
-    """Docstring parsing implementation of [tanjun.annotations.with_annotated_args][].
+    r"""Docstring parsing implementation of [tanjun.annotations.with_annotated_args][].
 
-    This will parse descriptions from the command's docstring for a slash
-    command's options.
+    Examples
+    --------
+
+    This will parse command option descriptions from the command's docstring.
+
+    ```py
+    --8<-- "./docs_src/doc_parse.py:34:64"
+    ```
+
+    This also supports parsing option descriptions from the typed dict that's
+    being used as the unpacked `**kwargs` type-hint.
+
+    ```py
+    --8<-- "./docs_src/doc_parse.py:68:93"
+    ```
 
     Parameters
     ----------
@@ -617,20 +656,7 @@ def slash_command_group(
     the following decorator based approach:
 
     ```python
-    help_group = tanjun.slash_command_group("help", "get help")
-
-    @help_group.with_command
-    @tanjun.with_str_slash_option("command_name", "command name")
-    @tanjun.as_slash_command("command", "Get help with a command")
-    async def help_command_command(ctx: tanjun.abc.SlashContext, command_name: str) -> None:
-        ...
-
-    @help_group.with_command
-    @tanjun.as_slash_command("me", "help me")
-    async def help_me_command(ctx: tanjun.abc.SlashContext) -> None:
-        ...
-
-    component = tanjun.Component().add_slash_command(help_group)
+    --8<-- "./docs_src/doc_parse.py:97:108"
     ```
 
     Parameters

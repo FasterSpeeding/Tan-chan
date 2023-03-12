@@ -32,15 +32,20 @@
 # pyright: reportUnknownArgumentType=none
 # Leads to too many false positives
 
+import importlib.metadata
 import typing
 from unittest import mock
 
 import hikari
+import packaging.version
 import pytest
 import tanjun
+import typing_extensions
 from tanjun import annotations
 
 import tanchan
+
+TANJUN_VERSION = packaging.version.parse(importlib.metadata.version("hikari-tanjun"))
 
 
 def test_when_cant_detect_doc_style():
@@ -398,7 +403,7 @@ def test_google_with_other_section_before_squashed():
     assert options[1].description == "a beep"
 
 
-def test_google_trails_off():
+def test_google_when_trails_off():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def feet_command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
@@ -410,6 +415,33 @@ def test_google_trails_off():
             extra: yeet
 
         """
+
+    builder = feet_command.build()
+
+    assert builder.name == feet_command.name == "feet_command"
+    assert builder.description == feet_command.description == "Nyaa."
+
+    options = builder.options
+    assert len(options) == 2
+    assert options[0].name == "beep"
+    assert options[0].description == "im"
+    assert options[1].name == "sheep"
+    assert options[1].description == "a beep"
+
+
+def test_google_with_empty_args_section():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def feet_command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
+        """Nyaa.
+
+        Args:
+            beep: im
+            sheep: a beep
+            extra: yeet
+
+        Args:
+        """  # noqa: D414
 
     builder = feet_command.build()
 
@@ -781,6 +813,64 @@ def test_numpy_for_multi_line_descriptions():
     assert options[1].description == "meowers in the streets, nyanners in the sheets"
 
 
+def test_numpy_when_trails_off():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def eep_command(ctx: tanjun.abc.Context, foo: annotations.Str) -> None:
+        """I am very catgirly.
+
+        Parameters
+        ----------
+        unknown
+            mexican
+            and japanese
+        foo : sex
+            go home boss
+            nyaa extra
+
+        """
+
+    builder = eep_command.build()
+
+    assert builder.name == eep_command.name == "eep_command"
+    assert builder.description == eep_command.description == "I am very catgirly."
+
+    options = builder.options
+    assert len(options) == 1
+    assert options[0].name == "foo"
+    assert options[0].description == "go home boss nyaa extra"
+
+
+def test_numpy_when_empty_section():
+    @tanchan.doc_parse.with_annotated_args()
+    @tanchan.doc_parse.as_slash_command()
+    async def eep_command(ctx: tanjun.abc.Context, foo: annotations.Str) -> None:
+        """I am very catgirly.
+
+        Parameters
+        ----------
+        unknown
+            mexican
+            and japanese
+        foo : sex
+            go home boss
+            nyaa extra
+
+        Parameters
+        ----------
+        """  # noqa: D414
+
+    builder = eep_command.build()
+
+    assert builder.name == eep_command.name == "eep_command"
+    assert builder.description == eep_command.description == "I am very catgirly."
+
+    options = builder.options
+    assert len(options) == 1
+    assert options[0].name == "foo"
+    assert options[0].description == "go home boss nyaa extra"
+
+
 def test_rest():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
@@ -929,7 +1019,7 @@ def test_rest_when_starts_on_next_line():
     assert options[1].description == "Cats I'm a kitty girl and I Nyaa Nyaa Nyaa and i Nyaa Nyaa Nyaa."
 
 
-def test_rest_trails_off():
+def test_rest_when_trails_off():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
@@ -961,7 +1051,7 @@ def test_rest_trails_off():
     assert options[1].description == "The state of my dreams. If I bool, if I bool."
 
 
-def test_rest_trails_off_with_multi_line_description():
+def test_rest_when_trails_off_with_multi_line_description():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
@@ -992,6 +1082,560 @@ def test_rest_trails_off_with_multi_line_description():
     assert options[0].description == "The member of my dreams. If you sleep, if you sleep."
     assert options[1].name == "state"
     assert options[1].description == "The state of my dreams. If I bool, if I bool."
+
+
+TANJUN_SUPPORTS_TYPED_DICT = TANJUN_VERSION >= packaging.version.parse("2.12.0")
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_parses_unpacked_typed_dict_auto_detect_google():
+    class TypedDict(typing_extensions.TypedDict):
+        """Command options.
+
+        Parameters
+        ----------
+        user
+            The user to target.
+        reason
+            Tell me why!
+        """
+
+        user: annotations.User
+        reason: typing_extensions.NotRequired[annotations.Str]
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """A command."""
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.USER, name="user", description="The user to target.", is_required=True
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING, name="reason", description="Tell me why!", is_required=False
+        ),
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_parses_unpacked_typed_dict_auto_detect_numpy():
+    class TypedDict(typing_extensions.TypedDict):
+        """Command options.
+
+        Parameters
+        ----------
+        channel
+            Channel your energy into deez nuts.
+        name
+            Meow me now!
+        """
+
+        channel: annotations.Channel
+        name: typing_extensions.NotRequired[annotations.Str]
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """A command."""
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.CHANNEL,
+            name="channel",
+            description="Channel your energy into deez nuts.",
+            is_required=True,
+        ),
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="name", description="Meow me now!", is_required=False),
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_parses_unpacked_typed_dict_auto_detect_rest():
+    class TypedDict(typing_extensions.TypedDict):
+        """Command options.
+
+        :param value: I'm a doctor!
+            Yooooo!
+        :param other: Shorty mc skirt face.
+        """
+
+        value: annotations.Str
+        other: typing_extensions.NotRequired[annotations.Bool]
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """A command."""
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING, name="value", description="I'm a doctor! Yooooo!", is_required=True
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.BOOLEAN, name="other", description="Shorty mc skirt face.", is_required=False
+        ),
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_parses_unpacked_typed_dict_auto_detect_mixed_styles():
+    class TypedDict(typing_extensions.TypedDict):
+        """Command options.
+
+        Parameters
+        ----------
+        meow
+            Meow I'm a cow!
+        bork
+            Bork I'm a cat!
+        """
+
+        meow: annotations.Bool
+        bork: typing_extensions.NotRequired[annotations.Str]
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(
+        ctx: tanjun.abc.Context, snarf: annotations.Float, **kwargs: typing_extensions.Unpack[TypedDict]
+    ) -> None:
+        """A command.
+
+        Args:
+            snarf:
+                Snarf, I'm a calf.
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.FLOAT, name="snarf", description="Snarf, I'm a calf.", is_required=True
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.BOOLEAN, name="meow", description="Meow I'm a cow!", is_required=True
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING, name="bork", description="Bork I'm a cat!", is_required=False
+        ),
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_parses_unpacked_typed_dict_passed_format():
+    class TypedDict(typing_extensions.TypedDict):
+        """Command options.
+
+        Parameters
+        ----------
+        garf
+            I'm a barf.
+        """
+
+        garf: annotations.Str
+
+    @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
+    @tanchan.doc_parse.as_slash_command()
+    async def command(
+        ctx: tanjun.abc.Context, pew: annotations.Str, **kwargs: typing_extensions.Unpack[TypedDict]
+    ) -> None:
+        """A command.
+
+        Parameters
+        ----------
+        pew
+            Pew I'm American.
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING, name="pew", description="Pew I'm American.", is_required=True
+        ),
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="garf", description="I'm a barf.", is_required=True),
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_when_only_unpacked_typed_dict_has_doc():
+    class TypedDict(typing_extensions.TypedDict):
+        """Command options.
+
+        Parameters
+        ----------
+        garf
+            I'm a barf.
+        snarf
+            Scarf me up pws.
+        """
+
+        garf: annotations.Str
+        snarf: typing_extensions.NotRequired[annotations.Str]
+
+    @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
+    @tanchan.doc_parse.as_slash_command(name="meow", description="pa pa")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        ...
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="garf", description="I'm a barf.", is_required=True),
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING, name="snarf", description="Scarf me up pws.", is_required=False
+        ),
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_ignores_unparsable_typed_dict():
+    class TypedDict(typing_extensions.TypedDict):
+        """Not descript."""
+
+        egg: annotations.Bool
+        jetsons: typing_extensions.NotRequired[annotations.Bool]
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Command.
+
+        Parameters
+        ----------
+        egg
+            Yummy egg.
+        jetsons
+            It's the Jetsons...
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.BOOLEAN, name="egg", description="Yummy egg.", is_required=True),
+        hikari.CommandOption(
+            type=hikari.OptionType.BOOLEAN, name="jetsons", description="It's the Jetsons...", is_required=False
+        ),
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_ignores_docless_typed_dict():
+    class TypedDict(typing_extensions.TypedDict):
+        """"""  # noqa: D419
+
+        dump: annotations.Bool
+        truck: typing_extensions.NotRequired[annotations.Bool]
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Command.
+
+        Parameters
+        ----------
+        dump
+            Dump the JSON.
+        truck
+            Burn the truck!
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.BOOLEAN, name="dump", description="Dump the JSON.", is_required=True
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.BOOLEAN, name="truck", description="Burn the truck!", is_required=False
+        ),
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_ignores_typed_dict_has_standard_doc():
+    typed_dict = typing_extensions.TypedDict(
+        "TypedDict", {"dump": annotations.Bool, "truck": typing_extensions.NotRequired[annotations.Bool]}
+    )
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[typed_dict]) -> None:
+        """Command.
+
+        Parameters
+        ----------
+        dump
+            Dumps the JSON.
+        truck
+            Burns the truck!
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.BOOLEAN, name="dump", description="Dumps the JSON.", is_required=True
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.BOOLEAN, name="truck", description="Burns the truck!", is_required=False
+        ),
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_errors_when_neither_typed_dict_nor_function_have_doc():
+    class TypedDict(typing_extensions.TypedDict):
+        ...
+
+    @tanchan.doc_parse.as_slash_command(name="meow", description="yeet")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        ...
+
+    with pytest.raises(ValueError, match="Callback has no doc string"):
+        tanchan.doc_parse.with_annotated_args(command)
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_errors_when_typed_dict_doc_has_no_params_and_function_has_no_doc():
+    class TypedDict(typing_extensions.TypedDict):
+        """Meow doc.
+
+        Parameters
+        ----------  # noqa: D414
+        """
+
+    @tanchan.doc_parse.as_slash_command(name="meow", description="yeet")
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        ...
+
+    with pytest.raises(ValueError, match="Callback has no doc string"):
+        tanchan.doc_parse.with_annotated_args(command)
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_errors_when_unpack_isnt_typed_dict():
+    class TypedDict:
+        """Meow doc.
+
+        Parameters
+        ----------
+        foo
+            Meow meow
+        """
+
+        value: annotations.Bool  # pyright: ignore [ reportUninitializedInstanceVariable ]
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command(name="meow", description="yeet")
+    async def command(
+        ctx: tanjun.abc.Context, meow: annotations.Str, **kwargs: typing_extensions.Unpack[TypedDict]  # type: ignore
+    ) -> None:
+        """Bat me meow.
+
+        Parameters
+        ----------
+        meow
+            Meow me and meow.
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.STRING, name="meow", description="Meow me and meow.", is_required=True
+        )
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_errors_when_kwargs_type_isnt_unpacked():
+    class TypedDict(typing_extensions.TypedDict):
+        """Not descript.
+
+        Parameters
+        ----------
+        egg
+            Yummy egg.
+        jetsons
+            It's the Jetsons...
+        """
+
+        egg: annotations.Bool
+        jetsons: typing_extensions.NotRequired[annotations.Bool]
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, listen: annotations.Str, **kwargs: TypedDict) -> None:
+        """Command.
+
+        Parameters
+        ----------
+        listen
+            To me!
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="listen", description="To me!", is_required=True)
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_errors_ignores_unpacked_typed_dict_for_varargs():
+    class TypedDict(typing_extensions.TypedDict):
+        """Not descript.
+
+        Parameters
+        ----------
+        egg
+            Yummy egg.
+        jetsons
+            It's the Jetsons...
+        """
+
+        egg: annotations.Bool
+        jetsons: typing_extensions.NotRequired[annotations.Bool]
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(
+        ctx: tanjun.abc.Context, meowen: annotations.Str, *args: typing_extensions.Unpack[TypedDict]  # type: ignore
+    ) -> None:
+        """Command.
+
+        Parameters
+        ----------
+        meowen
+            To meow!
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="meowen", description="To meow!", is_required=True)
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_errors_ignores_unpacked_typed_dict_for_normal_arg():
+    class TypedDict(typing_extensions.TypedDict):
+        """Not descript.
+
+        Parameters
+        ----------
+        egg
+            Yummy egg.
+        jetsons
+            It's the Jetsons...
+        """
+
+        egg: annotations.Bool
+        jetsons: typing_extensions.NotRequired[annotations.Bool]
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(
+        ctx: tanjun.abc.Context, listen: annotations.Str, args: typing_extensions.Unpack[TypedDict]  # type: ignore
+    ) -> None:
+        """Command.
+
+        Parameters
+        ----------
+        listen
+            To you!
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="listen", description="To you!", is_required=True)
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_when_typed_dict_has_no_doc_and_cant_detect_doc_style():
+    class TypedDict(typing.TypedDict):
+        """"""  # noqa: D419
+
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Description.
+
+        Not empty.
+        """
+
+    with pytest.raises(RuntimeError, match="Couldn't detect the docstring style"):
+        tanchan.doc_parse.with_annotated_args(command)
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_when_standard_typed_dict_doc_and_cant_detect_doc_style():
+    typed_dict = typing.TypedDict("TypedDict", {})
+
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[typed_dict]) -> None:
+        """Description.
+
+        Not empty.
+        """
+
+    with pytest.raises(RuntimeError, match="Couldn't detect the docstring style"):
+        tanchan.doc_parse.with_annotated_args(command)
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_when_typed_dict_parameters_and_cant_detect_doc_style():
+    class TypedDict(typing.TypedDict):
+        """Description.
+
+        Parameters
+        ----------
+        value
+            Value me uwu.
+        """
+
+        value: annotations.Str
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Description.
+
+        Not empty.
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="Value me uwu.", is_required=True)
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_when_cant_detect_doc_style_of_callback_nor_typed_dict_docs():
+    class TypedDict(typing.TypedDict):
+        """Typed dict.
+
+        Not empty.
+        """
+
+        value: annotations.Str
+
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Description.
+
+        Not empty.
+        """
+
+    with pytest.raises(RuntimeError, match="Couldn't detect the docstring style"):
+        tanchan.doc_parse.with_annotated_args(command)
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_when_cant_detect_typed_dict_docs_style():
+    class TypedDict(typing.TypedDict):
+        """Typed dict.
+
+        Not empty.
+        """
+
+        value: annotations.Str
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Description.
+
+        Parameters
+        ----------
+        value
+            Meow meow!
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="Meow meow!", is_required=True)
+    ]
 
 
 class TestSlashCommandGroup:

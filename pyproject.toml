@@ -26,7 +26,7 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
-dependencies = ["hikari-tanjun>=2.11.3, <3"]
+dependencies = ["hikari-tanjun>=2.11.3, <3", "typing-extensions>=4.5, <5"]
 dynamic = ["description"]
 
 [project.urls]
@@ -36,6 +36,7 @@ Documentation = "https://tan-chan.cursed.solutions/"
 Changelog = "https://github.com/FasterSpeeding/tan-chan/blob/master/CHANGELOG.md"
 
 [tool.black]
+extend-exclude = "^\\/tanchan\\/_internal\\/vendor\\/.*$"
 include = ".*pyi?$"
 line-length = 120
 skip-magic-trailing-comma = true
@@ -57,12 +58,14 @@ exclude_lines = [
     "^\\s*@abc.abstractmethod$",
     "^if typing.TYPE_CHECKING:$"
 ]
+omit = ["tanchan/_internal/vendor/*"]
 
 [tool.flake8]
 accept-encodings = "utf-8"
 count = true
 docstring-convention = "numpy"
 eradicate-aggressive = true
+exclude = ["tanchan/_internal/vendor/**"]
 extend-select = ["TC100", "TC101"]
 force-future-annotations = true
 ignore-decorators = "overload"
@@ -96,6 +99,7 @@ ignore = [
     "E231",    # missing whitespace after ','
 ]
 per-file-ignores = [
+    "docs_src/*.py: A001, D100, D103, D407, FA101, F841, INP001, TC002, TYP006",
     "noxfile.py: D100, FA101, F401, F403, INP001",
     "tanchan/py.typed: D100",
     "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101",
@@ -106,6 +110,7 @@ per-file-ignores = [
 [tool.isort]
 profile = "black"
 force_single_line = true
+skip = ["tanchan/_internal/vendor"]
 
 [tool.mypy]
 # some good strict settings
@@ -124,6 +129,9 @@ warn_redundant_casts = false
 allow_redefinition = true
 disable_error_code = ["type-abstract"]
 
+# Ignore vendored modules
+exclude = ["tanchan/_internal/vendor/"]
+
 [tool.piped]
 default_sessions = [
     "reformat",
@@ -138,8 +146,9 @@ default_sessions = [
 extra_test_installs = ["."]
 mypy_allowed_to_fail = true
 mypy_targets = ["./tanchan"]
+path_ignore = "tanchan\\/_internal\\/vendor\\/"
 project_name = "tanchan"
-top_level_targets = ["./noxfile.py", "./tanchan", "./tests"]
+top_level_targets = ["./docs_src", "./noxfile.py", "./tanchan", "./tests"]
 
 [tool.piped.github_actions.freeze_for_pr]
 [tool.piped.github_actions.lint]
@@ -159,7 +168,8 @@ python_versions = ["3.9", "3.10", "3.11"]
 [tool.piped.github_actions.verify_types]
 
 [tool.pyright]
-include = ["tanchan", "noxfile.py", "tests"]
+exclude = ["tanchan/_internal/vendor"]
+include = ["docs_src", "tanchan", "noxfile.py", "tests"]
 
 pythonVersion = "3.9"
 typeCheckingMode = "strict"
@@ -192,3 +202,4 @@ required_plugins = []
 strict-imports = true
 require-superclass = true
 require-subclass = true
+exclude-modules = "tanchan._internal.vendor"
