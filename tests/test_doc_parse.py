@@ -1534,6 +1534,7 @@ def test_errors_ignores_unpacked_typed_dict_for_normal_arg():
     ]
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_when_typed_dict_has_no_doc_and_cant_detect_doc_style():
     class TypedDict(typing.TypedDict):
         """"""  # noqa: D419
@@ -1549,6 +1550,7 @@ def test_when_typed_dict_has_no_doc_and_cant_detect_doc_style():
         tanchan.doc_parse.with_annotated_args(command)
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_when_standard_typed_dict_doc_and_cant_detect_doc_style():
     typed_dict = typing.TypedDict("TypedDict", {})
 
@@ -1563,6 +1565,7 @@ def test_when_standard_typed_dict_doc_and_cant_detect_doc_style():
         tanchan.doc_parse.with_annotated_args(command)
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_when_typed_dict_parameters_and_cant_detect_doc_style():
     class TypedDict(typing.TypedDict):
         """Description.
@@ -1588,6 +1591,7 @@ def test_when_typed_dict_parameters_and_cant_detect_doc_style():
     ]
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_when_cant_detect_doc_style_of_callback_nor_typed_dict_docs():
     class TypedDict(typing.TypedDict):
         """Typed dict.
@@ -1608,6 +1612,7 @@ def test_when_cant_detect_doc_style_of_callback_nor_typed_dict_docs():
         tanchan.doc_parse.with_annotated_args(command)
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_when_cant_detect_typed_dict_docs_style():
     class TypedDict(typing.TypedDict):
         """Typed dict.
