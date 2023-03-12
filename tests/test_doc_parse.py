@@ -994,6 +994,58 @@ def test_rest_trails_off_with_multi_line_description():
     assert options[1].description == "The state of my dreams. If I bool, if I bool."
 
 
+def test_parses_unpacked_typed_dict_auto_detect_google():
+    ...
+
+
+def test_parses_unpacked_typed_dict_auto_detect_numpy():
+    ...
+
+
+def test_parses_unpacked_typed_dict_auto_detect_rest():
+    ...
+
+
+def test_parses_unpacked_typed_dict_passed_format():
+    ...
+
+
+def test_when_only_unpacked_typed_dict_has_doc():
+    ...
+
+
+def test_ignores_unparsable_typed_dict():
+    ...
+
+
+def test_ignores_docless_typed_dict():
+    ...
+
+
+def test_errors_when_neither_typed_dict_nor_function_have_doc():
+    ...
+
+
+def test_errors_when_typed_dict_doc_has_no_params_and_function_has_no_doc():
+    ...
+
+
+def test_errors_when_unpack_isnt_typed_dict():
+    ...
+
+
+def test_errors_when_kwargs_type_isnt_unpacked():
+    ...
+
+
+def test_errors_ignores_unpacked_typed_dict_for_varargs():
+    ...
+
+
+def test_errors_ignores_unpacked_typed_dict_for_normal_arg():
+    ...
+
+
 class TestSlashCommandGroup:
     def test_as_sub_command(self):
         group = tanchan.doc_parse.SlashCommandGroup("name", "description")

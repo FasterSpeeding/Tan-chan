@@ -440,10 +440,82 @@ def with_annotated_args(
     doc_style: typing.Optional[_DocStyleUnion] = None,
     follow_wrapped: bool = False,
 ) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
-    """Docstring parsing implementation of [tanjun.annotations.with_annotated_args][].
+    r"""Docstring parsing implementation of [tanjun.annotations.with_annotated_args][].
+
+    Examples
+    --------
 
     This will parse descriptions from the command's docstring for a slash
     command's options.
+
+    ```py
+    @doc_parse.with_annotated_args
+    @doc_parse.as_slash_command()
+    async def toggle_setting(
+        ctx: tanjun.abc.Context, user: annotations.User, state: annotations.Bool = False
+    ) -> None:
+        \"""Toggle this setting for a user.
+
+        Parameters
+        ----------
+        user
+            The user to toggle this setting for.
+        state
+            Whether this should be enabled.
+        \"""
+
+    @doc_parse.with_annotated_args
+    @doc_parse.as_slash_command()
+    async def ban_user(ctx: tanjun.abc.Context, user: annotations.User) -> None:
+        \"""Ban a user from this guild.
+
+        Args:
+            user
+                The user to ban.
+        \"""
+
+    @doc_parse.with_annotated_args
+    @doc_parse.as_slash_command()
+    async def unban_user(ctx: tanjun.abc.Context, user: annotations.User, reason: str = None) -> None:
+        \"""Unban a user from this guild.
+
+        :param user: The user to unban.
+        :param reason: The reason for unbanning them.
+        \"""
+    ```
+
+    This also supports parsing option descriptons from the typed dict that's
+    being used as the unpacked `**kwargs` type-hint.
+
+    ```py
+    class BulkMessagOptions(typing.TypedDict, total=False):
+        \"""Reused bulk message command options.
+
+        Parameters
+        ----------
+        count
+            The amount of messages to target.
+        regex
+            A regular expression to match against message contents.
+        \"""
+        count: annotations.Int
+        regex: annotations.Str
+
+    @doc_parse.with_annotated_args
+    @doc_parse.as_slash_command()
+    async def delete_messages(
+        ctx: tanjun.abc.Context,
+        reason: str = None,
+        **kwargs: typing.Unpack[BulkMessagOptions],
+    ) -> None:
+        \"""Toggle this setting for a user.
+
+        Parameters
+        ----------
+        reasom
+            Why you're bulk deleting these messages.
+        \"""
+    ```
 
     Parameters
     ----------
