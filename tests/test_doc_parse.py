@@ -1313,8 +1313,9 @@ def test_ignores_unparsable_typed_dict():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_ignores_docless_typed_dict():
-    # This will always inherit the parent class' docs when using inspect.getdoc.
     class TypedDict(typing_extensions.TypedDict):
+        """"""  # noqa: D419
+
         dump: annotations.Bool
         truck: typing_extensions.NotRequired[annotations.Bool]
 
@@ -1340,6 +1341,32 @@ def test_ignores_docless_typed_dict():
         ),
     ]
 
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_ignores_typed_dict_has_standard_doc():
+    TypedDict = typing_extensions.TypedDict("TypedDict", {"dump": annotations.Bool, "truck": typing_extensions.NotRequired[annotations.Bool]})
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Command.
+
+        Parameters
+        ----------
+        dump
+            Dumps the JSON.
+        truck
+            Burns the truck!
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(
+            type=hikari.OptionType.BOOLEAN, name="dump", description="Dumps the JSON.", is_required=True
+        ),
+        hikari.CommandOption(
+            type=hikari.OptionType.BOOLEAN, name="truck", description="Burns the truck!", is_required=False
+        ),
+    ]
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_when_neither_typed_dict_nor_function_have_doc():
@@ -1501,6 +1528,105 @@ def test_errors_ignores_unpacked_typed_dict_for_normal_arg():
 
     assert command.build().options == [
         hikari.CommandOption(type=hikari.OptionType.STRING, name="listen", description="To you!", is_required=True)
+    ]
+
+
+def test_when_typed_dict_has_no_doc_and_cant_detect_doc_style():
+    class TypedDict(typing.TypedDict):
+        """"""  # noqa: D419
+
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Description.
+
+        Not empty.
+        """
+
+    with pytest.raises(RuntimeError, match="Couldn't detect the docstring style"):
+        tanchan.doc_parse.with_annotated_args(command)
+
+
+def test_when_standard_typed_dict_doc_and_cant_detect_doc_style():
+    TypedDict = typing.TypedDict("TypedDict", {})
+
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Description.
+
+        Not empty.
+        """
+
+    with pytest.raises(RuntimeError, match="Couldn't detect the docstring style"):
+        tanchan.doc_parse.with_annotated_args(command)
+
+
+def test_when_typed_dict_parameters_and_cant_detect_doc_style():
+    class TypedDict(typing.TypedDict):
+        """Description.
+
+        Parameters
+        ----------
+        value
+            Value me uwu.
+        """
+
+        value: annotations.Str
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Description.
+
+        Not empty.
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="Value me uwu.", is_required=True)
+    ]
+
+
+def test_when_cant_detect_doc_style_of_callback_nor_typed_dict_docs():
+    class TypedDict(typing.TypedDict):
+        """Typed dict.
+
+        Not empty.
+        """
+
+        value: annotations.Str
+
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Description.
+
+        Not empty.
+        """
+
+    with pytest.raises(RuntimeError, match="Couldn't detect the docstring style"):
+        tanchan.doc_parse.with_annotated_args(command)
+
+
+def test_when_cant_detect_typed_dict_docs_style():
+    class TypedDict(typing.TypedDict):
+        """Typed dict.
+
+        Not empty.
+        """
+
+        value: annotations.Str
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Description.
+
+        Parameters
+        ----------
+        value
+            Meow meow!
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="Meow meow!", is_required=True)
     ]
 
 
