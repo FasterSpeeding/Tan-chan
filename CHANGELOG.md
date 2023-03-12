@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2023-03-12
 ### Changed
 - [with_annotated_args][tanchan.doc_parse.with_annotated_args] will now also parse
-  the docstring of the typed dict being used as an unpacked `**kwargs` type hint
-  for option descriptions.
+  option descriptions form the docstring of the typed dict being used as an
+  unpacked `**kwargs` type hint.
 
 ## [0.2.2.post] - 2023-03-04
 ### Fixed
@@ -58,7 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   descriptions (including for options) from the command callback's docstring +
   using the callback's name as the command's name.
 
-[Unreleased]: https://github.com/FasterSpeeding/tanchan/compare/v0.2.2.post...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/tanchan/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/FasterSpeeding/tanchan/compare/v0.2.2.post...v0.3.0
 [0.2.2.post]: https://github.com/FasterSpeeding/tanchan/compare/v0.2.2...v0.2.2.post
 [0.2.2]: https://github.com/FasterSpeeding/tanchan/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/FasterSpeeding/tanchan/compare/v0.2.0...v0.2.1
