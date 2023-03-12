@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2023-03-12
 ### Changed
 - [with_annotated_args][tanchan.doc_parse.with_annotated_args] will now also parse
-  option descriptions form the docstring of the typed dict being used as an
+  option descriptions from the docstring of the typed dict being used as an
   unpacked `**kwargs` type hint.
 
 ## [0.2.2.post] - 2023-03-04
