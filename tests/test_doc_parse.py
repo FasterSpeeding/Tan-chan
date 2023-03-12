@@ -1033,7 +1033,6 @@ def test_parses_unpacked_typed_dict_auto_detect_google():
     ]
 
 
-
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_parses_unpacked_typed_dict_auto_detect_numpy():
     class TypedDict(typing_extensions.TypedDict):
