@@ -32,15 +32,19 @@
 # pyright: reportUnknownArgumentType=none
 # Leads to too many false positives
 
+import importlib.metadata
 import typing
 from unittest import mock
 
 import hikari
+import packaging.version
 import pytest
 import tanjun
 from tanjun import annotations
 
 import tanchan
+
+TANJUN_VERSION = packaging.version.parse(importlib.metadata.version("hikari-tanjun"))
 
 
 def test_when_cant_detect_doc_style():
@@ -994,54 +998,70 @@ def test_rest_trails_off_with_multi_line_description():
     assert options[1].description == "The state of my dreams. If I bool, if I bool."
 
 
+TANJUN_SUPPORTS_TYPED_DICT = TANJUN_VERSION >= packaging.version.parse("2.12.0")
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_parses_unpacked_typed_dict_auto_detect_google():
     ...
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_parses_unpacked_typed_dict_auto_detect_numpy():
     ...
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_parses_unpacked_typed_dict_auto_detect_rest():
     ...
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_parses_unpacked_typed_dict_passed_format():
     ...
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_when_only_unpacked_typed_dict_has_doc():
     ...
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_ignores_unparsable_typed_dict():
     ...
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_ignores_docless_typed_dict():
     ...
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_when_neither_typed_dict_nor_function_have_doc():
     ...
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_when_typed_dict_doc_has_no_params_and_function_has_no_doc():
     ...
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_when_unpack_isnt_typed_dict():
     ...
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_when_kwargs_type_isnt_unpacked():
     ...
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_ignores_unpacked_typed_dict_for_varargs():
     ...
 
 
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_ignores_unpacked_typed_dict_for_normal_arg():
     ...
 

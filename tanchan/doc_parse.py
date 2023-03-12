@@ -149,12 +149,7 @@ def as_slash_command(
     Examples
     --------
     ```py
-    @as_slash_command("ping", "Get the bot's latency")
-    async def ping_command(self, ctx: tanjun.abc.SlashContext) -> None:
-        start_time = time.perf_counter()
-        await ctx.rest.fetch_my_user()
-        time_taken = (time.perf_counter() - start_time) * 1_000
-        await ctx.respond(f"PONG\n - REST: {time_taken:.0f}mss")
+    --8<-- "./docs_src/doc_parse.py:24:30"
     ```
 
     Parameters
@@ -445,76 +440,17 @@ def with_annotated_args(
     Examples
     --------
 
-    This will parse descriptions from the command's docstring for a slash
-    command's options.
+    This will parse command option descriptions from the command's docstring.
 
     ```py
-    @doc_parse.with_annotated_args
-    @doc_parse.as_slash_command()
-    async def toggle_setting(
-        ctx: tanjun.abc.Context, user: annotations.User, state: annotations.Bool = False
-    ) -> None:
-        \"""Toggle this setting for a user.
-
-        Parameters
-        ----------
-        user
-            The user to toggle this setting for.
-        state
-            Whether this should be enabled.
-        \"""
-
-    @doc_parse.with_annotated_args
-    @doc_parse.as_slash_command()
-    async def ban_user(ctx: tanjun.abc.Context, user: annotations.User) -> None:
-        \"""Ban a user from this guild.
-
-        Args:
-            user
-                The user to ban.
-        \"""
-
-    @doc_parse.with_annotated_args
-    @doc_parse.as_slash_command()
-    async def unban_user(ctx: tanjun.abc.Context, user: annotations.User, reason: str = None) -> None:
-        \"""Unban a user from this guild.
-
-        :param user: The user to unban.
-        :param reason: The reason for unbanning them.
-        \"""
+    --8<-- "./docs_src/doc_parse.py:34:64"
     ```
 
-    This also supports parsing option descriptons from the typed dict that's
+    This also supports parsing option descriptions from the typed dict that's
     being used as the unpacked `**kwargs` type-hint.
 
     ```py
-    class BulkMessagOptions(typing.TypedDict, total=False):
-        \"""Reused bulk message command options.
-
-        Parameters
-        ----------
-        count
-            The amount of messages to target.
-        regex
-            A regular expression to match against message contents.
-        \"""
-        count: annotations.Int
-        regex: annotations.Str
-
-    @doc_parse.with_annotated_args
-    @doc_parse.as_slash_command()
-    async def delete_messages(
-        ctx: tanjun.abc.Context,
-        reason: str = None,
-        **kwargs: typing.Unpack[BulkMessagOptions],
-    ) -> None:
-        \"""Toggle this setting for a user.
-
-        Parameters
-        ----------
-        reasom
-            Why you're bulk deleting these messages.
-        \"""
+    --8<-- "./docs_src/doc_parse.py:68:93"
     ```
 
     Parameters
@@ -720,20 +656,7 @@ def slash_command_group(
     the following decorator based approach:
 
     ```python
-    help_group = tanjun.slash_command_group("help", "get help")
-
-    @help_group.with_command
-    @tanjun.with_str_slash_option("command_name", "command name")
-    @tanjun.as_slash_command("command", "Get help with a command")
-    async def help_command_command(ctx: tanjun.abc.SlashContext, command_name: str) -> None:
-        ...
-
-    @help_group.with_command
-    @tanjun.as_slash_command("me", "help me")
-    async def help_me_command(ctx: tanjun.abc.SlashContext) -> None:
-        ...
-
-    component = tanjun.Component().add_slash_command(help_group)
+    --8<-- "./docs_src/doc_parse.py:97:108"
     ```
 
     Parameters
