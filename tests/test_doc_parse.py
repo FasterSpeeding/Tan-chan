@@ -1033,8 +1033,6 @@ def test_parses_unpacked_typed_dict_auto_detect_google():
     ]
 
 
-print(TANJUN_SUPPORTS_TYPED_DICT)
-
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_parses_unpacked_typed_dict_auto_detect_numpy():
@@ -1277,7 +1275,7 @@ def test_errors_when_typed_dict_doc_has_no_params_and_function_has_no_doc():
     class TypedDict(typing_extensions.TypedDict):
         """Meow doc.
 
-        Paramters
+        Parameters
         ---------
         """
 
@@ -1294,7 +1292,7 @@ def test_errors_when_unpack_isnt_typed_dict():
     class TypedDict:
         """Meow doc.
 
-        Paramters
+        Parameters
         ---------
         foo
             Meow meow
