@@ -413,33 +413,6 @@
     with_annotated_args()
   </a>
   
-    <nav class="md-nav" aria-label="with_annotated_args()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#tanchan.doc_parse.with_annotated_args--parameters" class="md-nav__link">
-    Parameters
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tanchan.doc_parse.with_annotated_args--returns" class="md-nav__link">
-    Returns
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tanchan.doc_parse.with_annotated_args--raises" class="md-nav__link">
-    Raises
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
     </ul>
@@ -535,33 +508,6 @@
   <a href="#tanchan.doc_parse.with_annotated_args" class="md-nav__link">
     with_annotated_args()
   </a>
-  
-    <nav class="md-nav" aria-label="with_annotated_args()">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#tanchan.doc_parse.with_annotated_args--parameters" class="md-nav__link">
-    Parameters
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tanchan.doc_parse.with_annotated_args--returns" class="md-nav__link">
-    Returns
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tanchan.doc_parse.with_annotated_args--raises" class="md-nav__link">
-    Raises
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -999,8 +945,9 @@ ignored for commands within slash command groups.</p>
 </div>
 
 <p><strong>Examples:</strong></p>
-    <div class="highlight"><pre><span></span><code><span class="nd">@as_slash_command</span><span class="p">(</span><span class="s2">&quot;ping&quot;</span><span class="p">,</span> <span class="s2">&quot;Get the bot&#39;s latency&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">ping_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <div class="highlight"><pre><span></span><code><span class="nd">@doc_parse</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">()</span>  <span class="c1"># This command will be called &quot;ping&quot;</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">ping</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the bot&#39;s latency.&quot;&quot;&quot;</span>
     <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
     <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">rest</span><span class="o">.</span><span class="n">fetch_my_user</span><span class="p">()</span>
     <span class="n">time_taken</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1_000</span>
@@ -1250,18 +1197,16 @@ or when <code>declare_global_commands</code> is True</p>
 <p><strong>Examples:</strong></p>
     <p>Sub-commands can be added to the created slash command object through
 the following decorator based approach:</p>
-<div class="highlight"><pre><span></span><code><span class="n">help_group</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">slash_command_group</span><span class="p">(</span><span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="s2">&quot;get help&quot;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="n">help_group</span> <span class="o">=</span> <span class="n">doc_parse</span><span class="o">.</span><span class="n">slash_command_group</span><span class="p">(</span><span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="s2">&quot;get help&quot;</span><span class="p">)</span>
 
-<span class="nd">@help_group</span><span class="o">.</span><span class="n">with_command</span>
 <span class="nd">@tanjun</span><span class="o">.</span><span class="n">with_str_slash_option</span><span class="p">(</span><span class="s2">&quot;command_name&quot;</span><span class="p">,</span> <span class="s2">&quot;command name&quot;</span><span class="p">)</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="s2">&quot;Get help with a command&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">help_command_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="n">command_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="o">...</span>
+<span class="nd">@help_group</span><span class="o">.</span><span class="n">as_sub_command</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">help</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">,</span> <span class="n">command_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get help with a command.&quot;&quot;&quot;</span>
 
-<span class="nd">@help_group</span><span class="o">.</span><span class="n">with_command</span>
-<span class="nd">@tanjun</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">(</span><span class="s2">&quot;me&quot;</span><span class="p">,</span> <span class="s2">&quot;help me&quot;</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">help_me_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="o">...</span>
+<span class="nd">@help_group</span><span class="o">.</span><span class="n">as_sub_command</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">me</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">SlashContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Help me.&quot;&quot;&quot;</span>
 
 <span class="n">component</span> <span class="o">=</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">Component</span><span class="p">()</span><span class="o">.</span><span class="n">add_slash_command</span><span class="p">(</span><span class="n">help_group</span><span class="p">)</span>
 </code></pre></div>
@@ -1442,87 +1387,172 @@ will be used.</p>
       <p>Docstring parsing implementation of <a class="autorefs autorefs-external" href="https://tanjun.cursed.solutions/reference/annotations/#tanjun.annotations.with_annotated_args">tanjun.annotations.with_annotated_args</a>.</p>
 
 <p><strong>Examples:</strong></p>
-    <p>This will parse descriptions from the command's docstring for a slash
-command's options.</p>
-<p>```py
-@doc_parse.with_annotated_args
-@doc_parse.as_slash_command()
-async def toggle_setting(
-    ctx: tanjun.abc.Context, user: annotations.User, state: annotations.Bool = False
-) -&gt; None:
-    \"""Toggle this setting for a user.</p>
-      <pre><code>Parameters
-----------
-user
-    The user to toggle this setting for.
-state
-    Whether this should be enabled.
-\"""
-</code></pre>
-<p>@doc_parse.with_annotated_args
-@doc_parse.as_slash_command()
-async def ban_user(ctx: tanjun.abc.Context, user: annotations.User) -&gt; None:
-    \"""Ban a user from this guild.</p>
-<pre><code>Args:
-    user
-        The user to ban.
-\"""
-</code></pre>
-<p>@doc_parse.with_annotated_args
-@doc_parse.as_slash_command()
-async def unban_user(ctx: tanjun.abc.Context, user: annotations.User, reason: str = None) -&gt; None:
-    \"""Unban a user from this guild.</p>
-<pre><code>:param user: The user to unban.
-:param reason: The reason for unbanning them.
-\"""
-</code></pre>
-<p><code>This also supports parsing option descriptons from the typed dict that's
-being used as the unpacked `**kwargs` type-hint.</code>py
-class BulkMessagOptions(typing.TypedDict, total=False):
-    \"""Reused bulk message command options.
+    <p>This will parse command option descriptions from the command's docstring.</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@doc_parse</span><span class="o">.</span><span class="n">with_annotated_args</span>
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">toggle_setting</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Toggle this setting for a user.</span>
 
-    Parameters
-    ----------
-    count
-        The amount of messages to target.
-    regex
-        A regular expression to match against message contents.
-    \"""
-    count: annotations.Int
-    regex: annotations.Str
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    user</span>
+<span class="sd">        The user to toggle this setting for.</span>
+<span class="sd">    state</span>
+<span class="sd">        Whether this should be enabled.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-@doc_parse.with_annotated_args
-@doc_parse.as_slash_command()
-async def delete_messages(
-    ctx: tanjun.abc.Context,
-    reason: str = None,
-    **kwargs: typing.Unpack[BulkMessagOptions],
-) -&gt; None:
-    \"""Toggle this setting for a user.
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">with_annotated_args</span>
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">ban_user</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">User</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ban a user from this guild.</span>
 
-    Parameters
-    ----------
-    reasom
-        Why you're bulk deleting these messages.
-    \"""
-```</p>
-<h4 id="tanchan.doc_parse.with_annotated_args--parameters">Parameters<a class="headerlink" href="#tanchan.doc_parse.with_annotated_args--parameters" title="Permanent link">#</a></h4>
-<p>command : tanjun.SlashCommand | tanjun.MessageCommand
-    The message or slash command to set the arguments for.
-doc_style
-    The docstyle to parse slash command option descriptions from.</p>
-<pre><code>This may be either `"google"`, `"numpy"`, or `"reST"`.
-If left as [None][] then this will try to auto-detect the style.
-</code></pre>
-<p>follow_wrapped
-    Whether this should also set the arguments on any other command objects
-    this wraps in a decorator call chain.</p>
-<h4 id="tanchan.doc_parse.with_annotated_args--returns">Returns<a class="headerlink" href="#tanchan.doc_parse.with_annotated_args--returns" title="Permanent link">#</a></h4>
-<p>tanjun.SlashCommand | tanjun.MessageCommand
-    The command object to enable using this as a decorator.</p>
-<h4 id="tanchan.doc_parse.with_annotated_args--raises">Raises<a class="headerlink" href="#tanchan.doc_parse.with_annotated_args--raises" title="Permanent link">#</a></h4>
-<p>RuntimeError
-    If <code>doc_style</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> and this failed to detect the docstring style.</p>
+<span class="sd">    Args:</span>
+<span class="sd">        user:</span>
+<span class="sd">            The user to ban.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">with_annotated_args</span>
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">unban_user</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">user</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">User</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unban a user from this guild.</span>
+
+<span class="sd">    :param user: The user to unban.</span>
+<span class="sd">    :param reason: The reason for unbanning them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</code></pre></div>
+<p>This also supports parsing option descriptions from the typed dict that's
+being used as the unpacked <code>**kwargs</code> type-hint.</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">BulkMessagOptions</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reused bulk message command options.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    count</span>
+<span class="sd">        The amount of messages to target.</span>
+<span class="sd">    regex</span>
+<span class="sd">        A regular expression to match against message contents.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">count</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">Int</span>
+    <span class="n">regex</span><span class="p">:</span> <span class="n">annotations</span><span class="o">.</span><span class="n">Str</span>
+
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">with_annotated_args</span>
+<span class="nd">@doc_parse</span><span class="o">.</span><span class="n">as_slash_command</span><span class="p">()</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">delete_messages</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">tanjun</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Unpack</span><span class="p">[</span><span class="n">BulkMessagOptions</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Toggle this setting for a user.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reasom</span>
+<span class="sd">        Why you&#39;re bulk deleting these messages.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</code></pre></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>PARAMETER</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>command</code></td>
+          <td class="doc-param-details">
+            <p>The message or slash command to set the arguments for.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://tanjun.cursed.solutions/reference/#tanjun">tanjun</a>.<a class="autorefs autorefs-external" title="tanjun.SlashCommand" href="https://tanjun.cursed.solutions/reference/#tanjun.SlashCommand">SlashCommand</a> | <a class="autorefs autorefs-external" href="https://tanjun.cursed.solutions/reference/#tanjun">tanjun</a>.<a class="autorefs autorefs-external" title="tanjun.MessageCommand" href="https://tanjun.cursed.solutions/reference/#tanjun.MessageCommand">MessageCommand</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>doc_style</code></td>
+          <td class="doc-param-details">
+            <p>The docstyle to parse slash command option descriptions from.</p>
+<p>This may be either <code>"google"</code>, <code>"numpy"</code>, or <code>"reST"</code>.
+If left as <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> then this will try to auto-detect the style.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/typing.html#module-typing">typing</a>.<a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.9/library/typing.html#typing.Optional">Optional</a>[<span title="tanchan.doc_parse._DocStyleUnion">_DocStyleUnion</span>]</code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>None</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td><code>follow_wrapped</code></td>
+          <td class="doc-param-details">
+            <p>Whether this should also set the arguments on any other command objects
+this wraps in a decorator call chain.</p>
+            <p>
+                <span class="doc-param-annotation">
+                  <b>TYPE:</b>
+                    <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/functions.html#bool">bool</a></code>
+                </span>
+                <span class="doc-param-default">
+                  <b>DEFAULT:</b> 
+                    <code>False</code>
+                </span>
+            </p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><a class="autorefs autorefs-external" href="https://tanjun.cursed.solutions/reference/#tanjun">tanjun</a>.<a class="autorefs autorefs-external" title="tanjun.SlashCommand" href="https://tanjun.cursed.solutions/reference/#tanjun.SlashCommand">SlashCommand</a> | <a class="autorefs autorefs-external" href="https://tanjun.cursed.solutions/reference/#tanjun">tanjun</a>.<a class="autorefs autorefs-external" title="tanjun.MessageCommand" href="https://tanjun.cursed.solutions/reference/#tanjun.MessageCommand">MessageCommand</a></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The command object to enable using this as a decorator.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/exceptions.html#RuntimeError">RuntimeError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>If <code>doc_style</code> is <a class="autorefs autorefs-external" href="https://docs.python.org/3.9/library/constants.html#None">None</a> and this failed to detect the docstring style.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
 
   </div>
 
