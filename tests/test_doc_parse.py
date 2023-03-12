@@ -816,9 +816,7 @@ def test_numpy_for_multi_line_descriptions():
 def test_numpy_when_trails_off():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def eep_command(
-        ctx: tanjun.abc.Context, foo: annotations.Str
-    ) -> None:
+    async def eep_command(ctx: tanjun.abc.Context, foo: annotations.Str) -> None:
         """I am very catgirly.
 
         Parameters
@@ -846,9 +844,7 @@ def test_numpy_when_trails_off():
 def test_numpy_when_empty_section():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def eep_command(
-        ctx: tanjun.abc.Context, foo: annotations.Str
-    ) -> None:
+    async def eep_command(ctx: tanjun.abc.Context, foo: annotations.Str) -> None:
         """I am very catgirly.
 
         Parameters
