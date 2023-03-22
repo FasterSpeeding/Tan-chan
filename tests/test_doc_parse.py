@@ -459,9 +459,7 @@ def test_google_with_empty_args_section():
 def test_numpy():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def cc(
-        ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Ranged[0.23, 321.2]] = None
-    ) -> None:
+    async def cc(ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Float] = None) -> None:
         """I am very gay.
 
         Parameters
@@ -490,9 +488,7 @@ def test_numpy():
 def test_numpy_when_doc_style_explicitly_passed():
     @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
     @tanchan.doc_parse.as_slash_command()
-    async def cc(
-        ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Ranged[0.23, 321.2]] = None
-    ) -> None:
+    async def cc(ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Float] = None) -> None:
         """I am very gay.
 
         Parameters
@@ -783,7 +779,7 @@ def test_numpy_for_multi_line_descriptions():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def eep_command(
-        ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Ranged[0.23, 321.2]] = None
+        ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Float] = None
     ) -> None:
         """I am very catgirly.
 
