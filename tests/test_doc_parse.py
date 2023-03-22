@@ -462,7 +462,7 @@ def test_numpy():
     async def cc(
         ctx: tanjun.abc.Context,
         foo: annotations.Str,
-        bar: typing.Optional[anontations.Float, annotations.Ranged(0.23, 321.2)] = None,
+        bar: typing.Optional[anontations.Float] = None,
     ) -> None:
         """I am very gay.
 
@@ -495,7 +495,7 @@ def test_numpy_when_doc_style_explicitly_passed():
     async def cc(
         ctx: tanjun.abc.Context,
         foo: annotations.Str,
-        bar: typing.Optional[annotations.Float, annotations.Ranged(0.23, 321.2)] = None,
+        bar: typing.Optional[annotations.Float] = None,
     ) -> None:
         """I am very gay.
 
@@ -789,7 +789,7 @@ def test_numpy_for_multi_line_descriptions():
     async def eep_command(
         ctx: tanjun.abc.Context,
         foo: annotations.Str,
-        bar: typing.Optional[annotations.Float, annotations.Ranged(0.23, 321.2)] = None,
+        bar: typing.Optional[annotations.Float] = None,
     ) -> None:
         """I am very catgirly.
 
