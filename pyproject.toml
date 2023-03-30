@@ -197,7 +197,7 @@ reportUnknownVariableType = "warning"           # Lotta false-positives, might f
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 required_plugins = []
-filterwarnings = ["error::DeprecationWarning"]
+filterwarnings = ["error"]
 
 [tool.slotscheck]
 strict-imports = true
