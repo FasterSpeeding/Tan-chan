@@ -170,9 +170,9 @@ mkdocs-autorefs==0.4.1 ; python_full_version >= "3.9.0" and python_version < "3.
 mkdocs-material-extensions==1.1.1 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:9c003da71e2cc2493d910237448c672e00cefc800d3d6ae93d2fc69979e3bd93 \
     --hash=sha256:e41d9f38e4798b6617ad98ca8f7f1157b1e4385ac1459ca1e4ea219b556df945
-mkdocs-material==9.1.4 ; python_full_version >= "3.9.0" and python_version < "3.12" \
-    --hash=sha256:4c92dcf9365068259bef3eed8e0dd5410056b6f7187bdea2d52848c0f94cd94c \
-    --hash=sha256:c3a8943e9e4a7d2624291da365bbccf0b9f88688aa6947a46260d8c165cd4389
+mkdocs-material==9.1.5 ; python_full_version >= "3.9.0" and python_version < "3.12" \
+    --hash=sha256:744519bca52b1e8fe7c2e80e15ed59baf8948111ec763ae6ae629c409bd16d6e \
+    --hash=sha256:981e1ef0250e2fbcc23610e9b20e5f242fe1f808079b9bcfbb6c49aa2999343c
 mkdocs==1.4.2 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:8947af423a6d0facf41ea1195b8e1e8c85ad94ac95ae307fe11232e0424b11c5 \
     --hash=sha256:c8856a832c1e56702577023cd64cc5f84948280c1c0fcc6af4cd39006ea6aa8c
