@@ -9,6 +9,7 @@
 # You should have received a copy of the CC0 Public Domain Dedication along with this software.
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
 
+# pyright: reportUnusedFunction=none
 
 def doc_parse_example() -> None:
     import tanjun
@@ -31,6 +32,8 @@ def doc_parse_example() -> None:
 
 def as_slash_command_example() -> None:
     import typing
+    from typing import Annotated
+    from typing import Optional
 
     import tanjun
     from tanjun import annotations
@@ -41,7 +44,7 @@ def as_slash_command_example() -> None:
     @doc_parse.with_annotated_args
     @doc_parse.as_slash_command()
     async def ban(
-        ctx: tanjun.abc.SlashContext, user: annotations.User, reason: typing.Optional[annotations.Length[460]] = None
+        ctx: tanjun.abc.SlashContext, user: annotations.User, reason: Optional[Annoated[annotations.Int, annotations.Length(460)]] = None
     ) -> None:
         """Ban a user from this guild.
 
@@ -57,7 +60,7 @@ def as_slash_command_example() -> None:
     async def kick(
         ctx: tanjun.abc.SlashContext,
         member: annotations.Member,
-        reason: typing.Optional[annotations.Length[460]] = None,
+        reason: Optional[Annotated[annotations.Int, annotations.Length(460)] = None,
     ) -> None:
         """Kick a member from this guild.
 
@@ -74,7 +77,7 @@ def as_slash_command_example() -> None:
     @doc_parse.with_annotated_args
     @doc_parse.as_slash_command()
     async def echo(
-        ctx: tanjun.abc.SlashContext, content: annotations.Str, channel: typing.Optional[annotations.Channel] = None
+        ctx: tanjun.abc.SlashContext, content: annotations.Str, channel: Optional[annotations.Channel] = None
     ) -> None:
         """Make the bot echo a message.
 
