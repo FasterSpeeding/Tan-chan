@@ -9,8 +9,10 @@
 # You should have received a copy of the CC0 Public Domain Dedication along with this software.
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
 
+
 def doc_parse_example() -> None:
     import tanjun
+
     from tanchan import doc_parse
 
     # This command will show up as "meow" in the command menu
@@ -27,21 +29,19 @@ def doc_parse_example() -> None:
         """Get a user."""
 
 
-
-def as_slash_command_example() ->  None:
+def as_slash_command_example() -> None:
     import typing
 
     import tanjun
-    from tanchan import doc_parse
     from tanjun import annotations
+
+    from tanchan import doc_parse
 
     # Google's doc style.
     @doc_parse.with_annotated_args
     @doc_parse.as_slash_command()
     async def ban(
-        ctx: tanjun.abc.SlashContext,
-        user: annotations.User,
-        reason: typing.Optional[annotations.Length[460]] = None,
+        ctx: tanjun.abc.SlashContext, user: annotations.User, reason: typing.Optional[annotations.Length[460]] = None
     ) -> None:
         """Ban a user from this guild.
 
@@ -74,9 +74,7 @@ def as_slash_command_example() ->  None:
     @doc_parse.with_annotated_args
     @doc_parse.as_slash_command()
     async def echo(
-        ctx: tanjun.abc.SlashContext,
-        content: annotations.Str,
-        channel: typing.Optional[annotations.Channel] = None,
+        ctx: tanjun.abc.SlashContext, content: annotations.Str, channel: typing.Optional[annotations.Channel] = None
     ) -> None:
         """Make the bot echo a message.
 
@@ -84,4 +82,3 @@ def as_slash_command_example() ->  None:
         :param channel: The channel to echo to.
             If not provided then the current channel will be targeted.
         """
-
