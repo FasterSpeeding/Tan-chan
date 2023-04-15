@@ -60,7 +60,7 @@ def as_slash_command_example() -> None:
     async def kick(
         ctx: tanjun.abc.SlashContext,
         member: annotations.Member,
-        reason: Optional[Annotated[annotations.Int, annotations.Length(460)] = None,
+        reason: Optional[Annotated[annotations.Int, annotations.Length(460)]] = None,
     ) -> None:
         """Kick a member from this guild.
 
