@@ -11,6 +11,7 @@
 
 # pyright: reportUnusedFunction=none
 
+
 def doc_parse_example() -> None:
     import tanjun
 
@@ -31,7 +32,6 @@ def doc_parse_example() -> None:
 
 
 def as_slash_command_example() -> None:
-    import typing
     from typing import Annotated
     from typing import Optional
 
@@ -44,7 +44,9 @@ def as_slash_command_example() -> None:
     @doc_parse.with_annotated_args
     @doc_parse.as_slash_command()
     async def ban(
-        ctx: tanjun.abc.SlashContext, user: annotations.User, reason: Optional[Annoated[annotations.Int, annotations.Length(460)]] = None
+        ctx: tanjun.abc.SlashContext,
+        user: annotations.User,
+        reason: Optional[Annoated[annotations.Int, annotations.Length(460)]] = None,
     ) -> None:
         """Ban a user from this guild.
 
