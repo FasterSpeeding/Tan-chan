@@ -1,6 +1,8 @@
 # Usage
 
-## Doc parse
+### Doc parse
+
+##### as_slash_command
 
 [tanchan.doc_parse][] exposes two methods which help with declaring slash commands:
 
@@ -11,6 +13,8 @@
 [tanchan.doc_parse.as_slash_command][] acts as an extension to [tanjun.as_slash_command][]
 which uses the function's name as the command's name and the first line of its docstring
 as the command's description.
+
+##### with_annotated_args
 
 ```py
 --8<-- "./docs_src/usage.py:35:89"
