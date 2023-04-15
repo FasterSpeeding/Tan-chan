@@ -46,7 +46,7 @@ def as_slash_command_example() -> None:
     async def ban(
         ctx: tanjun.abc.SlashContext,
         user: annotations.User,
-        reason: Optional[Annoated[annotations.Int, annotations.Length(460)]] = None,
+        reason: Optional[Annotated[annotations.Int, annotations.Length(460)]] = None,
     ) -> None:
         """Ban a user from this guild.
 
