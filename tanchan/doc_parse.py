@@ -135,7 +135,8 @@ def as_slash_command(
 
     !!! note
         Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by [tanjun.Client.declare_global_commands][]
+        the command should be bulk set by
+        [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
         or when `declare_global_commands` is True
 
     !!! warning
@@ -198,7 +199,7 @@ def as_slash_command(
         This can either wrap a raw command callback or another callable command instance
         (e.g. [tanjun.MenuCommand][], [tanjun.MessageCommand][] [tanjun.SlashCommand][])
         and will manage loading the other command into a component when using
-        [tanjun.Component.load_from_scope][].
+        [Component.load_from_scope][tanjun.components.Component.load_from_scope].
 
     Raises
     ------
@@ -647,7 +648,8 @@ def slash_command_group(
 
     !!! note
         Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by [tanjun.Client.declare_global_commands][]
+        the command should be bulk set by
+        [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
         or when `declare_global_commands` is True
 
     Examples
