@@ -135,7 +135,8 @@ def as_slash_command(
 
     !!! note
         Under the standard implementation, `is_global` is used to determine whether
-        the command should be bulk set by [tanjun.Client.declare_global_commands][]
+        the command should be bulk set by
+        [Client.declare_global_commands][tanjun.abc.Client.declare_global_commands]
         or when `declare_global_commands` is True
 
     !!! warning
