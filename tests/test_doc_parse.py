@@ -1408,7 +1408,7 @@ def test_errors_when_unpack_isnt_typed_dict():
             Meow meow
         """
 
-        value: annotations.Bool  # pyright: ignore [ reportUninitializedInstanceVariable ]
+        value: annotations.Bool  # pyright: ignore [reportUninitializedInstanceVariable]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command(name="meow", description="yeet")
