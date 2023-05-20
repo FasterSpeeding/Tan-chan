@@ -99,12 +99,12 @@ ignore = [
     "E231",    # missing whitespace after ','
 ]
 per-file-ignores = [
-    "docs_src/*.py: A001, D100, D103, D407, FA100, FA101, F841, INP001, TC002, TYP006",
+    "docs_src/*.py: A001, DALL000, D100, D103, D407, FA100, FA101, F841, INP001, TC002, TYP006",
     "noxfile.py: D100, FA101, F401, F403, INP001",
     "tanchan/py.typed: D100",
-    "tests/*.py: CCE002, D100, D101, D103, D104, FA100, FA101",
-    "tests/test_doc_parse.py: D100, D101, D103, D104, D400, D403, D406, D407, D410, D411, FA100, FA101, TC101, TC002",
-    "tests/test_usage_guilde.py: CCE002, D100, D101, D103, D104, FA100, FA101, TC002",
+    "tests/*.py: CCE002, DALL000, D100, D101, D103, D104, FA100, FA101",
+    "tests/test_doc_parse.py: DALL000, D100, D101, D103, D104, D400, D403, D406, D407, D410, D411, FA100, FA101, TC101, TC002",
+    "tests/test_usage_guilde.py: CCE002, DALL000, D100, D101, D103, D104, FA100, FA101, TC002",
 ]
 
 [tool.isort]
