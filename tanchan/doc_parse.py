@@ -81,7 +81,7 @@ def _make_slash_command(
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
     name: typing.Union[str, collections.Mapping[str, str], None],
-    nsfw: bool,
+    nsfw: bool = False,
     sort_options: bool,
     validate_arg_keys: bool,
 ) -> tanjun.SlashCommand[_SlashCallbackSigT]:
