@@ -126,11 +126,9 @@ def test_as_slash_command_with_arg_defaults():
     async def command(ctx: tanjun.abc.Context) -> None:
         """Meow me meow."""
 
-    builder = command.build()
-
     assert command._always_defer is False  # pyright: ignore[reportPrivateUsage]
     assert command.default_member_permissions is None
-    assert command.defaults_to_ephemeral is False
+    assert command.defaults_to_ephemeral is None
     assert command.is_dm_enabled is True
     assert command.is_global is True
     assert command.is_nsfw is False
