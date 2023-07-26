@@ -113,7 +113,7 @@ def test_as_slash_command_when_all_args_passed():
 
     assert command._always_defer is True  # pyright: ignore[reportPrivateUsage]
     assert command.default_member_permissions == 123
-    assert command._default_to_ephemeral is True # pyright: ignore[reportPrivateUsage]
+    assert command._default_to_ephemeral is True  # pyright: ignore[reportPrivateUsage]
     assert builder.description == command.description == "Meow meow meow meow!"
     assert command.is_dm_enabled is False
     assert command.is_global is False
@@ -128,9 +128,9 @@ def test_as_slash_command_with_arg_defaults():
 
     builder = command.build()
 
-    assert command._always_defer is False # pyright: ignore[reportPrivateUsage]
+    assert command._always_defer is False  # pyright: ignore[reportPrivateUsage]
     assert command.default_member_permissions is None
-    assert command._default_to_ephemeral is False # pyright: ignore[reportPrivateUsage]
+    assert command._default_to_ephemeral is False  # pyright: ignore[reportPrivateUsage]
     assert command.is_dm_enabled is True
     assert command.is_global is True
     assert command.is_nsfw is False
