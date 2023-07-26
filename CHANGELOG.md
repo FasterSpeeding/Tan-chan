@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ## [0.3.1] - 2023-07-26
+### Added
+- Support for the application command `nsfw` config option.
+
 ### Changed
 - Bumped the minimum Tanjun version to `2.16.0`.
 

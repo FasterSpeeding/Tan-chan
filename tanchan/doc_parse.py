@@ -81,6 +81,7 @@ def _make_slash_command(
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
     name: typing.Union[str, collections.Mapping[str, str], None],
+    nsfw: bool,
     sort_options: bool,
     validate_arg_keys: bool,
 ) -> tanjun.SlashCommand[_SlashCallbackSigT]:
@@ -110,6 +111,7 @@ def _make_slash_command(
         default_to_ephemeral=default_to_ephemeral,
         dm_enabled=dm_enabled,
         is_global=is_global,
+        nsfw=nsfw,
         sort_options=sort_options,
         validate_arg_keys=validate_arg_keys,
         _wrapped_command=wrapped_command,
@@ -125,6 +127,7 @@ def as_slash_command(
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
     name: typing.Union[str, collections.Mapping[str, str], None] = None,
+    nsfw: bool = False,
     sort_options: bool = True,
     validate_arg_keys: bool = True,
 ) -> _AsSlashResultProto:
@@ -181,6 +184,9 @@ def as_slash_command(
 
         This must fit [discord's requirements](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming)
         and if left as [None][] then the command callback's name is used.
+    nsfw
+        Whether this command should only be accessible in channels marked as
+        nsfw.
     sort_options
         Whether this command should sort its set options based on whether
         they're required.
@@ -221,6 +227,7 @@ def as_slash_command(
             dm_enabled=dm_enabled,
             is_global=is_global,
             name=name,
+            nsfw=nsfw,
             sort_options=sort_options,
             validate_arg_keys=validate_arg_keys,
         )
@@ -635,6 +642,7 @@ def slash_command_group(
     default_to_ephemeral: typing.Optional[bool] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
+    nsfw: bool = False,
 ) -> SlashCommandGroup:
     r"""Create a slash command group.
 
@@ -689,6 +697,9 @@ def slash_command_group(
         will be used.
     is_global
         Whether this command is a global command.
+    nsfw
+        Whether this command should only be accessible in channels marked as
+        nsfw.
 
     Returns
     -------
@@ -711,4 +722,5 @@ def slash_command_group(
         default_to_ephemeral=default_to_ephemeral,
         dm_enabled=dm_enabled,
         is_global=is_global,
+        nsfw=nsfw,
     )
