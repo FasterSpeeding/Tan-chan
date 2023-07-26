@@ -93,15 +93,47 @@ def test_as_slash_command_when_has_no_doc_string():
         tanchan.doc_parse.as_slash_command()(command)
 
 
-def test_as_slash_command_when_overrides_passed():
-    @tanchan.doc_parse.as_slash_command(name="overridden_name", description="Meow meow meow meow!")
+def test_as_slash_command_when_all_args_passed():
+    @tanchan.doc_parse.as_slash_command(
+        always_defer=True,
+        default_member_permissions=123,
+        default_to_ephemeral=True,
+        description="Meow meow meow meow!",
+        dm_enabled=False,
+        is_global=False,
+        name="overridden_name",
+        nsfw=True,
+        sort_otions=False,
+        validate_arg_keys=False,
+    )
     async def command(ctx: tanjun.abc.Context) -> None:
         """Meow me meow."""
 
     builder = command.build()
 
-    assert builder.name == command.name == "overridden_name"
+    assert command._always_defer is True
+    assert command.default_member_permissions == 123
+    assert builder._default_to_ephemeral is True
     assert builder.description == command.description == "Meow meow meow meow!"
+    assert command.is_dm_enabled is False
+    assert command.is_global is False
+    assert builder.name == command.name == "overridden_name"
+    assert command.is_nsfw is True
+
+
+def test_as_slash_command_with_arg_defaults():
+    @tanchan.doc_parse.as_slash_command(description="Meow meow meow meow!")
+    async def command(ctx: tanjun.abc.Context) -> None:
+        """Meow me meow."""
+
+    builder = command.build()
+
+    assert command._always_defer is False
+    assert command.default_member_permissions is None
+    assert builder._default_to_ephemeral is False
+    assert command.is_dm_enabled is True
+    assert command.is_global is True
+    assert command.is_nsfw is False
 
 
 def test_as_slash_command_when_dict_overrides_passed():
@@ -1729,11 +1761,12 @@ def test_slash_command_group():
     assert group.default_member_permissions is None
     assert group.is_dm_enabled is None
     assert group.is_global is True
+    assert group.is_nsfw is False
 
 
 def test_slash_command_group_with_optional_args():
     group = tanchan.doc_parse.slash_command_group(
-        "name_her", "Describe her", default_member_permissions=123321, dm_enabled=True, is_global=False
+        "name_her", "Describe her", default_member_permissions=123321, dm_enabled=True, is_global=False, nsfw=True
     )
 
     assert group.name == "name_her"
@@ -1741,3 +1774,4 @@ def test_slash_command_group_with_optional_args():
     assert group.default_member_permissions == 123321
     assert group.is_dm_enabled is True
     assert group.is_global is False
+    assert group.is_nsfw is True
