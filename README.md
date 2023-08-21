@@ -10,6 +10,10 @@ You can install Tan-chan from PyPI using the following command in any Python 3.9
 python -m pip install -U tanchan
 ```
 
+The commands provided in `tanchan.components` require the 3rd party library Hikari-Yuyo to work.
+The feature flag `tanchan[yuyo]` should be used to ensure that a compatible version of Yuyo is
+installed (i.e. `pip install -U tanchan[yuyo]`).
+
 # Quick Usage
 
 For usage see the [documentation](https://tanchan.cursed.solutions/) and the
