@@ -171,7 +171,7 @@ async def _check_owner(
         raise yuyo.InteractionError("You cannot use this button")
 
 
-@yuyo.modals.as_modal(parse_signature=True)
+@yuyo.modals.as_modal(ephemeral_default=True, parse_signature=True)
 async def _eval_modal(
     ctx: yuyo.ModalContext,
     client: alluka.Injected[tanjun.abc.Client],
@@ -188,13 +188,13 @@ async def _eval_modal(
         file_output = tanjun.conversion.to_bool(raw_file_output)
 
     except ValueError:
-        await ctx.create_initial_response("Invalid value passed for File output", ephemeral=True)
-        return
+        raise yuyo.InteractionError("Invalid value passed for File output") from None
 
     await _check_owner(client, authors, ctx)
     if ctx.interaction.message:
         # Being executed as a button attached to an eval call's response to edit it.
-        await ctx.create_initial_response(response_type=hikari.ResponseType.MESSAGE_UPDATE)
+        # TODO: we shouldn't actually need to pass ephemeral=False when doing a message update response
+        await ctx.create_initial_response(ephemeral=False, response_type=hikari.ResponseType.MESSAGE_UPDATE)
 
     else:
         # Being executed in response to the slash command.
