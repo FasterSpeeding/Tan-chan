@@ -293,22 +293,8 @@ async def _on_noop(ctx: yuyo.ComponentContext) -> None:
     raise RuntimeError("Shouldn't be reached")
 
 
-class FileCallback:
-    """Callback logic used for to file buttons.
-
-    .. note::
-        `files` and `make_files` are mutually exclusive.
-
-    Parameters
-    ----------
-    ctx
-        The command context this is linked to.
-    files
-        Collection of the files to send when the to file button is pressed.
-    make_files
-        A callback which returns the files tosend when the to file button is
-        pressed.
-    """
+class _FileCallback:
+    """Callback logic used for to file buttons."""
 
     __slots__ = ("_custom_id", "_files", "_make_files", "_post_components", "__weakref__")
 
@@ -321,6 +307,23 @@ class FileCallback:
         make_files: collections.Callable[[], collections.Sequence[hikari.Resourceish]] | None = None,
         post_components: yuyo.ActionColumnExecutor | None = None,
     ) -> None:
+        """Initialise a file callback.
+
+        .. note::
+            `files` and `make_files` are mutually exclusive.
+
+        Parameters
+        ----------
+        custom_id
+            The button's custom ID.
+        files
+            Collection of the files to send when the to file button is pressed.
+        make_files
+            A callback which returns the files tosend when the to file button is
+            pressed.
+        post_components
+            Components to include on the updated message.
+        """
         self._custom_id = custom_id
         self._files = files
         self._make_files = make_files
@@ -367,7 +370,7 @@ def add_file_button(
     custom_id = random.randbytes(32).hex()
     column.add_interactive_button(
         hikari.ButtonStyle.SECONDARY,
-        FileCallback(custom_id, files=files, make_files=make_files, post_components=column),
+        _FileCallback(custom_id, files=files, make_files=make_files, post_components=column),
         custom_id=custom_id,
         emoji=_FILE_EMOJI,
     )
@@ -494,11 +497,12 @@ async def eval_slash_command(
 
 @_component.with_listener()
 async def on_guild_create(
-    event: hikari.GuildJoinEvent | hikari.GuildAvailableEvent, config: alluka.Injected[config.EvalConfig]
+    event: hikari.GuildJoinEvent | hikari.GuildAvailableEvent, eval_config: alluka.Injected[config.EvalConfig | None] = None
 ) -> None:
     """Guild create listener which declares the eval slash command."""
     # TODO: come up with a better system for overriding command.is_global
-    if config.eval_guild_ids is None or event.guild_id in config.eval_guild_ids:
+    eval_config = eval_config or config.EvalConfig()
+    if eval_config.eval_guild_ids is None or event.guild_id in eval_config.eval_guild_ids:
         app = await event.app.rest.fetch_application()
         await eval_slash_command.build().create(event.app.rest, app.id, guild=event.guild_id)
 
