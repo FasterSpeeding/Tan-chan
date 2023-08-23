@@ -70,10 +70,25 @@ def with_help(
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Override the help string for the command.
 
+    Parameters
+    ----------
+    description
+        Description to set for the command.
+    category
+        Name of the category this command should be in. Defaults to the
+        component's name.
+    follow_wrapped
+        Whether this should also apply the help information to the other
+        command objects this wraps in a decorator call chain.
+
     Examples
     --------
-    description
-    follow_wrapped
+    ```py
+    @hide_from_command("Alternative description.")
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context) -> None:
+        ...
+    ```
     """
 
     def decorator(cmd: _CommandT, /) -> _CommandT:
@@ -97,11 +112,16 @@ def hide_from_help(
     Parameters
     ----------
     follow_wrapped
+        Whether this should also apply the help information to the other
+        command objects this wraps in a decorator call chain.
 
     Examples
     --------
     ```py
     @hide_from_command
+    @tanjun.as_message_command("name")
+    async def command(ctx: tanjun.abc.Context) -> None:
+        '''Meow command.'''
     ```
     """
 
