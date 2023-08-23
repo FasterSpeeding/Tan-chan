@@ -41,11 +41,13 @@ if typing.TYPE_CHECKING:
     from collections import abc as collections
 
     import typing_extensions
+    from alluka import abc as alluka
     from tanjun import abc as tanjun
 
     class _WrappedProto(typing.Protocol):
         wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]]
 
+    _T = typing.TypeVar("_T")
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
 
 
@@ -87,3 +89,13 @@ def apply_to_wrapped(
             wrapped = wrapped.wrapped_command if _has_wrapped(wrapped) else None
 
     return command
+
+
+def get_or_set_dep(client: alluka.Client, type_: type[_T], callback: collections.Callable[[], _T]) -> _T:
+    """Get a type dependency from a client or default to creating it."""
+    if (value := client.get_type_dependency(type_, default=None)) is not None:
+        return value
+
+    value = callback()
+    client.set_type_dependency(type_, value)
+    return value

@@ -36,6 +36,7 @@ __all__: list[str] = ["load_help", "unload_help"]
 import hashlib
 import inspect
 import itertools
+import math
 import typing
 import urllib.parse
 from typing import Annotated
@@ -49,7 +50,7 @@ from tanjun.annotations import Str
 
 from .. import _internal
 from .. import doc_parse
-from . import _components
+from . import buttons
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -57,7 +58,6 @@ if typing.TYPE_CHECKING:
 _CommandT = typing.TypeVar("_CommandT", bound=tanjun.abc.ExecutableCommand[typing.Any])
 
 
-_AUTHOR_KEY = "a"
 _CATEGORY_KEY = "TANCHAN_HELP_CATEGORY"
 _DESCRIPTION_KEY = "TANCHAN_HELP_DESCRIPTIOn"
 _HASH_KEY = "h"
@@ -120,13 +120,31 @@ def _filter_name(name: str, /) -> list[str]:
     return name.casefold().split()
 
 
+class _Page:
+    __slots__ = ("description", "_index", "_page_number", "title")
+
+    def __init__(self, index: _HelpIndex, page_number: int, title: str, description: str) -> None:
+        self.description = description
+        self._index = index
+        self._page_number = page_number
+        self.title = title
+
+    def to_content(self) -> str:
+        return f"```md\n{self.title}\n{self.description}\n```"
+
+    def to_embed(self) -> hikari.Embed:
+        return hikari.Embed(title="Command descriptions", description=self.description).set_footer(
+            f"Help page {self._page_number}/{len(self._index.pages)}"
+        )
+
+
 class _HelpIndex:
     __slots__ = ("_column", "_descriptions", "_hash", "_numbers", "_pages")
 
     def __init__(self) -> None:
         self._descriptions: dict[tuple[str, ...], typing.Optional[str]] = {}
         self._hash = ""
-        self._pages: list[str] = []
+        self._pages: list[_Page] = []
         self._column = _HelpColumn(self)
         self._numbers = _NumberModal(self)
 
@@ -143,68 +161,116 @@ class _HelpIndex:
         return self._numbers
 
     @property
-    def pages(self) -> collections.Sequence[str]:
+    def pages(self) -> collections.Sequence[_Page]:
         return self._pages
 
-    def form_page(
-        self, permissions: typing.Optional[hikari.Permissions], index: int, /
-    ) -> typing.Optional[yuyo.pagination.Page]:
+    async def to_page(self, ctx: typing.Union[yuyo.ComponentContext, yuyo.ModalContext], page_number: int, /) -> None:
         try:
-            page = self._pages[index - 1]
+            page = self._pages[page_number]
 
         except IndexError:
-            return None
+            raise yuyo.InteractionError("Page not found", component=buttons.delete_row(ctx.author.id)) from None
 
+        permissions = ctx.interaction.app_permissions
         # perms is None indicates a DM where we will always have embed links.
         if permissions is None or permissions & hikari.Permissions.EMBED_LINKS:
-            return yuyo.pagination.Page(
-                embed=hikari.Embed(title="Command descriptions", description=page).set_footer(
-                    f"Help page {index}/{len(self._pages)}"
-                )
-            )
+            content = page.to_embed()
 
         else:
-            return yuyo.pagination.Page(f"```md\n{page}\n```")
+            content = page.to_content()
 
-    async def on_refresh(self, _: tanjun.abc.Component, client: alluka.Injected[tanjun.abc.Client]) -> None:
+        rows = self._column.make_rows(ctx.author.id, page_number)
+        await ctx.create_initial_response(content, components=rows, response_type=hikari.ResponseType.MESSAGE_UPDATE)
+
+    def reload(self, client: tanjun.abc.Client) -> None:
+        categories: dict[str, list[tuple[str, str]]] = {}
+        descriptions: dict[tuple[str, ...], typing.Optional[str]] = {}
+        pages: list[_Page] = []
+
         for command in client.iter_message_commands():
             component_name = command.component.name if command.component else "unknown"
-            categories: dict[str, list[tanjun.abc.ExecutableCommand[typing.Any]]] = {}
             names: typing.Optional[list[tuple[str, ...]]] = None
-            other_commands = command.commands if isinstance(command, tanjun.abc.MessageCommandGroup) else ()
 
-            for command in itertools.chain((command,), other_commands):
-                if not names:
-                    names = [tuple(_filter_name(n)) for n in command.names]
-
-                else:
-                    names = [(*p, *_filter_name(n)) for p, n in itertools.product(names, command.names)]
-
-                if description_override := command.metadata.get(_DESCRIPTION_KEY):
-                    if not isinstance(description_override, str):
-                        description_override = None
-
-                else:
-                    continue
-
-                description = description_override or inspect.getdoc(command.callback)
-                # TODO: handle inheriting this state from parent commands
-                category = command.metadata.get(_CATEGORY_KEY) or component_name
+            for command, names in _collect_commands(command).items():
                 try:
-                    categories[category].append(command)
+                    description_override = command.metadata[_DESCRIPTION_KEY]
 
                 except KeyError:
-                    categories[category] = [command]
+                    description_override = ""
 
+                else:
+                    if description_override is None:
+                        continue
+
+                    elif not isinstance(description_override, str):
+                        description_override = None
+
+                description = description_override or inspect.getdoc(command.callback)
+                if not description:
+                    continue
+
+                # TODO: handle inheriting this state from parent commands
+                category = command.metadata.get(_CATEGORY_KEY) or component_name
                 for name in names:
-                    self._descriptions[name] = description
+                    descriptions[name] = description
 
-        items_repr = ((" ".join(k), v or "") for k, v in self._descriptions.items())
+                entry = (" ".join(names[0]), description.split("\n", 1)[0])
+                try:
+                    categories[category].append(entry)
+
+                except KeyError:
+                    categories[category] = [entry]
+
+        page_number = 0
+        for cateory, commands in sorted(categories.items(), key=lambda v: v[0]):
+            page_count = math.ceil(len(commands) / 10)
+            for index in range(page_count):
+                page = "\n".join(
+                    f"{name}: {description}" for name, description in commands[10 * index : 10 * (index + 1)]
+                )
+                page_number += 1
+                pages.append(_Page(self, page_number, f"{cateory} commands", page))
+
+        items_repr = ((" ".join(k), v or "") for k, v in descriptions.items())
         items_repr = ",".join(map(":".join, sorted(items_repr, key=lambda v: v[0]))).encode()
+        self._descriptions = descriptions
         self._hash = "md5-" + hashlib.md5(items_repr, usedforsecurity=False).hexdigest()
+        self._pages = pages
+
+    async def on_component_change(self, _: tanjun.abc.Component, client: alluka.Injected[tanjun.abc.Client]) -> None:
+        return self.reload(client)
 
     def find_command(self, command_name: str, /) -> typing.Optional[str]:
         self._descriptions.get(tuple(_filter_name(command_name)))
+
+
+# TODO: this feels very inefficient
+def _collect_commands(
+    command: tanjun.abc.MessageCommand[typing.Any],
+) -> collections.Mapping[tanjun.abc.MessageCommand[typing.Any], list[tuple[str, ...]]]:
+    results: dict[tanjun.abc.MessageCommand[typing.Any], list[tuple[str, ...]]] = {}
+
+    for names, command in _follow_children(command):
+        names = tuple(names)
+        try:
+            results[command].append(names)
+
+        except KeyError:
+            results[command] = [names]
+
+    return results
+
+
+def _follow_children(
+    command: tanjun.abc.MessageCommand[typing.Any], /
+) -> collections.Iterator[tuple[list[str], tanjun.abc.MessageCommand[typing.Any]]]:
+    yield from ((_filter_name(name), command) for name in command.names)
+
+    if isinstance(command, tanjun.abc.MessageCommandGroup):
+        commands_iter = itertools.product(
+            command.names, itertools.chain.from_iterable(map(_follow_children, command.commands))
+        )
+        yield from (([*_filter_name(parent_name), *name], command) for parent_name, (name, command) in commands_iter)
 
 
 class _NumberModal(yuyo.modals.Modal):
@@ -220,21 +286,13 @@ class _NumberModal(yuyo.modals.Modal):
         try:
             page_number = int(field)
         except ValueError:
-            raise yuyo.InteractionError(
-                "Not a valid number", component=_components.delete_row_from_authors(ctx.author.id)
-            ) from None
+            raise yuyo.InteractionError("Not a valid number", component=buttons.delete_row(ctx.author.id)) from None
+
+        if page_number < 1:
+            raise yuyo.InteractionError("Page not found", component=buttons.delete_row(ctx.author.id)) from None
 
         # TODO: what is ctx.interaction.app_permissions when the app itself isn't present?
-        if page := self._index.form_page(ctx.interaction.app_permissions, page_number):
-            await ctx.create_initial_response(
-                **page.to_kwargs(),
-                components=self._index.column.rows,
-                ephemeral=False,
-                response_type=hikari.ResponseType.MESSAGE_UPDATE,
-            )
-
-        else:
-            await ctx.respond("Page not found")
+        await self._index.to_page(ctx, page_number - 1)
 
 
 async def _noop(ctx: yuyo.ComponentContext, /) -> None:
@@ -249,22 +307,22 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
     ) -> None:
         metadata = f"{_HASH_KEY}={index.hash}&{_PAGE_NUM_KEY}={page}"
         if author:
-            metadata += f"&{_AUTHOR_KEY}={int(author)}"
+            metadata += f"&{buttons.OWNER_QS_KEY}={int(author)}"
 
         super().__init__(
             ephemeral_default=True,
             id_metadata={
                 "jump_to_start": metadata,
                 "previous_button": metadata,
-                "stop_button": str(int(author)) if author else "",
+                "stop_button": metadata,
                 "next_button": metadata,
                 "jump_to_last": metadata,
-                "numbers_button": metadata,
+                "select_number_button": metadata,
             },
         )
         self._index = index
 
-    def _make_rows(
+    def make_rows(
         self, author: hikari.Snowflake, page: int, /
     ) -> collections.Sequence[hikari.api.MessageActionRowBuilder]:
         return _HelpColumn(self._index, author=author, page=page).rows
@@ -272,33 +330,20 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
     def _process_metadata(self, ctx: yuyo.ComponentContext, /) -> int:
         metadata = urllib.parse.parse_qs(ctx.id_metadata)
 
-        if int(metadata[_AUTHOR_KEY][0]) != ctx.author.id:
-            raise yuyo.InteractionError(
-                "You cannot use this button", component=_components.delete_row_from_authors(ctx.author.id)
-            )
+        if int(metadata[buttons.OWNER_QS_KEY][0]) != ctx.author.id:
+            raise yuyo.InteractionError("You cannot use this button", component=buttons.delete_row(ctx.author.id))
 
         if metadata[_HASH_KEY][0] != self._index.hash:
             raise yuyo.InteractionError(
-                "This help command instance is out of date",
-                component=_components.delete_row_from_authors(ctx.author.id),
+                "This help command instance is out of date", component=buttons.delete_row(ctx.author.id)
             )
 
         return int(metadata[_PAGE_NUM_KEY][0])
 
-    async def to_page(self, ctx: yuyo.ComponentContext, index: int, /) -> None:
-        if page := self._index.form_page(ctx.interaction.app_permissions, index):
-            rows = self._make_rows(ctx.author.id, index)
-            await ctx.create_initial_response(
-                page.to_kwargs(), components=rows, response_type=hikari.ResponseType.MESSAGE_UPDATE
-            )
-
-        else:
-            raise yuyo.InteractionError("Page not found", component=_components.delete_row_from_authors(ctx.author.id))
-
     @yuyo.components.as_interactive_button(hikari.ButtonStyle.SECONDARY, emoji=yuyo.pagination.LEFT_DOUBLE_TRIANGLE)
     async def jump_to_start(self, ctx: yuyo.ComponentContext) -> None:
         self._process_metadata(ctx)
-        await self.to_page(ctx, 1)
+        await self._index.to_page(ctx, 0)
 
     @yuyo.components.as_interactive_button(hikari.ButtonStyle.SECONDARY, emoji=yuyo.pagination.LEFT_TRIANGLE)
     async def previous_button(self, ctx: yuyo.ComponentContext) -> None:
@@ -307,30 +352,30 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
             await _noop(ctx)
 
         else:
-            await self.to_page(ctx, page_number - 1)
+            await self._index.to_page(ctx, page_number - 1)
 
-    @yuyo.components.as_interactive_button(
-        hikari.ButtonStyle.DANGER, custom_id=_components.DELETE_CUSTOM_ID, emoji=yuyo.pagination.BLACK_CROSS
+    stop_button = yuyo.components.builder(
+        hikari.impl.InteractiveButtonBuilder(
+            style=hikari.ButtonStyle.DANGER, custom_id=buttons.DELETE_CUSTOM_ID, emoji=yuyo.pagination.BLACK_CROSS
+        )
     )
-    async def stop_button(self, ctx: yuyo.ComponentContext) -> None:
-        ...
 
     @yuyo.components.as_interactive_button(hikari.ButtonStyle.SECONDARY, emoji=yuyo.pagination.RIGHT_TRIANGLE)
     async def next_button(self, ctx: yuyo.ComponentContext) -> None:
         page_number = self._process_metadata(ctx)
-        if page_number >= len(self._index.pages):
+        if page_number >= (len(self._index.pages) - 1):
             await _noop(ctx)
 
         else:
-            await self.to_page(ctx, page_number + 1)
+            await self._index.to_page(ctx, page_number + 1)
 
     @yuyo.components.as_interactive_button(hikari.ButtonStyle.SECONDARY, emoji=yuyo.pagination.RIGHT_DOUBLE_TRIANGLE)
     async def jump_to_last(self, ctx: yuyo.ComponentContext) -> None:
         self._process_metadata(ctx)
-        await self.to_page(ctx, len(self._index.pages))
+        await self._index.to_page(ctx, len(self._index.pages) - 1)
 
     @yuyo.components.as_interactive_button(hikari.ButtonStyle.SECONDARY, emoji="\N{INPUT SYMBOL FOR NUMBERS}")
-    async def numbers_button(self, ctx: yuyo.ComponentContext) -> None:
+    async def select_number_button(self, ctx: yuyo.ComponentContext) -> None:
         self._process_metadata(ctx)
         await ctx.create_modal_response("Select page", _NUMBERS_MODAL_ID, components=self._index.numbers_modal.rows)
 
@@ -358,21 +403,33 @@ async def help_command(
     """
     if command_name:
         content = index.find_command(command_name)
-        components: collections.Sequence[hikari.api.MessageActionRowBuilder] = []
+        components: collections.Sequence[hikari.api.MessageActionRowBuilder] = [buttons.delete_row(ctx.author.id)]
 
         if not content:
-            raise tanjun.CommandError(
-                "Couldn't find command", component=_components.delete_row_from_authors(ctx.author.id)
-            )
+            raise tanjun.CommandError("Couldn't find command", component=buttons.delete_row(ctx.author.id))
+
+        if await _check_embed_links(ctx, me):
+            await ctx.respond(embed=hikari.Embed(description=content), components=components)
+
+        else:
+            await ctx.respond(f"```md\n{content}\n```", components=components)
 
     else:
         # TODO: proper intro page + page numbers
-        content = index.pages[0]
+        page = index.pages[0]
         components = _HelpColumn(index, author=ctx.author.id).rows
 
+        if await _check_embed_links(ctx, me):
+            await ctx.respond(embed=page.to_embed(), components=components)
+
+        else:
+            await ctx.respond(page.to_content(), components=components)
+
+
+async def _check_embed_links(ctx: tanjun.abc.Context, me: hikari.OwnUser, /) -> bool:
     if ctx.guild_id is None:
         # The bot will always be able to embed links in DMs
-        perms = hikari.Permissions.EMBED_LINKS
+        perms = hikari.Permissions.all_permissions()
 
     elif isinstance(ctx, tanjun.abc.AppCommandContext):
         assert ctx.interaction.app_permissions is not None
@@ -385,39 +442,33 @@ async def help_command(
         # TODO: this could handle caching the channel and roles better as well
         perms = await tanjun.permissions.fetch_permissions(ctx.client, member, channel=ctx.channel_id)
 
-    if perms & hikari.Permissions.EMBED_LINKS:
-        await ctx.respond(embed=hikari.Embed(description=content), components=components)
-
-    else:
-        await ctx.respond(f"```md\n{content}\n```", components=components)
+    return (perms & hikari.Permissions.EMBED_LINKS) == hikari.Permissions.EMBED_LINKS
 
 
 @tanjun.as_loader
 def load_help(client: tanjun.abc.Client) -> None:
     """Load this module's components into a bot."""
+    client.add_component(_component)
+
     index = _HelpIndex()
-    client.add_client_callback(tanjun.ClientCallbackNames.COMPONENT_ADDED, index.on_refresh)
-    client.add_client_callback(tanjun.ClientCallbackNames.COMPONENT_REMOVED, index.on_refresh)
+    client.add_client_callback(tanjun.ClientCallbackNames.COMPONENT_ADDED, index.on_component_change)
+    client.add_client_callback(tanjun.ClientCallbackNames.COMPONENT_REMOVED, index.on_component_change)
     client.injector.set_type_dependency(_HelpIndex, index)
 
-    component_client = client.injector.get_type_dependency(yuyo.ComponentClient)
-    modal_client = client.injector.get_type_dependency(yuyo.ModalClient)
-
-    if not component_client:
-        # TODO: or raise a missing dep error?
-        component_client = yuyo.ComponentClient.from_tanjun(client)
-
-    if not modal_client:
-        # TODO: or raise a missing dep error?
-        modal_client = yuyo.ModalClient.from_tanjun(client)
-
-    component_client.register_executor(index.column, timeout=None)
-    modal_client.register_modal(_NUMBERS_MODAL_ID, index.numbers_modal, timeout=None)
+    _internal.get_or_set_dep(client.injector, yuyo.ComponentClient, yuyo.ComponentClient).register_executor(
+        index.column, timeout=None
+    )
+    _internal.get_or_set_dep(client.injector, yuyo.ModalClient, yuyo.ModalClient).register_modal(
+        _NUMBERS_MODAL_ID, index.numbers_modal, timeout=None
+    )
+    index.reload(client)
 
 
 @tanjun.as_unloader
 def unload_help(client: tanjun.abc.Client) -> None:
     """Unload this module's components from a bot."""
+    client.remove_component_by_name(_component.name)
+
     index = client.get_type_dependency(_HelpIndex)
     component_client = client.injector.get_type_dependency(yuyo.ComponentClient)
     modal_client = client.injector.get_type_dependency(yuyo.ModalClient)
@@ -425,8 +476,8 @@ def unload_help(client: tanjun.abc.Client) -> None:
     assert component_client
     assert modal_client
 
-    client.remove_client_callback(tanjun.ClientCallbackNames.COMPONENT_ADDED, index.on_refresh)
-    client.remove_client_callback(tanjun.ClientCallbackNames.COMPONENT_REMOVED, index.on_refresh)
+    client.remove_client_callback(tanjun.ClientCallbackNames.COMPONENT_ADDED, index.on_component_change)
+    client.remove_client_callback(tanjun.ClientCallbackNames.COMPONENT_REMOVED, index.on_component_change)
     client.injector.remove_type_dependency(_HelpIndex)
     component_client.deregister_executor(index.column)
     modal_client.deregister_modal(_NUMBERS_MODAL_ID)

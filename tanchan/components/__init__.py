@@ -31,4 +31,11 @@
 """Collection of commands implemented by Tan-chan."""
 from __future__ import annotations
 
-__all__: list[str] = []
+__all__: list[str] = ["load_buttons", "load_help", "load_sudo", "unload_buttons", "unload_help", "unload_sudo"]
+
+from .buttons import load_buttons
+from .buttons import unload_buttons
+from .eval import load_sudo
+from .eval import unload_sudo
+from .help import load_help
+from .help import unload_help
