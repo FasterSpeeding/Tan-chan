@@ -62,7 +62,7 @@ _CATEGORY_KEY = "TANCHAN_HELP_CATEGORY"
 _DESCRIPTION_KEY = "TANCHAN_HELP_DESCRIPTIOn"
 _HASH_KEY = "h"
 _PAGE_NUM_KEY = "p"
-_NUMBERS_MODAL_ID = "tanchan.help.to_page"
+_NUMBERS_MODAL_ID = "tanchan.help.select_page"
 
 
 def with_help(
@@ -164,7 +164,9 @@ class _HelpIndex:
     def pages(self) -> collections.Sequence[_Page]:
         return self._pages
 
-    async def to_page(self, ctx: typing.Union[yuyo.ComponentContext, yuyo.ModalContext], page_number: int, /) -> None:
+    async def to_response(
+        self, ctx: typing.Union[yuyo.ComponentContext, yuyo.ModalContext], page_number: int, /
+    ) -> None:
         try:
             page = self._pages[page_number]
 
@@ -292,7 +294,7 @@ class _NumberModal(yuyo.modals.Modal):
             raise yuyo.InteractionError("Page not found", component=buttons.delete_row(ctx.author.id)) from None
 
         # TODO: what is ctx.interaction.app_permissions when the app itself isn't present?
-        await self._index.to_page(ctx, page_number - 1)
+        await self._index.to_response(ctx, page_number - 1)
 
 
 async def _noop(ctx: yuyo.ComponentContext, /) -> None:
@@ -343,7 +345,7 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
     @yuyo.components.as_interactive_button(hikari.ButtonStyle.SECONDARY, emoji=yuyo.pagination.LEFT_DOUBLE_TRIANGLE)
     async def jump_to_start(self, ctx: yuyo.ComponentContext) -> None:
         self._process_metadata(ctx)
-        await self._index.to_page(ctx, 0)
+        await self._index.to_response(ctx, 0)
 
     @yuyo.components.as_interactive_button(hikari.ButtonStyle.SECONDARY, emoji=yuyo.pagination.LEFT_TRIANGLE)
     async def previous_button(self, ctx: yuyo.ComponentContext) -> None:
@@ -352,7 +354,7 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
             await _noop(ctx)
 
         else:
-            await self._index.to_page(ctx, page_number - 1)
+            await self._index.to_response(ctx, page_number - 1)
 
     stop_button = yuyo.components.builder(
         hikari.impl.InteractiveButtonBuilder(
@@ -367,12 +369,12 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
             await _noop(ctx)
 
         else:
-            await self._index.to_page(ctx, page_number + 1)
+            await self._index.to_response(ctx, page_number + 1)
 
     @yuyo.components.as_interactive_button(hikari.ButtonStyle.SECONDARY, emoji=yuyo.pagination.RIGHT_DOUBLE_TRIANGLE)
     async def jump_to_last(self, ctx: yuyo.ComponentContext) -> None:
         self._process_metadata(ctx)
-        await self._index.to_page(ctx, len(self._index.pages) - 1)
+        await self._index.to_response(ctx, len(self._index.pages) - 1)
 
     @yuyo.components.as_interactive_button(hikari.ButtonStyle.SECONDARY, emoji="\N{INPUT SYMBOL FOR NUMBERS}")
     async def select_number_button(self, ctx: yuyo.ComponentContext) -> None:
