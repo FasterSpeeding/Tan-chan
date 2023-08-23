@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
-# Copyright (c) 2022-2023, Faster Speeding
+# Copyright (c) 2023, Faster Speeding
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,23 +28,26 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""Collection of commands implemented by Tan-chan."""
+"""Configuration classes for Tanchan's command components."""
 from __future__ import annotations
 
-__all__: list[str] = [
-    "config",
-    "load_buttons",
-    "load_help",
-    "load_sudo",
-    "unload_buttons",
-    "unload_help",
-    "unload_sudo",
-]
+__all__: list[str] = ["EvalConfig"]
 
-from . import config as config
-from .buttons import load_buttons
-from .buttons import unload_buttons
-from .eval import load_sudo
-from .eval import unload_sudo
-from .help import load_help
-from .help import unload_help
+import typing
+
+import attrs
+
+if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
+
+@attrs.define(slots=True, kw_only=True)
+class EvalConfig:
+    """Configuration for the eval commands."""
+
+    eval_guild_ids: typing.Optional[collections.Collection[int]] = attrs.field(factory=tuple)
+    """ID of the guilds the eval slash command should be declared in.
+
+    If [None][] then this will be declared in every guild. Defaults to an empty
+    sequences (so no guilds).
+    """

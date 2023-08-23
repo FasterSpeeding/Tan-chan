@@ -59,6 +59,7 @@ from tanjun.annotations import Flag
 from .. import _internal
 from .. import doc_parse
 from . import buttons
+from . import config
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -93,6 +94,8 @@ _EDIT_BUTTON_EMOJI = "\N{SQUARED NEW}"
 
 _EVAL_MODAL_ID = "EVAL_MODAL"
 """Custom ID used for eval modals (including reruns)."""
+
+_component = tanjun.Component(name="tanchan.sudo", strict=True)
 
 
 def _yields_results(*args: io.StringIO) -> collections.Iterator[str]:
@@ -489,6 +492,17 @@ async def eval_slash_command(
     await ctx.create_modal_response("Eval", custom_id, components=_make_rows(file_output=file_output))
 
 
+@_component.with_listener()
+async def on_guild_create(
+    event: hikari.GuildJoinEvent | hikari.GuildAvailableEvent, config: alluka.Injected[config.EvalConfig]
+) -> None:
+    """Guild create listener which declares the eval slash command."""
+    # TODO: come up with a better system for overriding command.is_global
+    if config.eval_guild_ids is None or event.guild_id in config.eval_guild_ids:
+        app = await event.app.rest.fetch_application()
+        await eval_slash_command.build().create(event.app.rest, app.id, guild=event.guild_id)
+
+
 @tanjun.as_loader
 def load_sudo(client: tanjun.abc.Client) -> None:
     """Load this module's components into a bot."""
@@ -515,4 +529,4 @@ def unload_sudo(client: tanjun.abc.Client) -> None:
     modal_client.deregister_modal(_EVAL_MODAL_ID)
 
 
-_component = tanjun.Component(name="tanchan.sudo", strict=True).add_check(tanjun.checks.OwnerCheck()).load_from_scope()
+_component.add_check(tanjun.checks.OwnerCheck()).load_from_scope()
