@@ -497,7 +497,8 @@ async def eval_slash_command(
 
 @_component.with_listener()
 async def on_guild_create(
-    event: hikari.GuildJoinEvent | hikari.GuildAvailableEvent, eval_config: alluka.Injected[config.EvalConfig | None] = None
+    event: hikari.GuildJoinEvent | hikari.GuildAvailableEvent,
+    eval_config: alluka.Injected[config.EvalConfig | None] = None,
 ) -> None:
     """Guild create listener which declares the eval slash command."""
     # TODO: come up with a better system for overriding command.is_global
