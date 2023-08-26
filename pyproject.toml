@@ -207,4 +207,5 @@ filterwarnings = ["error"]
 strict-imports = true
 require-superclass = true
 require-subclass = true
-exclude-modules = "tanchan._internal.vendor|tanchan.components.config:\\w+Config"
+exclude-classes = "tanchan.components.config:\\w+Config"
+exclude-modules = "tanchan._internal.vendor"
