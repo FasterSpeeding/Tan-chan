@@ -92,7 +92,7 @@ class HelpConfig:
     """
 
     include_slash_commands: bool = False
-    """Whether slash commands should be included without the [with_help][yuyo.components.help.with_help] decorator.
+    """Whether slash commands should be included without the [with_help][tanchan.components.help.with_help] decorator.
 
     If [True][] then the command.description will be used as the description by
     default.
@@ -101,7 +101,7 @@ class HelpConfig:
     """
 
     include_message_commands: bool = True
-    """Whether message commands should be included without the [with_help][yuyo.components.help.with_help] decorator.
+    """Whether message commands should be included without the [with_help][tanchan.components.help.with_help] decorator.
 
     If [True][] then the command's callback docstring will be used as the
     description by default.
@@ -110,6 +110,13 @@ class HelpConfig:
     """
 
     def add_to_client(self, client: typing.Union[alluka.Client, tanjun.Client], /) -> None:
+        """Add this config to a Tanjun client.
+
+        Parameters
+        ----------
+        client
+            The client to add this config to.
+        """
         client.set_type_dependency(HelpConfig, self)
 
 
@@ -122,5 +129,12 @@ class Config(EvalConfig, HelpConfig):
     """
 
     def add_to_client(self, client: typing.Union[alluka.Client, tanjun.Client]) -> None:
+        """Add this config to a Tanjun client.
+
+        Parameters
+        ----------
+        client
+            The client to add this config to.
+        """
         EvalConfig.add_to_client(self, client)
         HelpConfig.add_to_client(self, client)
