@@ -31,10 +31,11 @@
 """Internal utility classes and functions used by Tanchan."""
 from __future__ import annotations
 
-__all__: list[str] = ["inspect"]
+__all__: list[str] = ["MaybeLocalised", "inspect"]
 
 import typing
 
+from .localisation import MaybeLocalised
 from .vendor import inspect
 
 if typing.TYPE_CHECKING:
