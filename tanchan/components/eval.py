@@ -107,11 +107,11 @@ def _yields_results(*args: io.StringIO) -> collections.Iterator[str]:
 
 async def _eval_python_code(
     client: tanjun.abc.Client,
-    ctx: tanjun.abc.Context | yuyo.ComponentContext | yuyo.ModalContext,
+    ctx: typing.Union[tanjun.abc.Context, yuyo.ComponentContext, yuyo.ModalContext],
     code: str,
     /,
     *,
-    component: tanjun.abc.Component | None = None,
+    component: typing.Optional[tanjun.abc.Component] = None,
 ) -> tuple[io.StringIO, io.StringIO, int, bool]:
     stdout = io.StringIO()
     stderr = io.StringIO()
@@ -139,11 +139,11 @@ async def _eval_python_code(
 
 async def _eval_python_code_no_capture(
     client: tanjun.abc.Client,
-    ctx: tanjun.abc.Context | yuyo.ComponentContext | yuyo.ModalContext,
+    ctx: typing.Union[tanjun.abc.Context, yuyo.ComponentContext, yuyo.ModalContext],
     code: str,
     /,
     *,
-    component: tanjun.abc.Component | None = None,
+    component: typing.Optional[tanjun.abc.Component] = None,
     file_name: str = "<string>",
 ) -> None:
     globals_ = {
@@ -165,7 +165,7 @@ async def _eval_python_code_no_capture(
 
 
 def _bytes_from_io(
-    stream: io.StringIO, name: str, mimetype: str | None = "text/x-python;charset=utf-8"
+    stream: io.StringIO, name: str, mimetype: typing.Optional[str] = "text/x-python;charset=utf-8"
 ) -> hikari.Bytes:
     stream.seek(0)
     return hikari.Bytes(stream, name, mimetype=mimetype)
@@ -174,7 +174,7 @@ def _bytes_from_io(
 async def _check_owner(
     client: tanjun.abc.Client,
     authors: tanjun.dependencies.AbstractOwners,
-    ctx: yuyo.ComponentContext | yuyo.ModalContext,
+    ctx: typing.Union[yuyo.ComponentContext, yuyo.ModalContext],
 ) -> None:
     if not await authors.check_ownership(client, ctx.interaction.user):
         raise yuyo.InteractionError("You cannot use this button")
@@ -223,7 +223,7 @@ async def _eval_modal(
 
 
 def _make_rows(
-    *, default: str | None = None, file_output: bool | None = None
+    *, default: typing.Optional[str] = None, file_output: typing.Optional[bool] = None
 ) -> collections.Sequence[hikari.api.ModalActionRowBuilder]:
     """Make a custom instance of the eval modal's rows with the eval content pre-set."""
     rows = list(_eval_modal.rows)
@@ -304,8 +304,8 @@ class _FileCallback:
         /,
         *,
         files: collections.Sequence[hikari.Resourceish] = (),
-        make_files: collections.Callable[[], collections.Sequence[hikari.Resourceish]] | None = None,
-        post_components: yuyo.ActionColumnExecutor | None = None,
+        make_files: typing.Optional[collections.Callable[[], collections.Sequence[hikari.Resourceish]]] = None,
+        post_components: typing.Optional[yuyo.ActionColumnExecutor] = None,
     ) -> None:
         """Initialise a file callback.
 
@@ -350,7 +350,7 @@ def add_file_button(
     /,
     *,
     files: collections.Sequence[hikari.Resourceish] = (),
-    make_files: collections.Callable[[], collections.Sequence[hikari.Resourceish]] | None = None,
+    make_files: typing.Optional[collections.Callable[[], collections.Sequence[hikari.Resourceish]]] = None,
 ) -> None:
     """Add a file button to a component column.
 
@@ -383,10 +383,10 @@ async def eval_message_command(
     client: alluka.Injected[tanjun.abc.Client],
     component_client: alluka.Injected[yuyo.ComponentClient],
     *,
-    content: str | None = None,
-    component: alluka.Injected[tanjun.abc.Component | None] = None,
+    content: typing.Optional[str] = None,
+    component: alluka.Injected[typing.Optional[tanjun.abc.Component]] = None,
     file_output: Annotated[Bool, Flag(empty_value=True, aliases=["-f", "--file-out", "--file"])] = False,
-    state_attachment: hikari.Bytes | None = None,
+    state_attachment: typing.Optional[hikari.Bytes] = None,
     suppress_response: Annotated[Bool, Flag(empty_value=True, aliases=["-s", "--suppress"])] = False,
 ) -> None:
     """Owner only command used to dynamically evaluate a script."""
@@ -497,8 +497,8 @@ async def eval_slash_command(
 
 @_component.with_listener()
 async def on_guild_create(
-    event: hikari.GuildJoinEvent | hikari.GuildAvailableEvent,
-    eval_config: alluka.Injected[config.EvalConfig | None] = None,
+    event: typing.Union[hikari.GuildJoinEvent, hikari.GuildAvailableEvent],
+    eval_config: alluka.Injected[typing.Optional[config.EvalConfig]] = None,
 ) -> None:
     """Guild create listener which declares the eval slash command."""
     # TODO: come up with a better system for overriding command.is_global
