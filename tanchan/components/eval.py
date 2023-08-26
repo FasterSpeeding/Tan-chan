@@ -504,11 +504,10 @@ class _OnGuildCreate:
     async def __call__(
         self,
         event: typing.Union[hikari.GuildJoinEvent, hikari.GuildAvailableEvent],
-        eval_config: alluka.Injected[typing.Optional[config.EvalConfig]] = None,
+        eval_config: alluka.Injected[config.EvalConfig] = _DEFAULT_CONFIG,
     ) -> None:
         """Guild create listener which declares the eval slash command."""
         # TODO: come up with a better system for overriding command.is_global
-        eval_config = eval_config or _DEFAULT_CONFIG
         if eval_config.eval_guild_ids is not None and event.guild_id in eval_config.eval_guild_ids:
             app = await event.app.rest.fetch_application()
             await self._command.build().create(event.app.rest, app.id, guild=event.guild_id)
@@ -517,7 +516,7 @@ class _OnGuildCreate:
 @tanjun.as_loader
 def load_sudo(client: tanjun.abc.Client) -> None:
     """Load this module's components into a bot."""
-    eval_config = client.injector.get_type_dependency(config.EvalConfig) or _DEFAULT_CONFIG
+    eval_config = client.injector.get_type_dependency(config.EvalConfig, default=_DEFAULT_CONFIG)
     component = (
         tanjun.Component(name=_COMPONENT_NAME, strict=True)
         .add_message_command(_eval_message_command)

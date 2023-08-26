@@ -74,16 +74,16 @@ def _make_slash_command(
     callback: _CallbackishT[_SlashCallbackSigT],
     /,
     *,
-    always_defer: bool,
+    always_defer: bool = False,
     default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
-    default_to_ephemeral: typing.Optional[bool],
+    default_to_ephemeral: typing.Optional[bool] = None,
     description: typing.Union[str, collections.Mapping[str, str], None] = None,
     dm_enabled: typing.Optional[bool] = None,
     is_global: bool = True,
-    name: typing.Union[str, collections.Mapping[str, str], None],
+    name: typing.Union[str, collections.Mapping[str, str], None] = None,
     nsfw: bool = False,
-    sort_options: bool,
-    validate_arg_keys: bool,
+    sort_options: bool = True,
+    validate_arg_keys: bool = True,
 ) -> tanjun.SlashCommand[_SlashCallbackSigT]:
     if isinstance(callback, (tanjun.abc.MenuCommand, tanjun.abc.MessageCommand, tanjun.abc.SlashCommand)):
         wrapped_command = callback

@@ -51,17 +51,42 @@ from tanjun.annotations import Str
 from .. import _internal
 from .. import doc_parse
 from . import buttons
+from . import config
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
 _CommandT = typing.TypeVar("_CommandT", bound=tanjun.abc.ExecutableCommand[typing.Any])
 
+_COMPONENT_NAME = "tanchan.help"
+"""Name of this module's component."""
+
+_DEFAULT_CONFIG = config.HelpConfig()
+
 _CATEGORY_KEY = "TANCHAN_HELP_CATEGORY"
+"""Key used for overriding a command's category through its metadata."""
+
 _DESCRIPTION_KEY = "TANCHAN_HELP_DESCRIPTIOn"
+"""Key used for overriding a command's description through its metadata."""
+
+_INCLUDE_KEY = "TANCHAN_HELP_INCLUDE"
+"""Key used to mark whether a command should be included in Tanchan's help response.
+
+Defaults to [True][] for message commands and [False][] for slash commands.
+"""
+
 _HASH_KEY = "h"
+"""Query key used to store the help command hash in a button's custom ID.
+
+This is used to detect when an old help command instance is out of sync
+with the current bot's commands.
+"""
+
 _PAGE_NUM_KEY = "p"
+"""Query key used to store the current page of a response paginator in custom IDs."""
+
 _NUMBERS_MODAL_ID = "tanchan.help.select_page"
+"""Constant match ID used for the select page modal."""
 
 # TODO: improve help command formatting
 
@@ -100,6 +125,7 @@ def with_help(
     """
 
     def decorator(cmd: _CommandT, /) -> _CommandT:
+        cmd.metadata[_INCLUDE_KEY] = True
         cmd_name, cmd_type = _to_cmd_info(cmd)
         if description is not None:
             cmd.metadata[_DESCRIPTION_KEY] = _internal.MaybeLocalised(
@@ -148,7 +174,7 @@ def hide_from_help(
     """
 
     def decorator(cmd: _CommandT, /) -> _CommandT:
-        cmd.metadata[_DESCRIPTION_KEY] = None
+        cmd.metadata[_INCLUDE_KEY] = False
         _internal.apply_to_wrapped(cmd, hide_from_help, follow_wrapped=follow_wrapped)
         return cmd
 
@@ -219,7 +245,7 @@ class _HelpIndex:
     __slots__ = ("_column", "_descriptions", "_hash", "_numbers", "_pages")
 
     def __init__(self) -> None:
-        self._descriptions: dict[tuple[str, ...], typing.Optional[_internal.MaybeLocalised]] = {}
+        self._descriptions: dict[tuple[str, ...], _internal.MaybeLocalised] = {}
         self._hash = ""
         self._pages: list[_Page] = []
         self._column = _HelpColumn(self)
@@ -266,59 +292,54 @@ class _HelpIndex:
         rows = self._column.make_rows(ctx.author.id, page_number)
         await ctx.create_initial_response(content, components=rows, response_type=hikari.ResponseType.MESSAGE_UPDATE)
 
-    def reload(self, client: tanjun.abc.Client) -> None:
+    def reload(self, client: tanjun.abc.Client, help_config: config.HelpConfig, /) -> None:
         categories: dict[str, list[tuple[str, _internal.MaybeLocalised]]] = {}
-        descriptions: dict[tuple[str, ...], typing.Optional[_internal.MaybeLocalised]] = {}
+        descriptions: dict[tuple[str, ...], _internal.MaybeLocalised] = {}
         pages: list[_Page] = []
 
-        for command in client.iter_message_commands():
+        cmds_iter = itertools.chain(
+            (_collect_msg_cmds(cmd, help_config) for cmd in client.iter_message_commands()),
+            (_collect_slash_cmds(cmd, help_config) for cmd in client.iter_slash_commands()),
+        )
+        for command, names in itertools.chain.from_iterable(cmds_iter):
             component_name = command.component.name if command.component else "unknown"
-            names: typing.Optional[list[tuple[str, ...]]] = None
+            try:
+                description_override = command.metadata[_DESCRIPTION_KEY]
 
-            for command, names in _collect_commands(command).items():
-                try:
-                    description_override = command.metadata[_DESCRIPTION_KEY]
+            except KeyError:
+                description_override = ""
 
-                except KeyError:
-                    description_override = ""
+            else:
+                if not isinstance(description_override, _internal.MaybeLocalised):
+                    description_override = None
 
-                else:
-                    if description_override is None:
-                        for name in names:
-                            descriptions[name] = None
+            cmd_name, cmd_type = _to_cmd_info(command)
+            description = inspect.getdoc(command.callback)
+            if description_override:
+                description = description_override
 
-                        continue
+            elif description:
+                description = _internal.MaybeLocalised(
+                    "help.description", description, cmd_type=cmd_type, name=cmd_name
+                )
 
-                    elif not isinstance(description_override, _internal.MaybeLocalised):
-                        description_override = None
+            else:
+                continue
 
-                cmd_name, cmd_type = _to_cmd_info(command)
-                description = inspect.getdoc(command.callback)
-                if description_override:
-                    description = description_override
+            # TODO: handle inheriting this state from parent commands
+            category = command.metadata.get(_CATEGORY_KEY) or component_name
+            if not isinstance(category, str):
+                raise TypeError(f"Invalid category name: {category!r}")
 
-                elif description:
-                    description = _internal.MaybeLocalised(
-                        "help.description", description, cmd_type=cmd_type, name=cmd_name
-                    )
+            for name in names:
+                descriptions[name] = description
 
-                else:
-                    continue
+            entry = (" ".join(names[0]), description)
+            try:
+                categories[category].append(entry)
 
-                # TODO: handle inheriting this state from parent commands
-                category = command.metadata.get(_CATEGORY_KEY) or component_name
-                if not isinstance(category, str):
-                    raise TypeError(f"Invalid category name: {category!r}")
-
-                for name in names:
-                    descriptions[name] = description
-
-                entry = (" ".join(names[0]), description)
-                try:
-                    categories[category].append(entry)
-
-                except KeyError:
-                    categories[category] = [entry]
+            except KeyError:
+                categories[category] = [entry]
 
         page_number = 0
         for cateory, commands in sorted(categories.items(), key=lambda v: v[0]):
@@ -328,26 +349,31 @@ class _HelpIndex:
                 page_number += 1
                 pages.append(_Page(self, page_number, cateory, commands[10 * index : 10 * (index + 1)]))
 
-        items_repr = ((" ".join(k), v.to_string() if v else "") for k, v in descriptions.items())
+        items_repr = ((" ".join(k), v.to_string()) for k, v in descriptions.items())
         items_repr = ",".join(map(":".join, sorted(items_repr, key=lambda v: v[0]))).encode()
         self._descriptions = descriptions
         self._hash = "md5-" + hashlib.md5(items_repr, usedforsecurity=False).hexdigest()
         self._pages = pages
 
-    async def on_component_change(self, _: tanjun.abc.Component, client: alluka.Injected[tanjun.abc.Client]) -> None:
-        return self.reload(client)
+    async def on_component_change(
+        self,
+        _: tanjun.abc.Component,
+        client: alluka.Injected[tanjun.abc.Client],
+        help_config: alluka.Injected[config.HelpConfig] = _DEFAULT_CONFIG,
+    ) -> None:
+        return self.reload(client, help_config)
 
-    def find_command(self, command_name: str, /) -> typing.Optional[str]:
-        self._descriptions.get(tuple(_filter_name(command_name)))
+    def find_command(self, command_name: str, /) -> typing.Optional[_internal.MaybeLocalised]:
+        return self._descriptions.get(tuple(_filter_name(command_name)))
 
 
 # TODO: this feels very inefficient
-def _collect_commands(
-    command: tanjun.abc.MessageCommand[typing.Any],
-) -> collections.Mapping[tanjun.abc.MessageCommand[typing.Any], list[tuple[str, ...]]]:
+def _collect_msg_cmds(
+    command: tanjun.abc.MessageCommand[typing.Any], help_config: config.HelpConfig, /
+) -> collections.ItemsView[tanjun.abc.MessageCommand[typing.Any], list[tuple[str, ...]]]:
     results: dict[tanjun.abc.MessageCommand[typing.Any], list[tuple[str, ...]]] = {}
 
-    for names, command in _follow_children(command):
+    for names, command in _follow_msg_children(command, help_config):
         names = tuple(names)
         try:
             results[command].append(names)
@@ -355,19 +381,52 @@ def _collect_commands(
         except KeyError:
             results[command] = [names]
 
-    return results
+    return results.items()
 
 
-def _follow_children(
-    command: tanjun.abc.MessageCommand[typing.Any], /
+def _follow_msg_children(
+    command: tanjun.abc.MessageCommand[typing.Any], help_config: config.HelpConfig, /
 ) -> collections.Iterator[tuple[list[str], tanjun.abc.MessageCommand[typing.Any]]]:
-    yield from ((_filter_name(name), command) for name in command.names)
+    if command.metadata.get(_INCLUDE_KEY, help_config.include_message_commands):
+        yield from ((_filter_name(name), command) for name in command.names)
 
     if isinstance(command, tanjun.abc.MessageCommandGroup):
         commands_iter = itertools.product(
-            command.names, itertools.chain.from_iterable(map(_follow_children, command.commands))
+            command.names,
+            itertools.chain.from_iterable(_follow_msg_children(cmd, help_config) for cmd in command.commands),
         )
         yield from (([*_filter_name(parent_name), *name], command) for parent_name, (name, command) in commands_iter)
+
+
+def _collect_slash_cmds(
+    command: tanjun.abc.BaseSlashCommand, help_config: config.HelpConfig, /
+) -> collections.ItemsView[tanjun.abc.SlashCommand[typing.Any], list[tuple[str, ...]]]:
+    results: dict[tanjun.abc.SlashCommand[typing.Any], list[tuple[str, ...]]] = {}
+
+    for names, cmd in _follow_slash_children(command, help_config):
+        names = tuple(names)
+        try:
+            results[cmd].append(names)
+
+        except KeyError:
+            results[cmd] = [names]
+
+    return results.items()
+
+
+def _follow_slash_children(
+    command: tanjun.abc.BaseSlashCommand, help_config: config.HelpConfig, /
+) -> collections.Iterator[tuple[list[str], tanjun.abc.SlashCommand[typing.Any]]]:
+    if isinstance(command, tanjun.abc.SlashCommandGroup):
+        commands_iter = itertools.chain.from_iterable(
+            _follow_slash_children(cmd, help_config) for cmd in command.commands
+        )
+        yield from (([command.name, *name], sub_command) for (name, sub_command) in commands_iter)
+
+    elif command.metadata.get(_INCLUDE_KEY, help_config.include_slash_commands):
+        # Assume this is an actual callable slash command and not a group
+        assert isinstance(command, tanjun.abc.SlashCommand)
+        yield ([command.name], command)
 
 
 class _NumberModal(yuyo.modals.Modal):
@@ -496,10 +555,7 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
         await ctx.create_modal_response("Select page", _NUMBERS_MODAL_ID, components=self._index.numbers_modal.rows)
 
 
-@doc_parse.with_annotated_args(follow_wrapped=True)
-@tanjun.as_message_command("help")
-@doc_parse.as_slash_command(name="help")
-async def help_command(
+async def _help_command(
     ctx: typing.Union[tanjun.abc.MessageContext, tanjun.abc.SlashContext],
     *,
     command_name: Annotated[typing.Optional[Str], Positional()] = None,
@@ -518,6 +574,12 @@ async def help_command(
     command_name
         Name of a command to get the full information for.
     """
+    if isinstance(ctx, tanjun.abc.AppCommandContext):
+        locale = hikari.Locale(ctx.interaction.locale)
+
+    else:
+        locale = None
+
     if command_name:
         content = index.find_command(command_name)
         components: collections.Sequence[hikari.api.MessageActionRowBuilder] = [buttons.delete_row(ctx.author.id)]
@@ -525,29 +587,23 @@ async def help_command(
         if not content:
             raise tanjun.CommandError("Couldn't find command", component=buttons.delete_row(ctx.author.id))
 
+        content = content.localise(locale, localiser) if locale else content.default_value
         if await _check_embed_links(ctx, me):
             await ctx.respond(embed=hikari.Embed(description=content), components=components)
 
         else:
             await ctx.respond(f"```md\n{content}\n```", components=components)
 
-        return
-
-    if isinstance(ctx, tanjun.abc.AppCommandContext):
-        locale = hikari.Locale(ctx.interaction.locale)
-
     else:
-        locale = None
+        # TODO: proper intro page + page numbers
+        page = index.pages[0]
+        components = _HelpColumn(index, author=ctx.author.id).rows
 
-    # TODO: proper intro page + page numbers
-    page = index.pages[0]
-    components = _HelpColumn(index, author=ctx.author.id).rows
+        if await _check_embed_links(ctx, me):
+            await ctx.respond(embed=page.to_embed(locale=locale, localiser=localiser), components=components)
 
-    if await _check_embed_links(ctx, me):
-        await ctx.respond(embed=page.to_embed(locale=locale, localiser=localiser), components=components)
-
-    else:
-        await ctx.respond(page.to_content(locale=locale, localiser=localiser), components=components)
+        else:
+            await ctx.respond(page.to_content(locale=locale, localiser=localiser), components=components)
 
 
 async def _check_embed_links(ctx: tanjun.abc.Context, me: hikari.OwnUser, /) -> bool:
@@ -572,7 +628,21 @@ async def _check_embed_links(ctx: tanjun.abc.Context, me: hikari.OwnUser, /) -> 
 @tanjun.as_loader
 def load_help(client: tanjun.abc.Client) -> None:
     """Load this module's components into a bot."""
-    client.add_component(_component)
+    help_config = client.injector.get_type_dependency(config.HelpConfig, default=_DEFAULT_CONFIG)
+
+    component = tanjun.Component(name=_COMPONENT_NAME, strict=True)
+
+    if help_config.enable_message_command:
+        command = tanjun.MessageCommand(_help_command, "help")
+        doc_parse.with_annotated_args(command)
+        component.add_message_command(command)
+
+    if help_config.enable_slash_command:
+        command = doc_parse.as_slash_command(name="help")(_help_command)
+        doc_parse.with_annotated_args(command)
+        component.add_slash_command(command)
+
+    client.add_component(component)
 
     index = _HelpIndex()
     client.add_client_callback(tanjun.ClientCallbackNames.COMPONENT_ADDED, index.on_component_change)
@@ -585,13 +655,16 @@ def load_help(client: tanjun.abc.Client) -> None:
     _internal.get_or_set_dep(client.injector, yuyo.ModalClient, yuyo.ModalClient).register_modal(
         _NUMBERS_MODAL_ID, index.numbers_modal, timeout=None
     )
-    index.reload(client)
+    index.reload(client, help_config)
+
+
+# TODO: better document help.py and eval.py
 
 
 @tanjun.as_unloader
 def unload_help(client: tanjun.abc.Client) -> None:
     """Unload this module's components from a bot."""
-    client.remove_component_by_name(_component.name)
+    client.remove_component_by_name(_COMPONENT_NAME)
 
     index = client.get_type_dependency(_HelpIndex)
     component_client = client.injector.get_type_dependency(yuyo.ComponentClient)
@@ -605,6 +678,3 @@ def unload_help(client: tanjun.abc.Client) -> None:
     client.injector.remove_type_dependency(_HelpIndex)
     component_client.deregister_executor(index.column)
     modal_client.deregister_modal(_NUMBERS_MODAL_ID)
-
-
-_component = tanjun.Component(name="tanchan.help", strict=True).load_from_scope()
