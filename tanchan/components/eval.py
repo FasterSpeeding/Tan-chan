@@ -64,6 +64,10 @@ from . import config
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
+_COMPONENT_NAME = "tanchan.sudo"
+"""Name of this module's component."""
+
+_DEFAULT_CONFIG = config.EvalConfig()
 
 _FAILED_COLOUR: typing.Final[hikari.Colour] = hikari.Colour(0xF04747)
 """Colour used to represent a failed execution/attempt."""
@@ -94,8 +98,6 @@ _EDIT_BUTTON_EMOJI = "\N{SQUARED NEW}"
 
 _EVAL_MODAL_ID = "EVAL_MODAL"
 """Custom ID used for eval modals (including reruns)."""
-
-_component = tanjun.Component(name="tanchan.sudo", strict=True)
 
 
 def _yields_results(*args: io.StringIO) -> collections.Iterator[str]:
@@ -212,7 +214,7 @@ async def _eval_modal(
         await ctx.create_initial_response("Loading...", ephemeral=ephemeral)
 
     state = json.dumps({"content": content, "file_output": file_output})
-    await eval_message_command(
+    await _eval_message_command(
         ctx,
         client,
         component_client,
@@ -246,7 +248,7 @@ def _make_rows(
 
 
 @yuyo.components.as_single_executor(_EVAL_MODAL_ID, ephemeral_default=True)
-async def on_edit_button(
+async def _on_edit_button(
     ctx: yuyo.ComponentContext,
     client: alluka.Injected[tanjun.abc.Client],
     authors: alluka.Injected[tanjun.dependencies.AbstractOwners],
@@ -345,7 +347,7 @@ class _FileCallback:
         await ctx.respond(attachments=files, component=buttons.delete_row(ctx.interaction.user.id))
 
 
-def add_file_button(
+def _add_file_button(
     column: yuyo.components.ActionColumnExecutor,
     /,
     *,
@@ -378,7 +380,7 @@ def add_file_button(
 
 @tanjun.annotations.with_annotated_args
 @tanjun.as_message_command("eval", "exec")
-async def eval_message_command(
+async def _eval_message_command(
     ctx: typing.Union[tanjun.abc.MessageContext, yuyo.ModalContext],
     client: alluka.Injected[tanjun.abc.Client],
     component_client: alluka.Injected[yuyo.ComponentClient],
@@ -452,7 +454,7 @@ async def eval_message_command(
     )
 
     first_response = await paginator.get_next_entry()
-    add_file_button(
+    _add_file_button(
         paginator, make_files=lambda: [_bytes_from_io(stdout, "stdout.py"), _bytes_from_io(stderr, "stderr.py")]
     )
     paginator.add_interactive_button(
@@ -472,11 +474,8 @@ def _try_deregister(client: yuyo.ComponentClient, message: hikari.Message) -> No
         client.deregister_message(message)
 
 
-@doc_parse.with_annotated_args
-@tanjun.with_owner_check
-@doc_parse.as_slash_command(name="eval", default_member_permissions=hikari.Permissions.ADMINISTRATOR, is_global=False)
-async def eval_slash_command(
-    ctx: tanjun.abc.SlashContext, file_output: Bool | None = None, private: Bool = False
+async def _eval_slash_command(
+    ctx: tanjun.abc.SlashContext, file_output: typing.Optional[Bool] = None, private: Bool = False
 ) -> None:
     """Owner only command used to dynamically evaluate a script.
 
@@ -495,26 +494,52 @@ async def eval_slash_command(
     await ctx.create_modal_response("Eval", custom_id, components=_make_rows(file_output=file_output))
 
 
-@_component.with_listener()
-async def on_guild_create(
-    event: typing.Union[hikari.GuildJoinEvent, hikari.GuildAvailableEvent],
-    eval_config: alluka.Injected[typing.Optional[config.EvalConfig]] = None,
-) -> None:
-    """Guild create listener which declares the eval slash command."""
-    # TODO: come up with a better system for overriding command.is_global
-    eval_config = eval_config or config.EvalConfig()
-    if eval_config.eval_guild_ids is None or event.guild_id in eval_config.eval_guild_ids:
-        app = await event.app.rest.fetch_application()
-        await eval_slash_command.build().create(event.app.rest, app.id, guild=event.guild_id)
+class _OnGuildCreate:
+    __slots__ = ("_command",)
+
+    # TODO: tanjun just needs type var defaults at this point
+    def __init__(self, command: tanjun.abc.SlashCommand[typing.Any], /) -> None:
+        self._command = command
+
+    async def __call__(
+        self,
+        event: typing.Union[hikari.GuildJoinEvent, hikari.GuildAvailableEvent],
+        eval_config: alluka.Injected[typing.Optional[config.EvalConfig]] = None,
+    ) -> None:
+        """Guild create listener which declares the eval slash command."""
+        # TODO: come up with a better system for overriding command.is_global
+        eval_config = eval_config or _DEFAULT_CONFIG
+        if eval_config.eval_guild_ids is not None and event.guild_id in eval_config.eval_guild_ids:
+            app = await event.app.rest.fetch_application()
+            await self._command.build().create(event.app.rest, app.id, guild=event.guild_id)
 
 
 @tanjun.as_loader
 def load_sudo(client: tanjun.abc.Client) -> None:
     """Load this module's components into a bot."""
-    client.add_component(_component)
+    eval_config = client.injector.get_type_dependency(config.EvalConfig) or _DEFAULT_CONFIG
+    component = (
+        tanjun.Component(name=_COMPONENT_NAME, strict=True)
+        .add_message_command(_eval_message_command)
+        .add_check(tanjun.checks.OwnerCheck())
+    )
+
+    if eval_config.eval_guild_ids or eval_config.eval_guild_ids is None:
+        # TODO: with_annotated and as_slash_command just need public non-decorator equivalents
+        is_global = eval_config.eval_guild_ids is None
+        eval_command = doc_parse.as_slash_command(name="eval", is_global=is_global)(_eval_slash_command)
+        doc_parse.with_annotated_args(eval_command)
+
+        if not is_global:
+            on_guild_create = _OnGuildCreate(eval_command)
+            component.add_listener(hikari.GuildJoinEvent, on_guild_create).add_listener(
+                hikari.GuildAvailableEvent, on_guild_create
+            )
+
+    client.add_component(component)
 
     _internal.get_or_set_dep(client.injector, yuyo.ComponentClient, yuyo.ComponentClient).register_executor(
-        on_edit_button, timeout=None
+        _on_edit_button, timeout=None
     )
     _internal.get_or_set_dep(client.injector, yuyo.ModalClient, yuyo.ModalClient).register_modal(
         _EVAL_MODAL_ID, _eval_modal, timeout=None
@@ -524,14 +549,11 @@ def load_sudo(client: tanjun.abc.Client) -> None:
 @tanjun.as_unloader
 def unload_sudo(client: tanjun.abc.Client) -> None:
     """Unload this module's components from a bot."""
-    client.remove_component_by_name(_component.name)
+    client.remove_component_by_name(_COMPONENT_NAME)
 
     component_client = client.injector.get_type_dependency(yuyo.ComponentClient)
     modal_client = client.injector.get_type_dependency(yuyo.ModalClient)
     assert component_client
     assert modal_client
-    component_client.deregister_executor(on_edit_button)
+    component_client.deregister_executor(_on_edit_button)
     modal_client.deregister_modal(_EVAL_MODAL_ID)
-
-
-_component.add_check(tanjun.checks.OwnerCheck()).load_from_scope()
