@@ -44,7 +44,7 @@ if typing.TYPE_CHECKING:
     from tanjun import abc as tanjun
 
 
-@attrs.define(slots=True, kw_only=True)
+@attrs.define(kw_only=True, slots=False)
 class EvalConfig:
     """Configuration for the eval commands.
 
@@ -70,7 +70,7 @@ class EvalConfig:
         client.set_type_dependency(EvalConfig, self)
 
 
-@attrs.define(slots=True, kw_only=True)
+@attrs.define(kw_only=True, slots=False)
 class HelpConfig:
     """Configuration for the help commands.
 
@@ -113,7 +113,7 @@ class HelpConfig:
         client.set_type_dependency(HelpConfig, self)
 
 
-@attrs.define(slots=True, kw_only=True)
+@attrs.define(kw_only=True, slots=False)
 class Config(EvalConfig, HelpConfig):
     """Full configuration for Tan-chan's commands and components.
 
