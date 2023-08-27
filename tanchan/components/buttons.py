@@ -47,7 +47,7 @@ if typing.TYPE_CHECKING:
     from collections import abc as collections
 
 
-DELETE_CUSTOM_ID: typing.Final[str] = "AUTHOR_DELETE_BUTTON"
+DELETE_CUSTOM_ID: typing.Final[str] = "TC_DEL"
 """Match ID used for delete buttons."""
 
 DELETE_EMOJI: typing.Final[hikari.UnicodeEmoji] = hikari.UnicodeEmoji(

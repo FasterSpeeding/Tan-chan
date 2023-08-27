@@ -97,7 +97,7 @@ _STATE_FILE_NAME = "EVAL_STATE"
 _EDIT_BUTTON_EMOJI = "\N{SQUARED NEW}"
 """Emoji that's used for the edit button."""
 
-_EVAL_MODAL_ID = "EVAL_MODAL"
+_EVAL_MODAL_ID = "TC_EVAL"
 """Custom ID used for eval modals (including reruns)."""
 
 
