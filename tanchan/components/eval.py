@@ -60,6 +60,7 @@ from .. import _internal
 from .. import doc_parse
 from . import buttons
 from . import config
+from . import help as help_commands
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -384,6 +385,7 @@ def _add_file_button(
     )
 
 
+@help_commands.hide_from_help
 @tanjun.annotations.with_annotated_args
 @tanjun.as_message_command("eval", "exec")
 async def _eval_message_command(
@@ -535,6 +537,7 @@ def load_sudo(client: tanjun.abc.Client) -> None:
         # TODO: with_annotated and as_slash_command just need public non-decorator equivalents
         is_global = eval_config.eval_guild_ids is None
         eval_command = doc_parse.as_slash_command(name="eval", is_global=is_global)(_eval_slash_command)
+        help_commands.hide_from_help(eval_command)
         doc_parse.with_annotated_args(eval_command)
 
         if not is_global:

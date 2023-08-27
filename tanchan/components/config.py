@@ -52,7 +52,7 @@ class EvalConfig:
     should be used to set this config.
     """
 
-    eval_guild_ids: typing.Optional[collections.Collection[int]] = attrs.field(factory=tuple)
+    eval_guild_ids: typing.Optional[collections.Collection[int]] = attrs.field(default=())
     """ID of the guilds the eval slash command should be declared in.
 
     If [None][] then this will be declared in every guild. Defaults to an empty

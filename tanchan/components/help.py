@@ -154,6 +154,16 @@ def _to_cmd_info(cmd: tanjun.abc.ExecutableCommand[typing.Any], /) -> tuple[str,
     raise NotImplementedError(f"Unsupported command type {type(cmd)}")
 
 
+@typing.overload
+def hide_from_help(cmd: _CommandT, /) -> _CommandT:
+    ...
+
+
+@typing.overload
+def hide_from_help(*, follow_wrapped: bool = False) -> collections.Callable[[_CommandT], _CommandT]:
+    ...
+
+
 def hide_from_help(
     cmd: typing.Optional[_CommandT] = None, /, *, follow_wrapped: bool = False
 ) -> typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]:
