@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Configurable and optional help commands which display information about the
+  loaded commands.
+- Configurable and optional eval commands which let bot owners dynamically
+  execute code in the bot's runtime.
+
 ## [0.3.1] - 2023-07-26
 ### Added
 - Support for the application command `nsfw` config option.

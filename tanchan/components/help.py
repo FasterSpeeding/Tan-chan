@@ -89,6 +89,7 @@ _NUMBERS_MODAL_ID = "tanchan.help.select_page"
 """Constant match ID used for the select page modal."""
 
 # TODO: improve help command formatting
+# TODO: maybe experiment with including command signatures in responses
 
 
 def with_help(
@@ -678,3 +679,6 @@ def unload_help(client: tanjun.abc.Client) -> None:
     client.injector.remove_type_dependency(_HelpIndex)
     component_client.deregister_executor(index.column)
     modal_client.deregister_modal(_NUMBERS_MODAL_ID)
+
+
+# TODO: put the help command into a general/unnamed category
