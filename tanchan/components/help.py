@@ -201,10 +201,6 @@ def _split_name(name: str, /) -> list[str]:
     return name.casefold().split()
 
 
-# TODO: add config to make this opt in or on by default for slash and menu commands
-# also allow disabling for message commands
-
-
 class _Page:
     """Represents a page in the help command's response paginator."""
 
@@ -668,6 +664,7 @@ async def _help_command(
 
     else:
         # TODO: proper intro page + page numbers
+        # TODO: it's weird that only the first response for message commands aren't localised
         try:
             page = index.pages[0]
 

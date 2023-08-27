@@ -55,8 +55,8 @@ class EvalConfig:
     eval_guild_ids: typing.Optional[collections.Collection[int]] = attrs.field(default=())
     """ID of the guilds the eval slash command should be declared in.
 
-    If [None][] then this will be declared in every guild. Defaults to an empty
-    sequences (so no guilds).
+    If [None][] then the slash command will be declared in every guild
+    (globally) and an empty collection ensures it isn't declared.
     """
 
     def add_to_client(self, client: typing.Union[alluka.Client, tanjun.Client], /) -> None:
@@ -78,26 +78,17 @@ class HelpConfig:
     should be used to set this config.
     """
 
-    # TODO: do i need to include the "Defaults to" doc sections here or is that already shown in the docs?
     enable_message_command: bool = True
-    """Whether the help message command should be enabled.
-
-    Defaults to [True][].
-    """
+    """Whether the help message command should be enabled."""
 
     enable_slash_command: bool = False
-    """Whether the help slash command should be enabled.
-
-    Defaults to [False][].
-    """
+    """Whether the help slash command should be enabled."""
 
     include_slash_commands: bool = False
     """Whether slash commands should be included without the [with_help][tanchan.components.help.with_help] decorator.
 
     If [True][] then the command.description will be used as the description by
     default.
-
-    Defaults to [False][].
     """
 
     include_message_commands: bool = True
@@ -105,8 +96,6 @@ class HelpConfig:
 
     If [True][] then the command's callback docstring will be used as the
     description by default.
-
-    Defaults to [True][].
     """
 
     def add_to_client(self, client: typing.Union[alluka.Client, tanjun.Client], /) -> None:
