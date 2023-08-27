@@ -236,10 +236,12 @@ def as_slash_command(
 
 
 def _line_empty(line: str, /) -> bool:
+    """Check whether a line in a docstring is considered "empty"."""
     return not line.strip()
 
 
 def _terminate_line(descriptions: dict[str, str], current_line: list[str], /) -> None:
+    """Add the currently tracked field to the dict of descriptions."""
     if current_line:
         name = current_line.pop(0)
         descriptions[name] = " ".join(current_line)
@@ -275,6 +277,7 @@ _GOOGLE_PATTERN = re.compile(r"(\w+).*:(.*)$")
 
 
 def _parse_google(lines: list[str], /) -> dict[str, str]:
+    """Parse a Google style docstring for argument descriptions."""
     descriptions = _Descriptions(_GOOGLE_PATTERN)
     start_index: typing.Optional[int] = None
 
@@ -296,11 +299,13 @@ _NUMPY_PATTERN = re.compile(r"^(\w+)(?: *:.+)?$")
 
 
 def _dedent_lines(lines: list[str], /) -> collections.Iterable[str]:
+    """Remove surplus indetation from a docstring section."""
     indent = lines[0].removesuffix(lines[0].rstrip())
     return (line.removeprefix(indent) for line in lines)
 
 
 def _parse_numpy(lines: list[str], /) -> dict[str, str]:
+    """Parse a Numpy style docstring for argument descriptions."""
     descriptions = _Descriptions(_NUMPY_PATTERN)
     start_index: typing.Optional[int] = None
 
@@ -333,6 +338,7 @@ _REST_PATTERN = re.compile(r"^:(\w+) (\w+):(.*)$")
 
 
 def _parse_rest(lines: list[str], /) -> dict[str, str]:
+    """Parse a reST style docstring for argument descriptions."""
     current_line: list[str] = []
     descriptions: dict[str, str] = {}
 
@@ -356,20 +362,25 @@ def _parse_rest(lines: list[str], /) -> dict[str, str]:
 
 
 _DocStyleUnion = typing.Literal["google", "numpy", "reST"]
+"""The supported docstring styles."""
+
 _PARSERS: dict[_DocStyleUnion, collections.Callable[[list[str]], dict[str, str]]] = {
     "google": _parse_google,
     "numpy": _parse_numpy,
     "reST": _parse_rest,
 }
+"""Dict of docstring styles to the parsing method for them."""
 
 _MATCH_STYLE: list[tuple[re.Pattern[str], _DocStyleUnion]] = [
     (re.compile(r"\n[\t ]*args:\n", re.IGNORECASE), "google"),
     (re.compile(r"\n[\t ]*parameters\n[\t ]*-+", re.IGNORECASE), "numpy"),
     (re.compile(r"\n:param \w+:"), "reST"),
 ]
+"""A list of regexes used to match docstring styles and the relevant style."""
 
 
-def _get_docstyle(doc_string: str) -> typing.Optional[_DocStyleUnion]:
+def _get_docstyle(doc_string: str, /) -> typing.Optional[_DocStyleUnion]:
+    """Try to work out the style of a docstring to aid parsing."""
     for pattern, style in _MATCH_STYLE:
         if pattern.search(doc_string):
             return style
@@ -380,6 +391,7 @@ def _get_docstyle(doc_string: str) -> typing.Optional[_DocStyleUnion]:
 def _parse_descriptions(
     callback: collections.Callable[..., typing.Any], /, *, doc_style: typing.Optional[_DocStyleUnion] = None
 ) -> dict[str, str]:
+    """Parse a callback's docstring and annotations for argument descriptions."""
     if doc_style and doc_style not in _PARSERS:
         raise ValueError(f"Unsupported docstring style {doc_style!r}")
 

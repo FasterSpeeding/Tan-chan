@@ -101,6 +101,7 @@ _EVAL_MODAL_ID = "EVAL_MODAL"
 
 
 def _yields_results(*args: io.StringIO) -> collections.Iterator[str]:
+    """Create an iterator of the lines of an eval call's output."""
     for name, stream in zip(("stdout", "stderr"), args):
         yield f"- /dev/{name}:"
         while lines := stream.readlines(25):
@@ -115,6 +116,7 @@ async def _eval_python_code(
     *,
     component: typing.Optional[tanjun.abc.Component] = None,
 ) -> tuple[io.StringIO, io.StringIO, int, bool]:
+    """Evaluate python code while capturing the output."""
     stdout = io.StringIO()
     stderr = io.StringIO()
 
@@ -148,6 +150,7 @@ async def _eval_python_code_no_capture(
     component: typing.Optional[tanjun.abc.Component] = None,
     file_name: str = "<string>",
 ) -> None:
+    """Evaluate python code without capturing the output."""
     globals_ = {
         "app": ctx.shards,
         "asyncio": asyncio,
@@ -169,6 +172,7 @@ async def _eval_python_code_no_capture(
 def _bytes_from_io(
     stream: io.StringIO, name: str, mimetype: typing.Optional[str] = "text/x-python;charset=utf-8"
 ) -> hikari.Bytes:
+    """Build Hikari bytes from an StringIO object."""
     stream.seek(0)
     return hikari.Bytes(stream, name, mimetype=mimetype)
 
@@ -176,8 +180,10 @@ def _bytes_from_io(
 async def _check_owner(
     client: tanjun.abc.Client,
     authors: tanjun.dependencies.AbstractOwners,
+    # TODO: BaseContext needs stuff like the user attribute.
     ctx: typing.Union[yuyo.ComponentContext, yuyo.ModalContext],
 ) -> None:
+    """Assert that the user who used a component or modal is the bot's owner."""
     if not await authors.check_ownership(client, ctx.interaction.user):
         raise yuyo.InteractionError("You cannot use this button")
 
@@ -291,7 +297,7 @@ async def _on_edit_button(
     await ctx.create_modal_response("Edit eval", _EVAL_MODAL_ID, components=rows)
 
 
-async def _on_noop(ctx: yuyo.ComponentContext) -> None:
+async def _never(ctx: yuyo.ComponentContext) -> None:
     raise RuntimeError("Shouldn't be reached")
 
 
@@ -458,7 +464,7 @@ async def _eval_message_command(
         paginator, make_files=lambda: [_bytes_from_io(stdout, "stdout.py"), _bytes_from_io(stderr, "stderr.py")]
     )
     paginator.add_interactive_button(
-        hikari.ButtonStyle.SECONDARY, _on_noop, custom_id=_EVAL_MODAL_ID, emoji=_EDIT_BUTTON_EMOJI
+        hikari.ButtonStyle.SECONDARY, _never, custom_id=_EVAL_MODAL_ID, emoji=_EDIT_BUTTON_EMOJI
     )
 
     assert first_response is not None
@@ -495,6 +501,8 @@ async def _eval_slash_command(
 
 
 class _OnGuildCreate:
+    """Handles creating the eval slash command for the whitelisted guilds on guild create."""
+
     __slots__ = ("_command",)
 
     # TODO: tanjun just needs type var defaults at this point

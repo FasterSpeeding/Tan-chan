@@ -143,6 +143,7 @@ def with_help(
 
 
 def _to_cmd_info(cmd: tanjun.abc.ExecutableCommand[typing.Any], /) -> tuple[str, typing.Optional[hikari.CommandType]]:
+    """Get the main name and type of a command."""
     if isinstance(cmd, tanjun.abc.AppCommand):
         return cmd.name, cmd.type
 
@@ -185,7 +186,8 @@ def hide_from_help(
     return decorator
 
 
-def _filter_name(name: str, /) -> list[str]:
+def _split_name(name: str, /) -> list[str]:
+    """Split a message command name into spaced case-insensitive sections."""
     return name.casefold().split()
 
 
@@ -194,16 +196,32 @@ def _filter_name(name: str, /) -> list[str]:
 
 
 class _Page:
+    """Represents a page in the help command's response paginator."""
+
     __slots__ = ("_category_name", "_fields", "_index", "_page_number")
 
     def __init__(
         self,
         index: _HelpIndex,
         page_number: int,
+        # TODO: can we show sub-pages for the category???
         category_name: _internal.MaybeLocalised,
         fields: list[tuple[str, _internal.MaybeLocalised]],
         /,
     ) -> None:
+        """Initialise a help command page.
+
+        Parameters
+        ----------
+        index
+            The help index this is tied to.
+        page_number
+            This page's 1-indexed position.
+        category_name
+            Name of the category this page shows the commands from.
+        fields
+            List of field names ad their descriptions.
+        """
         self._category_name = category_name
         self._fields = fields
         self._index = index
@@ -227,6 +245,20 @@ class _Page:
         locale: typing.Optional[hikari.Locale] = None,
         localiser: typing.Optional[tanjun.dependencies.AbstractLocaliser] = None,
     ) -> str:
+        """Create a message content representation of this page.
+
+        Parameters
+        ----------
+        locale
+            Locale to localise this page to, if relevant.
+        localiser
+            Localiser to use to localise this page, if relevant.
+
+        Returns
+        -------
+        str
+            The message-content friendly string representation of this page.
+        """
         title, description = self._localise(locale, localiser)
         return f"```md\n{title}\n{description}\n```"
 
@@ -236,6 +268,20 @@ class _Page:
         locale: typing.Optional[hikari.Locale] = None,
         localiser: typing.Optional[tanjun.dependencies.AbstractLocaliser] = None,
     ) -> hikari.Embed:
+        """Create a Discord embed representation of this page.
+
+        Parameters
+        ----------
+        locale
+            Locale to localise this page to, if relevant.
+        localiser
+            Localiser to use to localise this page, if relevant.
+
+        Returns
+        -------
+        hikari.embeds.Embed
+            The Discord embed representation of this page.
+        """
         title, description = self._localise(locale, localiser)
         return hikari.Embed(title=title, description=description).set_footer(
             f"Page {self._page_number}/{len(self._index.pages)}"
@@ -243,6 +289,8 @@ class _Page:
 
 
 class _HelpIndex:
+    """Index which tracks all the commands to display help info for in a bot."""
+
     __slots__ = ("_column", "_descriptions", "_hash", "_numbers", "_pages")
 
     def __init__(self) -> None:
@@ -254,18 +302,22 @@ class _HelpIndex:
 
     @property
     def column(self) -> _HelpColumn:
+        """The Yuyo components which handle paginating the bot's help command."""
         return self._column
 
     @property
     def hash(self) -> str:
+        """State hash used to check for help command sync."""
         return self._hash
 
     @property
     def numbers_modal(self) -> _NumberModal:
+        """The Yuyo modal used to handle the "go to page" button."""
         return self._numbers
 
     @property
     def pages(self) -> collections.Sequence[_Page]:
+        """Sequence of this help index's pages."""
         return self._pages
 
     async def to_response(
@@ -276,6 +328,7 @@ class _HelpIndex:
         *,
         localiser: typing.Optional[tanjun.dependencies.AbstractLocaliser],
     ) -> None:
+        """Respond to a component or modal context with a specific page."""
         try:
             page = self._pages[page_number]
 
@@ -294,6 +347,7 @@ class _HelpIndex:
         await ctx.create_initial_response(content, components=rows, response_type=hikari.ResponseType.MESSAGE_UPDATE)
 
     def reload(self, client: tanjun.abc.Client, help_config: config.HelpConfig, /) -> None:
+        """Rebuild the help command's index to account for changes."""
         categories: dict[str, list[tuple[str, _internal.MaybeLocalised]]] = {}
         descriptions: dict[tuple[str, ...], _internal.MaybeLocalised] = {}
         pages: list[_Page] = []
@@ -362,10 +416,12 @@ class _HelpIndex:
         client: alluka.Injected[tanjun.abc.Client],
         help_config: alluka.Injected[config.HelpConfig] = _DEFAULT_CONFIG,
     ) -> None:
+        """Event listener which handles component changes."""
         return self.reload(client, help_config)
 
     def find_command(self, command_name: str, /) -> typing.Optional[_internal.MaybeLocalised]:
-        return self._descriptions.get(tuple(_filter_name(command_name)))
+        """Find a command's help page by name."""
+        return self._descriptions.get(tuple(_split_name(command_name)))
 
 
 # TODO: this feels very inefficient
@@ -389,14 +445,14 @@ def _follow_msg_children(
     command: tanjun.abc.MessageCommand[typing.Any], help_config: config.HelpConfig, /
 ) -> collections.Iterator[tuple[list[str], tanjun.abc.MessageCommand[typing.Any]]]:
     if command.metadata.get(_INCLUDE_KEY, help_config.include_message_commands):
-        yield from ((_filter_name(name), command) for name in command.names)
+        yield from ((_split_name(name), command) for name in command.names)
 
     if isinstance(command, tanjun.abc.MessageCommandGroup):
         commands_iter = itertools.product(
             command.names,
             itertools.chain.from_iterable(_follow_msg_children(cmd, help_config) for cmd in command.commands),
         )
-        yield from (([*_filter_name(parent_name), *name], command) for parent_name, (name, command) in commands_iter)
+        yield from (([*_split_name(parent_name), *name], command) for parent_name, (name, command) in commands_iter)
 
 
 def _collect_slash_cmds(
@@ -431,6 +487,8 @@ def _follow_slash_children(
 
 
 class _NumberModal(yuyo.modals.Modal):
+    """Modal used for jumping to a specific help page."""
+
     __slots__ = ("_index",)
 
     def __init__(self, index: _HelpIndex, /) -> None:
@@ -460,6 +518,8 @@ async def _noop(ctx: yuyo.ComponentContext, /) -> None:
 
 
 class _HelpColumn(yuyo.ActionColumnExecutor):
+    """Help pagination components."""
+
     __slots__ = ("_index",)
 
     def __init__(
@@ -485,6 +545,7 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
     def make_rows(
         self, author: hikari.Snowflake, page: int, /
     ) -> collections.Sequence[hikari.api.MessageActionRowBuilder]:
+        """Make a copy of these components with a specific author and page set."""
         return _HelpColumn(self._index, author=author, page=page).rows
 
     def _process_metadata(self, ctx: yuyo.ComponentContext, /) -> int:
