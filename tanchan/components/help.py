@@ -597,7 +597,12 @@ async def _help_command(
 
     else:
         # TODO: proper intro page + page numbers
-        page = index.pages[0]
+        try:
+            page = index.pages[0]
+
+        except IndexError:
+            raise tanjun.CommandError("No commands") from None
+
         components = _HelpColumn(index, author=ctx.author.id).rows
 
         if await _check_embed_links(ctx, me):
