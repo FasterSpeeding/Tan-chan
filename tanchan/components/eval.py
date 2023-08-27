@@ -292,8 +292,15 @@ async def _on_edit_button(
         # Otherwise try to get the source message.
         message = await client.rest.fetch_message(ctx.interaction.channel_id, ctx.interaction.message)
         if message.referenced_message and message.referenced_message.content:
-            with contextlib.suppress(IndexError):
-                rows = _make_rows(default=_CODEBLOCK_REGEX.findall(message.referenced_message.content)[0])
+            parsed = _CODEBLOCK_REGEX.findall(message.referenced_message.content)
+            try:
+                default = parsed[0]
+
+            except IndexError:
+                pass
+
+            else:
+                rows = _make_rows(default=default)
 
     await ctx.create_modal_response("Edit eval", _EVAL_MODAL_ID, components=rows)
 

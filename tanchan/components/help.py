@@ -317,7 +317,7 @@ class _HelpIndex:
 
     @property
     def hash(self) -> str:
-        """State hash used to check for help command sync."""
+        """State hash used to make sure help iterators are insync."""
         return self._hash
 
     @property

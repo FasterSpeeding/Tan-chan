@@ -1,6 +1,6 @@
 # tanchan.components
 
-Default dependency utilities used within Tanjun and their abstract interfaces.
+Commands, message components and modals implemented by Tan-chan for use with Tanjun and Yuyo.
 
 ::: tanchan.components.buttons
     options:

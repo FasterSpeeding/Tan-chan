@@ -59,15 +59,19 @@ OWNER_QS_KEY: typing.Final[str] = "a"
 """Query string key for the author field."""
 
 
-def make_delete_id(*authors: hikari.SnowflakeishOr[hikari.User]) -> str:
+def make_delete_id(author: hikari.SnowflakeishOr[hikari.User], /, *authors: hikari.SnowflakeishOr[hikari.User]) -> str:
     """Make a delete button custom ID."""
-    return f"{DELETE_CUSTOM_ID}:{OWNER_QS_KEY}=" + ",".join(str(int(author)) for author in authors)
+    return f"{DELETE_CUSTOM_ID}:{OWNER_QS_KEY}={int(author)}," + ",".join(str(int(author)) for author in authors)
 
 
 def delete_row(
+    ctx_or_author: typing.Union[
+        hikari.Snowflakeish, tanjun.abc.Context, tanjun.abc.AutocompleteContext, yuyo.components.BaseContext[typing.Any]
+    ],
+    /,
     *ctx_or_authors: typing.Union[
         hikari.Snowflakeish, tanjun.abc.Context, tanjun.abc.AutocompleteContext, yuyo.components.BaseContext[typing.Any]
-    ]
+    ],
 ) -> hikari.impl.MessageActionRowBuilder:
     """Make an action row builder with a delete button from a list of authors.
 
@@ -88,8 +92,9 @@ def delete_row(
         Action row builder with a delete button.
     """
     authors = (value if isinstance(value, int) else value.author.id for value in ctx_or_authors)
+    custom_id = make_delete_id(ctx_or_author if isinstance(ctx_or_author, int) else ctx_or_author.author.id, *authors)
     return hikari.impl.MessageActionRowBuilder().add_interactive_button(
-        hikari.ButtonStyle.DANGER, make_delete_id(*authors), emoji=DELETE_EMOJI
+        hikari.ButtonStyle.DANGER, custom_id, emoji=DELETE_EMOJI
     )
 
 
@@ -132,6 +137,7 @@ async def on_delete_button(ctx: yuyo.ComponentContext, /) -> None:
 # TODO: should be typed as returning an iterator of snowflakes.
 def _parse_owner_ids(value: str, /) -> collections.Iterator[int]:
     # Filter is needed as "".split(",") will give [""] which is not a valid snowflake.
+    # And "123," will give ["123", ""].
     return map(hikari.Snowflake, filter(None, value.split(",")))
 
 
@@ -143,7 +149,7 @@ def load_buttons(client: tanjun.abc.Client) -> None:
         component_client.register_executor(on_delete_button, timeout=None)
 
     except ValueError:
-        pass  # Use has their own implementation set.
+        pass  # They have their own implementation set.
 
 
 @tanjun.as_unloader

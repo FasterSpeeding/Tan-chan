@@ -70,10 +70,8 @@ class MaybeLocalised:
 
         Parameters
         ----------
-        field_name
-            Name of the field being localised.
-
-            This is used in raised exceptions.
+        field_type
+            The type of field being localised.
         field
             The string value(s) to use for this value.
 
@@ -84,24 +82,23 @@ class MaybeLocalised:
             to values. If an "id" fieldis included then this will be used as the
             id for overloading it with the localiser and the first real value
             will be used as the default value.
+        cmd_type
+            The type of command this field is attached to.
+
+            [None][] is used to represent message commands and this is ignored
+            for `"help.category"` fields.
+        name
+            The name of the command this field is attached to.
+
+            This is required for `"help.name"` and `"help.description"` fields
+            and shouldn't be included for `"help.category"` fields as the
+            default value is used.
 
         Raises
         ------
         RuntimeError
-            If no default value is provided when `filed` is a mapping.
+            If no default value is provided when `field` is a mapping.
         """
-        if field_type == "help.category":
-            if name is not None:
-                raise RuntimeError("`name` cannot be passed for help.category fields")
-
-            self._localise_id = f"*:*:help.category:{name}"
-
-        else:
-            if name is None:
-                raise ValueError(f"`name` must be passed for {field_type} fields")
-
-            self._localise_id = f"{_TYPE_TO_STR[cmd_type]}:{name}:{field_type}"
-
         if isinstance(field, str):
             self.default_value = field
             self.id: typing.Optional[str] = None
@@ -119,7 +116,23 @@ class MaybeLocalised:
 
             self.default_value = entry
 
+        if field_type == "help.category":
+            if name is not None:
+                raise RuntimeError("`name` cannot be passed for help.category fields")
+
+            self._localise_id = f"*:*:help.category:{self.default_value}"
+
+        else:
+            if name is None:
+                raise ValueError(f"`name` must be passed for {field_type} fields")
+
+            self._localise_id = f"{_TYPE_TO_STR[cmd_type]}:{name}:{field_type}"
+
     def to_string(self) -> str:
+        """Make a string representation of this localised value.
+
+        This is used for ensure synced states.
+        """
         if not self.localised_values:
             return self.default_value
 
