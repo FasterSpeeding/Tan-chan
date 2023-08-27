@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Configurable and optional help commands which display information about the
-  loaded commands.
+  loaded commands. These can be loaded from [tanchan.components.help][].
 - Configurable and optional eval commands which let bot owners dynamically
-  execute code in the bot's runtime.
+  execute code in the bot's runtime. These can be loaded from
+  [tanchan.components.eval][].
+- The logic and builder for a stateless Yuyo button which lets command authors
+  delete responses. This can be loaded from [tanchan.components.buttons][] and
+  is used by the eval and help commands.
 
 ## [0.3.1] - 2023-07-26
 ### Added
