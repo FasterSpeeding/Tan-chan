@@ -24,7 +24,6 @@ as the command's description.
 but with the added feature that slash command option descriptions are parsed from the docstring.
 This supports Google's doc style, NumPy's doc style, and Sphinx's "reST" doc style.
 
-
 ### Commands
 
 Tan-chan provides several Tanjun commands which all rely on the separate Yuyo
