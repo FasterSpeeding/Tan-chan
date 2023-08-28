@@ -129,16 +129,18 @@ class MaybeLocalised:
 
             self._localise_id = f"{_TYPE_TO_STR[cmd_type]}:{name}:{field_type}"
 
-    def to_string(self) -> str:
+    def to_hashable(self) -> str:
         """Make a string representation of this localised value.
 
-        This is used for ensure synced states.
+        This is used for ensuring pagination states match.
         """
         if not self.localised_values:
-            return self.default_value
+            return self.default_value.split("\n", 1)[0]
 
         else:
-            return f"{self.default_value};{sorted(self.localised_values.items())!r}"
+            # Only care about the first line for pagination.
+            descriptions = [(key, value.split("\n", 1)[0]) for key, value in self.localised_values.items()]
+            return f"{self.default_value};{sorted(descriptions)!r}"
 
     def localise(self, locale: hikari.Locale, localiser: typing.Optional[tanjun.dependencies.AbstractLocaliser]) -> str:
         """Get the localised value for a context.

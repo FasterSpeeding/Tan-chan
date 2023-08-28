@@ -237,11 +237,13 @@ class _Page:
         self, locale: typing.Optional[hikari.Locale], localiser: typing.Optional[tanjun.dependencies.AbstractLocaliser]
     ) -> tuple[str, str]:
         if locale is None:
-            description = "\n".join(f"{name}: {field.default_value}" for name, field in self._fields)
+            description = "\n".join(f"{name}: " + field.default_value.split("\n", 1)[0] for name, field in self._fields)
             title = f"{self._category_name.default_value} commands"
             return title, description
 
-        description = "\n".join(f"{name}: {field.localise(locale, localiser)}" for name, field in self._fields)
+        description = "\n".join(
+            f"{name}: " + field.localise(locale, localiser).split("\n", 1)[0] for name, field in self._fields
+        )
         title = self._category_name.localise(locale, localiser)
         return title, description
 
@@ -410,7 +412,7 @@ class _HelpIndex:
                 page_number += 1
                 pages.append(_Page(self, page_number, cateory, commands[10 * index : 10 * (index + 1)]))
 
-        items_repr = ((" ".join(k), v.to_string()) for k, v in descriptions.items())
+        items_repr = ((" ".join(k), v.to_hashable()) for k, v in descriptions.items())
         items_repr = ",".join(map(":".join, sorted(items_repr, key=lambda v: v[0]))).encode()
         self._descriptions = descriptions
         self._hash = "md5-" + hashlib.md5(items_repr, usedforsecurity=False).hexdigest()
