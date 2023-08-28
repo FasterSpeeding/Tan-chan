@@ -512,7 +512,7 @@ async def _eval_slash_command(
 class _OnGuildCreate:
     """Handles creating the eval slash command for the whitelisted guilds on guild create."""
 
-    __slots__ = ("_command",)
+    __slots__ = ("_command", "__weakref__")
 
     # TODO: tanjun just needs type var defaults at this point
     def __init__(self, command: tanjun.abc.SlashCommand[typing.Any], /) -> None:
@@ -525,6 +525,7 @@ class _OnGuildCreate:
     ) -> None:
         """Guild create listener which declares the eval slash command."""
         # TODO: come up with a better system for overriding command.is_global
+        # TODO: deregister slash command if it shouldn't be present
         if eval_config.eval_guild_ids is not None and event.guild_id in eval_config.eval_guild_ids:
             app = await event.app.rest.fetch_application()
             await self._command.build().create(event.app.rest, app.id, guild=event.guild_id)
@@ -546,6 +547,7 @@ def load_sudo(client: tanjun.abc.Client) -> None:
         eval_command = doc_parse.as_slash_command(name="eval", is_global=is_global)(_eval_slash_command)
         help_commands.hide_from_help(eval_command)
         doc_parse.with_annotated_args(eval_command)
+        component.add_command(eval_command)
 
         if not is_global:
             on_guild_create = _OnGuildCreate(eval_command)
