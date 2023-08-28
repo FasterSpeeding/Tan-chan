@@ -50,6 +50,16 @@ class EvalConfig:
 
     [EvalConfig.add_to_client][tanchan.components.config.EvalConfig.add_to_client]
     should be used to set this config.
+
+    Examples
+    --------
+    ```py
+    client = tanjun.Client.from_gateway_bot(bot)
+    (
+        yuyo.components.config.EvalConfig(eval_guild_ids=None)
+        .add_to_client(client)
+    )
+    ```
     """
 
     eval_guild_ids: typing.Optional[collections.Collection[int]] = attrs.field(default=())
@@ -76,6 +86,16 @@ class HelpConfig:
 
     [HelpConfig.add_to_client][tanchan.components.config.HelpConfig.add_to_client]
     should be used to set this config.
+
+    Examples
+    --------
+    ```py
+    client = tanjun.Client.from_gateway_bot(bot)
+    (
+        yuyo.components.config.HelpConfig(enable_slash_command=True)
+        .add_to_client(client)
+    )
+    ```
     """
 
     enable_message_command: bool = True
@@ -115,6 +135,18 @@ class Config(EvalConfig, HelpConfig):
 
     [Config.add_to_client][tanchan.components.config.Config.add_to_client]
     should be used to set this config.
+
+    Examples
+    --------
+    ```py
+    client = tanjun.Client.from_gateway_bot(bot)
+    config = yuyo.components.config.Config(
+        eval_guild_ids=None,
+        enable_slash_command=True,
+    )
+
+    config.add_to_client(client)
+    ```
     """
 
     def add_to_client(self, client: typing.Union[alluka.Client, tanjun.Client]) -> None:
