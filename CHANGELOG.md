@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.4.0] - 2023-08-28
 ### Added
 - Configurable and optional help commands which display information about the
   loaded commands. These can be loaded from [tanchan.components.help][].
@@ -75,7 +76,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   descriptions (including for options) from the command callback's docstring +
   using the callback's name as the command's name.
 
-[Unreleased]: https://github.com/FasterSpeeding/tanchan/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/tanchan/compare/v0.4.0...HEAD
+[0.3.1]: https://github.com/FasterSpeeding/tanchan/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/FasterSpeeding/tanchan/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/FasterSpeeding/tanchan/compare/v0.2.2.post...v0.3.0
 [0.2.2.post]: https://github.com/FasterSpeeding/tanchan/compare/v0.2.2...v0.2.2.post
