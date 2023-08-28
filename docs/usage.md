@@ -30,7 +30,7 @@ Tan-chan provides several Tanjun commands which all rely on the separate Yuyo
 component client library. To ensure a compatible Yuyo version is present you
 should install Tan-chan with the `tanchan[yuyo]` install flag.
 
-`"tanchan.components"` can be passed to 
+`"tanchan.components"` can be passed to
 [Client.load_modules][tanjun.clients.Client.load_modules] as a shorthand to
 add all of these commands and component handlers to a bot at once .
 
