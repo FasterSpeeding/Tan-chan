@@ -39,7 +39,7 @@ add all of these commands and component handlers to a bot at once .
 Tan-chan implements help commands which give users more information about
 the commands loaded in a bot.
 
-The message command this introduces can either be called as `{prefix}help` to
+The message command this introduces can be called as either `{prefix}help` to
 get a list of all available commands or as `{prefix}help {command name}` to get
 more information about a specific command. Commands are grouped by the name of
 their linked component by default so it's important to make sure you're passing
