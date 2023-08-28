@@ -26,13 +26,17 @@ This supports Google's doc style, NumPy's doc style, and Sphinx's "reST" doc sty
 
 ### Commands
 
-Tan-chan provides several Tanjun commands which all rely on the separate Yuyo
-component client library. To ensure a compatible Yuyo version is present you
+Tan-chan provides several Tanjun commands which rely on the separate Yuyo
+components library. To ensure a compatible Yuyo version is present you
 should install Tan-chan with the `tanchan[yuyo]` install flag.
 
 `"tanchan.components"` can be passed to
 [Client.load_modules][tanjun.abc.Client.load_modules] as a shorthand to
-add all of these commands and component handlers to a bot at once .
+add all of these commands and component handlers to a bot at once.
+
+!!! note
+  Any command config should be added the Tanjun client before the commands
+  are loaded.
 
 ##### Help command
 
