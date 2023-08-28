@@ -31,7 +31,7 @@ component client library. To ensure a compatible Yuyo version is present you
 should install Tan-chan with the `tanchan[yuyo]` install flag.
 
 `"tanchan.components"` can be passed to
-[Client.load_modules][tanjun.clients.Client.load_modules] as a shorthand to
+[Client.load_modules][tanjun.abc.Client.load_modules] as a shorthand to
 add all of these commands and component handlers to a bot at once .
 
 ##### Help command
@@ -50,7 +50,7 @@ By default slash command functionality is turned off but this can be enabled
 using [tanchan.components.config.HelpConfig][].
 
 These commands can be added to a bot by calling
-[Client.load_modules][tanjun.clients.Client.load_modules] with
+[Client.load_modules][tanjun.abc.Client.load_modules] with
 `"tanchan.components.help"`.
 
 ##### Eval command
@@ -67,5 +67,5 @@ declared globally or for specific guilds using
 option.
 
 These commands can be added to a bot by calling
-[Client.load_modules][tanjun.clients.Client.load_modules] with
+[Client.load_modules][tanjun.abc.Client.load_modules] with
 `"tanchan.components.eval"`.
