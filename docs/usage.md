@@ -24,28 +24,49 @@ as the command's description.
 but with the added feature that slash command option descriptions are parsed from the docstring.
 This supports Google's doc style, NumPy's doc style, and Sphinx's "reST" doc style.
 
-### Help command
 
-Tan-chan implements commands which give users more information about the
-commands loaded in a bot.
+### Commands
 
-By default only the message command
+Tan-chan provides several Tanjun commands which all rely on the separate Yuyo
+component client library. To ensure a compatible Yuyo version is present you
+should install Tan-chan with the `tanchan[yuyo]` install flag.
 
-These can be added to a bot by calling
+`"tanchan.components"` can be passed to 
+[Client.load_modules][tanjun.clients.Client.load_modules] as a shorthand to
+add all of these commands and component handlers to a bot at once .
+
+##### Help command
+
+Tan-chan implements help commands which give users more information about
+the commands loaded in a bot.
+
+The message command this introduces can either be called as `{prefix}help` to
+get a list of all available commands or as `{prefix}help {command name}` to get
+more information about a specific command. Commands are grouped by the name of
+their linked component by default so it's important to make sure you're passing
+legible `name=`s to
+[tanjun.Component.\_\_init\_\_][tanjun.components.Component.__init__].
+
+By default slash command functionality is turned off but this can be enabled
+using [tanchan.components.config.HelpConfig][].
+
+These commands can be added to a bot by calling
 [Client.load_modules][tanjun.clients.Client.load_modules] with
-`"tanchan.components.help"` (or `"tanchan.components"` if you want all of
-Tan-chan's commands).
+`"tanchan.components.help"`.
 
-### Eval command
+##### Eval command
 
-Tan-chan implements an eval command which allows bot owners to dynamically evaluate
-code in the bot's runtime.
+Tan-chan implements eval commands which allow bot owners to dynamically
+evaluate code in the bot's runtime.
 
-By default only the
+The message command this introduces can be called simply by sending
+`{prefix}eval` followed by a markdown codeblock of the code to execute.
 
-`eval_guild_ids`
+The slash eval command isn't included by default but this can be set to be
+declared globally or for specific guilds using
+[tanchan.components.config.EvalConfig][] and its relevant `eval_guild_ids`
+option.
 
-These can be added to a bot by calling
+These commands can be added to a bot by calling
 [Client.load_modules][tanjun.clients.Client.load_modules] with
-`"tanchan.components.eval"` (or `"tanchan.components"` if you want all of
-Tan-chan's commands).
+`"tanchan.components.eval"`.
