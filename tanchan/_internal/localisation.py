@@ -120,6 +120,7 @@ class MaybeLocalised:
             if name is not None:
                 raise RuntimeError("`name` cannot be passed for help.category fields")
 
+            # TODO: tanjun needs to also accept using the raw ":" string for getting localisations
             self._localise_id = f"*:*:help.category:{self.default_value}"
 
         else:
