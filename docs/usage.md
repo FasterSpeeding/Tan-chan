@@ -35,8 +35,8 @@ should install Tan-chan with the `tanchan[yuyo]` install flag.
 add all of these commands and component handlers to a bot at once.
 
 !!! note
-  Any command config should be added the Tanjun client before the commands
-  are loaded.
+    Any command config should be added the Tanjun client before the commands
+    are loaded.
 
 ##### Help command
 
