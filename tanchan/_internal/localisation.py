@@ -138,7 +138,7 @@ class MaybeLocalised:
             return self.default_value.split("\n", 1)[0]
 
         else:
-            # Only care about the first line as far
+            # Only care about the first line for pagination.
             descriptions = [(key, value.split("\n", 1)[0]) for key, value in self.localised_values.items()]
             return f"{self.default_value};{sorted(descriptions)!r}"
 
