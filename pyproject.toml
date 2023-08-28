@@ -30,7 +30,7 @@ dependencies = ["hikari-tanjun>=2.16, <3", "typing-extensions>=4.5, <5"]
 dynamic = ["description"]
 
 [project.optional-dependencies]
-yuyo = ["hikari-yuyo>=1.17.0, <2"]
+yuyo = ["hikari-yuyo>=1.18.0, <2"]
 
 [project.urls]
 Homepage = "https://github.com/FasterSpeeding/Tan-chan"
@@ -207,4 +207,5 @@ filterwarnings = ["error"]
 strict-imports = true
 require-superclass = true
 require-subclass = true
+exclude-classes = "tanchan.components.config:\\w+Config"
 exclude-modules = "tanchan._internal.vendor"

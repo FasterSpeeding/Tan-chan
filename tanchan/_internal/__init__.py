@@ -31,6 +31,72 @@
 """Internal utility classes and functions used by Tanchan."""
 from __future__ import annotations
 
-__all__: list[str] = ["inspect"]
+__all__: list[str] = ["MaybeLocalised", "inspect"]
 
+import typing
+
+from .localisation import MaybeLocalised
 from .vendor import inspect
+
+if typing.TYPE_CHECKING:
+    from collections import abc as collections
+
+    import typing_extensions
+    from alluka import abc as alluka
+    from tanjun import abc as tanjun
+
+    class _WrappedProto(typing.Protocol):
+        wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]]
+
+    _T = typing.TypeVar("_T")
+    _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
+
+
+def _has_wrapped(value: typing.Any, /) -> typing_extensions.TypeGuard[_WrappedProto]:
+    try:
+        value.wrapped_command
+
+    except AttributeError:
+        return False
+
+    return True
+
+
+def apply_to_wrapped(
+    command: _CommandT,
+    callback: collections.Callable[[tanjun.ExecutableCommand[typing.Any]], object],
+    /,
+    *,
+    follow_wrapped: bool = True,
+) -> _CommandT:
+    """Apply a callback to all the commands in a decorator call chain.
+
+    Parameters
+    ----------
+    command
+        The top-level command object.
+    callback
+        Callback each wrapped command should be passed to.
+    return_value
+        Value to return from this function call.
+    follow_wrapped
+        Whether this should apply the callback to wrapped commands.
+    """
+    if follow_wrapped:
+        wrapped = command.wrapped_command if _has_wrapped(command) else None
+
+        while wrapped:
+            callback(wrapped)
+            wrapped = wrapped.wrapped_command if _has_wrapped(wrapped) else None
+
+    return command
+
+
+def get_or_set_dep(client: alluka.Client, type_: type[_T], callback: collections.Callable[[], _T]) -> _T:
+    """Get a type dependency from a client or default to creating it."""
+    if (value := client.get_type_dependency(type_, default=None)) is not None:
+        return value
+
+    value = callback()
+    client.set_type_dependency(type_, value)
+    return value
