@@ -254,9 +254,9 @@ exceptiongroup==1.1.3 ; python_full_version >= "3.9.0" and python_version < "3.1
 execnet==2.0.2 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:88256416ae766bc9e8895c76a87928c0012183da3cc4fc18016e6f050e025f41 \
     --hash=sha256:cc59bc4423742fd71ad227122eb0dd44db51efb3dc4095b45ac9a08c770096af
-filelock==3.12.2 ; python_full_version >= "3.9.0" and python_version < "3.12" \
-    --hash=sha256:002740518d8aa59a26b0c76e10fb8c6e15eae825d34b6fdf670333fd7b938d81 \
-    --hash=sha256:cbb791cdea2a72f23da6ac5b5269ab0a0d161e9ef0100e653b69049a7706d1ec
+filelock==3.12.3 ; python_full_version >= "3.9.0" and python_version < "3.12" \
+    --hash=sha256:0ecc1dd2ec4672a10c8550a8182f1bd0c0a5088470ecd5a125e45f49472fac3d \
+    --hash=sha256:f067e40ccc40f2b48395a80fcbd4728262fab54e232e090a4063ab804179efeb
 frozenlist==1.4.0 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:007df07a6e3eb3e33e9a1fe6a9db7af152bbd8a185f9aaa6ece10a3529e3e1c6 \
     --hash=sha256:008eb8b31b3ea6896da16c38c1b136cb9fec9e249e77f6211d479db79a4eaf01 \
@@ -319,9 +319,9 @@ frozenlist==1.4.0 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:f0ed05f5079c708fe74bf9027e95125334b6978bf07fd5ab923e9e55e5fbb9d3 \
     --hash=sha256:f61e2dc5ad442c52b4887f1fdc112f97caeff4d9e6ebe78879364ac59f1663e1 \
     --hash=sha256:fec520865f42e5c7f050c2a79038897b1c7d1595e907a9e08e3353293ffc948e
-hikari-tanjun==2.16.1 ; python_full_version >= "3.9.0" and python_version < "3.12" \
-    --hash=sha256:2dccb6bb6fd7ecbe008ebf7420f70fa9d70dfe284ba35566dd1602ae5405b6b1 \
-    --hash=sha256:b7d91e167fe2cbdd001a58d1a83fef1976ab74c96813ef4d09251092ab006407
+hikari-tanjun==2.17.0 ; python_full_version >= "3.9.0" and python_version < "3.12" \
+    --hash=sha256:1be23be07a240d68215c861dcd8f8f7ce71ff33a29a73835a828e7750845d8ba \
+    --hash=sha256:fb2be06f6ab73d506d5eb66b2cf8ac0f3c19b63b8914d3d3b8ef9c0b62b261ef
 hikari-yuyo==1.18.0 ; python_full_version >= "3.9.0" and python_version < "3.12" \
     --hash=sha256:369bce58b5fe110b1630a525e998caf7e791224a88d34afa2e3e1a99a1e395e9 \
     --hash=sha256:f4fca025e03c1824e2140c01c5efc1973e3f2b179aeb70c64c08449dca77fc23
