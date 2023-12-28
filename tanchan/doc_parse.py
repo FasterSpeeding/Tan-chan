@@ -87,7 +87,8 @@ def _make_slash_command(
 ) -> tanjun.SlashCommand[_SlashCallbackSigT]:
     if isinstance(callback, (tanjun.abc.MenuCommand, tanjun.abc.MessageCommand, tanjun.abc.SlashCommand)):
         wrapped_command = callback
-        callback = callback.callback
+        # Cast needed cause of pyright bug
+        callback = typing.cast("_SlashCallbackSigT", callback.callback)
 
     else:
         wrapped_command = None

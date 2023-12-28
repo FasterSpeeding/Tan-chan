@@ -1371,7 +1371,7 @@ def test_ignores_docless_typed_dict():
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_ignores_typed_dict_has_standard_doc():
     typed_dict = typing_extensions.TypedDict(
-        "TypedDict", {"dump": annotations.Bool, "truck": typing_extensions.NotRequired[annotations.Bool]}
+        "typed_dict", {"dump": annotations.Bool, "truck": typing_extensions.NotRequired[annotations.Bool]}
     )
 
     @tanchan.doc_parse.with_annotated_args
@@ -1578,7 +1578,7 @@ def test_when_typed_dict_has_no_doc_and_cant_detect_doc_style():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_when_standard_typed_dict_doc_and_cant_detect_doc_style():
-    typed_dict = typing.TypedDict("TypedDict", {})
+    typed_dict = typing.TypedDict("typed_dict", {})
 
     @tanchan.doc_parse.as_slash_command()
     async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[typed_dict]) -> None:
