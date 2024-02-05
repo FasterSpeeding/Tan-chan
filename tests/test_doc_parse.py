@@ -86,8 +86,7 @@ def test_when_invalid_doc_style_passed():
 
 
 def test_as_slash_command_when_has_no_doc_string():
-    async def command(ctx: tanjun.abc.Context) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context) -> None: ...
 
     with pytest.raises(ValueError, match="Callback has no doc string"):
         tanchan.doc_parse.as_slash_command()(command)
@@ -155,8 +154,7 @@ def test_with_annotated_args_when_has_no_doc_string(
     doc_style: typing.Optional[typing.Literal["google", "numpy", "reST"]]
 ):
     @tanjun.as_slash_command("name", "description")
-    async def command(ctx: tanjun.abc.Context) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context) -> None: ...
 
     with pytest.raises(ValueError, match="Callback has no doc string"):
         tanchan.doc_parse.with_annotated_args(doc_style=doc_style)(command)
@@ -1297,8 +1295,7 @@ def test_when_only_unpacked_typed_dict_has_doc():
 
     @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
     @tanchan.doc_parse.as_slash_command(name="meow", description="pa pa")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None: ...
 
     assert command.build().options == [
         hikari.CommandOption(type=hikari.OptionType.STRING, name="garf", description="I'm a barf.", is_required=True),
@@ -1399,12 +1396,10 @@ def test_ignores_typed_dict_has_standard_doc():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_when_neither_typed_dict_nor_function_have_doc():
-    class TypedDict(typing_extensions.TypedDict):
-        ...
+    class TypedDict(typing_extensions.TypedDict): ...
 
     @tanchan.doc_parse.as_slash_command(name="meow", description="yeet")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None: ...
 
     with pytest.raises(ValueError, match="Callback has no doc string"):
         tanchan.doc_parse.with_annotated_args(command)
@@ -1420,8 +1415,7 @@ def test_errors_when_typed_dict_doc_has_no_params_and_function_has_no_doc():
         """
 
     @tanchan.doc_parse.as_slash_command(name="meow", description="yeet")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
-        ...
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None: ...
 
     with pytest.raises(ValueError, match="Callback has no doc string"):
         tanchan.doc_parse.with_annotated_args(command)
@@ -1707,8 +1701,7 @@ class TestSlashCommandGroup:
     def test_as_sub_command_when_has_no_doc_string(self):
         group = tanchan.doc_parse.SlashCommandGroup("name", "description")
 
-        async def command(ctx: tanjun.abc.Context) -> None:
-            ...
+        async def command(ctx: tanjun.abc.Context) -> None: ...
 
         with pytest.raises(ValueError, match="Callback has no doc string"):
             group.as_sub_command()(command)
