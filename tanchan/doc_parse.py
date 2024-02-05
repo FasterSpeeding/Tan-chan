@@ -62,12 +62,10 @@ if typing.TYPE_CHECKING:
     # this when expressed through `callback: _CallbackIshT[_SlashCallbackSigT]`.
     class _AsSlashResultProto(typing.Protocol):
         @typing.overload
-        def __call__(self, _: _SlashCallbackSigT, /) -> tanjun.SlashCommand[_SlashCallbackSigT]:
-            ...
+        def __call__(self, _: _SlashCallbackSigT, /) -> tanjun.SlashCommand[_SlashCallbackSigT]: ...
 
         @typing.overload
-        def __call__(self, _: _AnyCommandT[_SlashCallbackSigT], /) -> tanjun.SlashCommand[_SlashCallbackSigT]:
-            ...
+        def __call__(self, _: _AnyCommandT[_SlashCallbackSigT], /) -> tanjun.SlashCommand[_SlashCallbackSigT]: ...
 
 
 def _make_slash_command(
@@ -438,15 +436,13 @@ def _parse_descriptions(
 
 
 @typing.overload
-def with_annotated_args(command: _CommandUnionT, /) -> _CommandUnionT:
-    ...
+def with_annotated_args(command: _CommandUnionT, /) -> _CommandUnionT: ...
 
 
 @typing.overload
 def with_annotated_args(
     *, doc_style: typing.Optional[_DocStyleUnion] = None, follow_wrapped: bool = False
-) -> collections.Callable[[_CommandUnionT], _CommandUnionT]:
-    ...
+) -> collections.Callable[[_CommandUnionT], _CommandUnionT]: ...
 
 
 def with_annotated_args(
