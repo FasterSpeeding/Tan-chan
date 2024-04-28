@@ -3,6 +3,8 @@ site_name: "Tan-chan docs"
 repo_url: https://github.com/FasterSpeeding/Tan-chan
 theme:
   name: material
+  features:
+    - navigation.prune
   icon:
     admonition:
       note: octicons/tag-16
