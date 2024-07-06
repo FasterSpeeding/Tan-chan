@@ -208,7 +208,7 @@ timeout = 15
 required_plugins = []
 filterwarnings = [
     "error",
-    "ignore:DeprecationWarning: Use Context or CachingContext:DeprecationWarning" 
+    "ignore:DeprecationWarning: Use Context or CachingContext:DeprecationWarning"
 ]
 
 [tool.slotscheck]
