@@ -206,7 +206,10 @@ reportUnknownVariableType = "warning"           # Lotta false-positives, might f
 testpaths = ["tests"]
 timeout = 15
 required_plugins = []
-filterwarnings = ["error"]
+filterwarnings = [
+    "error",
+    "ignore:Use Context or CachingContext:DeprecationWarning",
+]
 
 [tool.slotscheck]
 strict-imports = true
