@@ -124,8 +124,7 @@ def with_help(
         ...
     ```
     """
-
-    def decorator(cmd: _CommandT, /) -> _CommandT:
+    def set_metadata(cmd: tanjun.abc.ExecutableCommand[typing.Any], /) -> None:
         cmd.metadata[_INCLUDE_KEY] = True
         cmd_name, cmd_type = _to_cmd_info(cmd)
         if description is not None:
@@ -136,7 +135,10 @@ def with_help(
         if category is not None:
             cmd.metadata[_CATEGORY_KEY] = category
 
-        _internal.apply_to_wrapped(cmd, decorator, follow_wrapped=follow_wrapped)
+        _internal.apply_to_wrapped(cmd, set_metadata, follow_wrapped=follow_wrapped)
+
+    def decorator(cmd: _CommandT, /) -> _CommandT:
+        set_metadata(cmd)
         return cmd
 
     return decorator
