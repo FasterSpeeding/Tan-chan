@@ -124,6 +124,7 @@ def with_help(
         ...
     ```
     """
+
     def set_metadata(cmd: tanjun.abc.ExecutableCommand[typing.Any], /) -> None:
         cmd.metadata[_INCLUDE_KEY] = True
         cmd_name, cmd_type = _to_cmd_info(cmd)
