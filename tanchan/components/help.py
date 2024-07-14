@@ -373,12 +373,14 @@ def reload(
 
 
 class CommandDescriptions:
+    """Dependency for storing the descriptions of loaded classes."""
     __slots__ = ("_descriptions",)
 
     def __init__(self, descriptions: dict[tuple[str, ...], _internal.MaybeLocalised], /) -> None:
         self._descriptions = descriptions
 
     def find_command(self, command_name: str, /) -> typing.Optional[_internal.MaybeLocalised]:
+        """Get the description for a command by its name."""
         return self._descriptions.get(tuple(_split_name(command_name)))
 
 
@@ -565,8 +567,8 @@ def unload_help(client: tanjun.abc.Client) -> None:
     """Unload this module's components from a bot."""
     client.remove_component_by_name(_IDENTIFIER)
     client.remove_type_dependency(CommandDescriptions)
-    client.remove_client_callback(tanjun.ClientCallbackNames.COMPONENT_ADDED, on_component_change)
-    client.remove_client_callback(tanjun.ClientCallbackNames.COMPONENT_REMOVED, on_component_change)
+    client.remove_client_callback(tanjun.ClientCallbackNames.COMPONENT_ADDED, reload)
+    client.remove_client_callback(tanjun.ClientCallbackNames.COMPONENT_REMOVED, reload)
     client.get_type_dependency(yuyo.StaticPaginatorIndex).remove_paginator(_IDENTIFIER)
 
 
