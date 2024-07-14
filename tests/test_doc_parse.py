@@ -1370,9 +1370,9 @@ def test_ignores_typed_dict_has_standard_doc():
     typed_dict = typing_extensions.TypedDict(
         "typed_dict",
         {
-            "dump": annotations.Bool, 
-            "truck": typing_extensions.NotRequired[annotations.Bool]  # pyright: ignore[reportInvalidTypeForm]
-        }
+            "dump": annotations.Bool,
+            "truck": typing_extensions.NotRequired[annotations.Bool],  # pyright: ignore[reportInvalidTypeForm]
+        },
     )
 
     @tanchan.doc_parse.with_annotated_args
