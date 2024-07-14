@@ -1125,7 +1125,7 @@ def test_parses_unpacked_typed_dict_auto_detect_google():
         """
 
         user: annotations.User
-        reason: typing_extensions.NotRequired[annotations.Str]
+        reason: typing_extensions.NotRequired[annotations.Str]  # pyright: ignore[reportInvalidTypeForm]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
@@ -1156,7 +1156,7 @@ def test_parses_unpacked_typed_dict_auto_detect_numpy():
         """
 
         channel: annotations.Channel
-        name: typing_extensions.NotRequired[annotations.Str]
+        name: typing_extensions.NotRequired[annotations.Str]  # pyright: ignore[reportInvalidTypeForm]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
@@ -1185,7 +1185,7 @@ def test_parses_unpacked_typed_dict_auto_detect_rest():
         """
 
         value: annotations.Str
-        other: typing_extensions.NotRequired[annotations.Bool]
+        other: typing_extensions.NotRequired[annotations.Bool]  # pyright: ignore[reportInvalidTypeForm]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
@@ -1216,7 +1216,7 @@ def test_parses_unpacked_typed_dict_auto_detect_mixed_styles():
         """
 
         meow: annotations.Bool
-        bork: typing_extensions.NotRequired[annotations.Str]
+        bork: typing_extensions.NotRequired[annotations.Str]  # pyright: ignore[reportInvalidTypeForm]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
@@ -1291,7 +1291,7 @@ def test_when_only_unpacked_typed_dict_has_doc():
         """
 
         garf: annotations.Str
-        snarf: typing_extensions.NotRequired[annotations.Str]
+        snarf: typing_extensions.NotRequired[annotations.Str]  # pyright: ignore[reportInvalidTypeForm]
 
     @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
     @tanchan.doc_parse.as_slash_command(name="meow", description="pa pa")
@@ -1311,7 +1311,7 @@ def test_ignores_unparsable_typed_dict():
         """Not descript."""
 
         egg: annotations.Bool
-        jetsons: typing_extensions.NotRequired[annotations.Bool]
+        jetsons: typing_extensions.NotRequired[annotations.Bool]  # pyright: ignore[reportInvalidTypeForm]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
@@ -1340,7 +1340,7 @@ def test_ignores_docless_typed_dict():
         """"""  # noqa: D419
 
         dump: annotations.Bool
-        truck: typing_extensions.NotRequired[annotations.Bool]
+        truck: typing_extensions.NotRequired[annotations.Bool]  # pyright: ignore[reportInvalidTypeForm]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
@@ -1368,7 +1368,11 @@ def test_ignores_docless_typed_dict():
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_ignores_typed_dict_has_standard_doc():
     typed_dict = typing_extensions.TypedDict(
-        "typed_dict", {"dump": annotations.Bool, "truck": typing_extensions.NotRequired[annotations.Bool]}
+        "typed_dict",
+        {
+            "dump": annotations.Bool, 
+            "truck": typing_extensions.NotRequired[annotations.Bool]  # pyright: ignore[reportInvalidTypeForm]
+        }
     )
 
     @tanchan.doc_parse.with_annotated_args
@@ -1468,7 +1472,7 @@ def test_errors_when_kwargs_type_isnt_unpacked():
         """
 
         egg: annotations.Bool
-        jetsons: typing_extensions.NotRequired[annotations.Bool]
+        jetsons: typing_extensions.NotRequired[annotations.Bool]  # pyright: ignore[reportInvalidTypeForm]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
@@ -1500,7 +1504,7 @@ def test_errors_ignores_unpacked_typed_dict_for_varargs():
         """
 
         egg: annotations.Bool
-        jetsons: typing_extensions.NotRequired[annotations.Bool]
+        jetsons: typing_extensions.NotRequired[annotations.Bool]  # pyright: ignore[reportInvalidTypeForm]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
@@ -1534,7 +1538,7 @@ def test_errors_ignores_unpacked_typed_dict_for_normal_arg():
         """
 
         egg: annotations.Bool
-        jetsons: typing_extensions.NotRequired[annotations.Bool]
+        jetsons: typing_extensions.NotRequired[annotations.Bool]  # pyright: ignore[reportInvalidTypeForm]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
