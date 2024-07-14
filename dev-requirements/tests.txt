@@ -60,9 +60,9 @@ coverage[toml]==7.6.0 ; python_full_version >= "3.9.0" and python_version < "3.1
     --hash=sha256:ed8d1d1821ba5fc88d4a4f45387b65de52382fa3ef1f0115a4f7a20cdfab0e94 \
     --hash=sha256:f2501d60d7497fd55e391f423f965bbe9e650e9ffc3c627d5f0ac516026000b8 \
     --hash=sha256:f7db0b6ae1f96ae41afe626095149ecd1b212b424626175a6633c2999eaad45b
-exceptiongroup==1.2.1 ; python_full_version >= "3.9.0" and python_version < "3.11" \
-    --hash=sha256:5258b9ed329c5bbdd31a309f53cbfb0b155341807f6ff7606a1e801a891b29ad \
-    --hash=sha256:a4785e48b045528f5bfe627b6ad554ff32def154f42372786903b7abcfe1aa16
+exceptiongroup==1.2.2 ; python_full_version >= "3.9.0" and python_version < "3.11" \
+    --hash=sha256:3111b9d131c238bec2f8f516e123e14ba243563fb135d3fe885990585aa7795b \
+    --hash=sha256:47c2edf7c6738fafb49fd34290706d1a1a2f4d1c6df275526b62cbb4aa5393cc
 execnet==2.1.1 ; python_full_version >= "3.9.0" and python_version < "3.13" \
     --hash=sha256:26dee51f1b80cebd6d0ca8e74dd8745419761d3bef34163928cbebbdc4749fdc \
     --hash=sha256:5189b52c6121c24feae288166ab41b32549c7e2348652736540b9e6e7d4e72e3
