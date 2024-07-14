@@ -31,7 +31,7 @@ dependencies = ["hikari-tanjun>=2.16, <3", "typing-extensions>=4.5, <5"]
 dynamic = ["description"]
 
 [project.optional-dependencies]
-yuyo = ["hikari-yuyo>=1.22.0, <2"]
+yuyo = ["hikari-yuyo>=1.23.0, <2"]
 
 [project.urls]
 Homepage = "https://github.com/FasterSpeeding/Tan-chan"
