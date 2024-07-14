@@ -298,10 +298,12 @@ class _Page(yuyo.pagination.AbstractPage):
 
 
 def reload(
-    client: tanjun.abc.Client,
-    static_index: yuyo.StaticPaginatorIndex,
-    help_config: config.HelpConfig,
+    _: typing.Optional[tanjun.abc.Component] = None,
     /,
+    *,
+    client: alluka.Injected[tanjun.abc.Client],
+    static_index: alluka.Injected[yuyo.StaticPaginatorIndex],
+    help_config: alluka.Injected[config.HelpConfig] = _DEFAULT_CONFIG,
 ) -> None:
     """Rebuild the help command's index to account for changes."""
     categories: dict[str, list[tuple[str, _internal.MaybeLocalised]]] = {}
@@ -378,16 +380,6 @@ class CommandDescriptions:
         return self._descriptions.get(tuple(_split_name(command_name)))
 
 
-
-async def on_component_change(
-    _: tanjun.abc.Component,
-    *,
-    client: alluka.Injected[tanjun.abc.Client],
-    static_index: alluka.Injected[yuyo.StaticPaginatorIndex],
-    help_config: alluka.Injected[config.HelpConfig] = _DEFAULT_CONFIG,
-) -> None:
-    """Event listener which handles component changes."""
-    return reload(client, static_index, help_config)
 
 
 # TODO: this feels very inefficient
@@ -552,8 +544,8 @@ def load_help(client: tanjun.abc.Client) -> None:
 
     client.add_component(component)
 
-    client.add_client_callback(tanjun.ClientCallbackNames.COMPONENT_ADDED, on_component_change)
-    client.add_client_callback(tanjun.ClientCallbackNames.COMPONENT_REMOVED, on_component_change)
+    client.add_client_callback(tanjun.ClientCallbackNames.COMPONENT_ADDED, reload)
+    client.add_client_callback(tanjun.ClientCallbackNames.COMPONENT_REMOVED, reload)
 
     component_client = _internal.get_or_set_dep(client.injector, yuyo.ComponentClient, yuyo.ComponentClient)
     modal_client = _internal.get_or_set_dep(client.injector, yuyo.ModalClient, yuyo.ModalClient)
@@ -564,7 +556,7 @@ def load_help(client: tanjun.abc.Client) -> None:
     except KeyError:
         static_index = yuyo.StaticPaginatorIndex().add_to_clients(component_client, modal_client)
 
-    reload(client, static_index, help_config)
+    reload(client=client, static_index=static_index, help_config=help_config)
 
 
 # TODO: better document help.py and eval.py
