@@ -374,6 +374,7 @@ def reload(
 
 class CommandDescriptions:
     """Dependency for storing the descriptions of loaded classes."""
+
     __slots__ = ("_descriptions",)
 
     def __init__(self, descriptions: dict[tuple[str, ...], _internal.MaybeLocalised], /) -> None:
