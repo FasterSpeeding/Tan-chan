@@ -79,6 +79,7 @@ Defaults to [True][] for message commands and [False][] for slash commands.
 
 INDEX_ID = "tan-chan.components.help"
 
+
 def with_help(
     description: typing.Union[str, collections.Mapping[str, str], None] = None,
     /,
@@ -282,11 +283,15 @@ class _Page(yuyo.pagination.AbstractPage):
         )
 
     def to_kwargs(self) -> yuyo.pagination.ResponseKwargs:
-        return {
-            "embeds": [self._to_embed()]
-        }
+        return {"embeds": [self._to_embed()]}
 
-    def ctx_to_kwargs(self, ctx: typing.Union[yuyo.interactions.BaseContext[hikari.ComponentInteraction], yuyo.interactions.BaseContext[hikari.ModalInteraction]]) -> yuyo.pagination.ResponseKwargs:
+    def ctx_to_kwargs(
+        self,
+        ctx: typing.Union[
+            yuyo.interactions.BaseContext[hikari.ComponentInteraction],
+            yuyo.interactions.BaseContext[hikari.ModalInteraction],
+        ],
+    ) -> yuyo.pagination.ResponseKwargs:
         localiser = ctx.alluka.get_type_dependency(tanjun.dependencies.AbstractLocaliser)
         permissions = ctx.interaction.app_permissions
         # perms is None indicates a DM where we will always have embed links.
@@ -294,7 +299,6 @@ class _Page(yuyo.pagination.AbstractPage):
             return {"embeds": [self._to_embed(locale=hikari.Locale(ctx.interaction.locale), localiser=localiser)]}
 
         return {"content": self.to_content(locale=hikari.Locale(ctx.interaction.locale), localiser=localiser)}
-
 
 
 def reload(
@@ -332,9 +336,7 @@ def reload(
             description = description_override
 
         elif description:
-            description = _internal.MaybeLocalised(
-                "help.description", description, cmd_type=cmd_type, name=cmd_name
-            )
+            description = _internal.MaybeLocalised("help.description", description, cmd_type=cmd_type, name=cmd_name)
 
         else:
             continue
@@ -378,8 +380,6 @@ class CommandDescriptions:
 
     def find_command(self, command_name: str, /) -> typing.Optional[_internal.MaybeLocalised]:
         return self._descriptions.get(tuple(_split_name(command_name)))
-
-
 
 
 # TODO: this feels very inefficient
@@ -444,8 +444,6 @@ def _follow_slash_children(
         yield ([command.name], command)
 
 
-
-
 async def _help_command(
     ctx: typing.Union[tanjun.abc.MessageContext, tanjun.abc.SlashContext],
     *,
@@ -457,7 +455,7 @@ async def _help_command(
     # This could likely also include adding a "ScopedState" return class
     # which lets you scope them per specific resource (e.g. user, member)
     me: hikari.OwnUser = tanjun.cached_inject(tanjun.dependencies.fetch_my_user),
-    static_index: alluka.Injected[yuyo.StaticPaginatorIndex]
+    static_index: alluka.Injected[yuyo.StaticPaginatorIndex],
 ) -> None:
     """Get information about the bot's commands.
 
@@ -570,5 +568,6 @@ def unload_help(client: tanjun.abc.Client) -> None:
     client.remove_client_callback(tanjun.ClientCallbackNames.COMPONENT_ADDED, on_component_change)
     client.remove_client_callback(tanjun.ClientCallbackNames.COMPONENT_REMOVED, on_component_change)
     client.get_type_dependency(yuyo.StaticPaginatorIndex).remove_paginator(_IDENTIFIER)
+
 
 # TODO: put the help command into a general/unnamed category
