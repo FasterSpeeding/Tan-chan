@@ -100,7 +100,7 @@ class MaybeLocalised:
             If no default value is provided when `field` is a mapping.
         """
         if isinstance(field, str):
-            self.default_value = field
+            self.default_value: str = field
             self.id: typing.Optional[str] = None
             self.localised_values: dict[str, str] = {}
 
