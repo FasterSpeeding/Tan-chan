@@ -149,9 +149,7 @@ def test_as_slash_command_when_dict_overrides_passed():
 
 
 @pytest.mark.parametrize("doc_style", [None, "google", "numpy", "reST"])
-def test_with_annotated_args_when_has_no_doc_string(
-    doc_style: typing.Literal["google", "numpy", "reST"] | None
-):
+def test_with_annotated_args_when_has_no_doc_string(doc_style: typing.Literal["google", "numpy", "reST"] | None):
     @tanjun.as_slash_command("name", "description")
     async def command(ctx: tanjun.abc.Context) -> None: ...
 
@@ -805,9 +803,7 @@ def test_numpy_with_other_parameters():
 def test_numpy_for_multi_line_descriptions():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def eep_command(
-        ctx: tanjun.abc.Context, foo: annotations.Str, bar: annotations.Float | None = None
-    ) -> None:
+    async def eep_command(ctx: tanjun.abc.Context, foo: annotations.Str, bar: annotations.Float | None = None) -> None:
         """I am very catgirly.
 
         Parameters
@@ -955,9 +951,7 @@ def test_rest_when_doc_style_explicitly_passed():
 def test_rest_with_no_type_hints():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def b_command(
-        ctx: tanjun.abc.Context, beep: annotations.User, op: annotations.Channel | None = None
-    ) -> None:
+    async def b_command(ctx: tanjun.abc.Context, beep: annotations.User, op: annotations.Channel | None = None) -> None:
         """I love nyans.
 
         :param beep: Nyanners.
@@ -1219,9 +1213,7 @@ def test_parses_unpacked_typed_dict_auto_detect_mixed_styles():
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
-    async def command(
-        ctx: tanjun.abc.Context, snarf: annotations.Float, **kwargs: typing.Unpack[TypedDict]
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, snarf: annotations.Float, **kwargs: typing.Unpack[TypedDict]) -> None:
         """A command.
 
         Args:
@@ -1257,9 +1249,7 @@ def test_parses_unpacked_typed_dict_passed_format():
 
     @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
     @tanchan.doc_parse.as_slash_command()
-    async def command(
-        ctx: tanjun.abc.Context, pew: annotations.Str, **kwargs: typing.Unpack[TypedDict]
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, pew: annotations.Str, **kwargs: typing.Unpack[TypedDict]) -> None:
         """A command.
 
         Parameters
@@ -1503,9 +1493,7 @@ def test_errors_ignores_unpacked_typed_dict_for_varargs():
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
-    async def command(
-        ctx: tanjun.abc.Context, meowen: annotations.Str, *args: *TypedDict  # type: ignore
-    ) -> None:
+    async def command(ctx: tanjun.abc.Context, meowen: annotations.Str, *args: *TypedDict) -> None:  # type: ignore
         """Command.
 
         Parameters

@@ -33,12 +33,11 @@ from __future__ import annotations as _
 
 __all__: list[str] = ["SlashCommandGroup", "as_slash_command", "slash_command_group", "with_annotated_args"]
 
+import inspect
 import re
 import typing
 
 import tanjun
-
-import inspect
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -46,7 +45,11 @@ if typing.TYPE_CHECKING:
     import hikari
 
     _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
-    _AnyCommandT = tanjun.abc.MenuCommand[_AnyCallbackSigT, typing.Any] |tanjun.abc.MessageCommand[_AnyCallbackSigT] | tanjun.abc.SlashCommand[_AnyCallbackSigT]
+    _AnyCommandT = (
+        tanjun.abc.MenuCommand[_AnyCallbackSigT, typing.Any]
+        | tanjun.abc.MessageCommand[_AnyCallbackSigT]
+        | tanjun.abc.SlashCommand[_AnyCallbackSigT]
+    )
     # | style unions won't work here as it would result in a string, not type value.
     _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]
     _CommandUnionT = typing.TypeVar(
@@ -442,11 +445,7 @@ def with_annotated_args(
 
 
 def with_annotated_args(
-    command: _CommandUnionT | None = None,
-    /,
-    *,
-    doc_style: _DocStyleUnion | None = None,
-    follow_wrapped: bool = False,
+    command: _CommandUnionT | None = None, /, *, doc_style: _DocStyleUnion | None = None, follow_wrapped: bool = False
 ) -> _CommandUnionT | collections.Callable[[_CommandUnionT], _CommandUnionT]:
     r"""Docstring parsing implementation of [tanjun.annotations.with_annotated_args][].
 

@@ -249,10 +249,7 @@ class _Page:
         return title, description
 
     def to_content(
-        self,
-        *,
-        locale: hikari.Locale | None = None,
-        localiser: tanjun.dependencies.AbstractLocaliser | None = None,
+        self, *, locale: hikari.Locale | None = None, localiser: tanjun.dependencies.AbstractLocaliser | None = None
     ) -> str:
         """Create a message content representation of this page.
 
@@ -272,10 +269,7 @@ class _Page:
         return f"```md\n{title}\n{description}\n```"
 
     def to_embed(
-        self,
-        *,
-        locale: hikari.Locale | None = None,
-        localiser: tanjun.dependencies.AbstractLocaliser | None = None,
+        self, *, locale: hikari.Locale | None = None, localiser: tanjun.dependencies.AbstractLocaliser | None = None
     ) -> hikari.Embed:
         """Create a Discord embed representation of this page.
 
@@ -531,9 +525,7 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
 
     __slots__ = ("_index",)
 
-    def __init__(
-        self, index: _HelpIndex, /, *, author: hikari.Snowflake | None = None, page: int = 0
-    ) -> None:
+    def __init__(self, index: _HelpIndex, /, *, author: hikari.Snowflake | None = None, page: int = 0) -> None:
         metadata = f"{_HASH_KEY}={index.hash}&{_PAGE_NUM_KEY}={page}"
         if author:
             metadata += f"&{buttons.OWNER_QS_KEY}={int(author)}"
