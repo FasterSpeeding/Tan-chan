@@ -39,7 +39,7 @@ import typing
 import tanjun
 import typing_extensions
 
-from ._internal import inspect
+import inspect
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
