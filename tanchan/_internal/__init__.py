@@ -40,7 +40,6 @@ from .localisation import MaybeLocalised
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-    import typing_extensions
     from alluka import abc as alluka
     from tanjun import abc as tanjun
 
@@ -51,7 +50,7 @@ if typing.TYPE_CHECKING:
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
 
 
-def _has_wrapped(value: typing.Any, /) -> typing_extensions.TypeGuard[_WrappedProto]:
+def _has_wrapped(value: typing.Any, /) -> typing.TypeGuard[_WrappedProto]:
     try:
         value.wrapped_command
 

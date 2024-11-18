@@ -37,7 +37,6 @@ import re
 import typing
 
 import tanjun
-import typing_extensions
 
 import inspect
 
@@ -399,11 +398,11 @@ def _parse_descriptions(
         if parameter.kind is not parameter.VAR_KEYWORD:
             continue
 
-        if typing_extensions.get_origin(parameter.annotation) is not typing_extensions.Unpack:
+        if typing.get_origin(parameter.annotation) is not typing.Unpack:
             break
 
-        typed_dict = typing_extensions.get_args(parameter.annotation)[0]
-        if not typing_extensions.is_typeddict(typed_dict):
+        typed_dict = typing.get_args(parameter.annotation)[0]
+        if not typing.is_typeddict(typed_dict):
             break
 
         if typed_dict_doc := inspect.getdoc(typed_dict):

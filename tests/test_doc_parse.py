@@ -40,7 +40,6 @@ import hikari
 import packaging.version
 import pytest
 import tanjun
-import typing_extensions
 from tanjun import annotations
 
 import tanchan
@@ -1113,7 +1112,7 @@ TANJUN_SUPPORTS_TYPED_DICT = TANJUN_VERSION >= packaging.version.parse("2.12.0")
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_parses_unpacked_typed_dict_auto_detect_google():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         """Command options.
 
         Parameters
@@ -1125,11 +1124,11 @@ def test_parses_unpacked_typed_dict_auto_detect_google():
         """
 
         user: annotations.User
-        reason: typing_extensions.NotRequired[annotations.Str]
+        reason: typing.NotRequired[annotations.Str]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         """A command."""
 
     assert command.build().options == [
@@ -1144,7 +1143,7 @@ def test_parses_unpacked_typed_dict_auto_detect_google():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_parses_unpacked_typed_dict_auto_detect_numpy():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         """Command options.
 
         Parameters
@@ -1156,11 +1155,11 @@ def test_parses_unpacked_typed_dict_auto_detect_numpy():
         """
 
         channel: annotations.Channel
-        name: typing_extensions.NotRequired[annotations.Str]
+        name: typing.NotRequired[annotations.Str]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         """A command."""
 
     assert command.build().options == [
@@ -1176,7 +1175,7 @@ def test_parses_unpacked_typed_dict_auto_detect_numpy():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_parses_unpacked_typed_dict_auto_detect_rest():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         """Command options.
 
         :param value: I'm a doctor!
@@ -1185,11 +1184,11 @@ def test_parses_unpacked_typed_dict_auto_detect_rest():
         """
 
         value: annotations.Str
-        other: typing_extensions.NotRequired[annotations.Bool]
+        other: typing.NotRequired[annotations.Bool]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         """A command."""
 
     assert command.build().options == [
@@ -1204,7 +1203,7 @@ def test_parses_unpacked_typed_dict_auto_detect_rest():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_parses_unpacked_typed_dict_auto_detect_mixed_styles():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         """Command options.
 
         Parameters
@@ -1216,12 +1215,12 @@ def test_parses_unpacked_typed_dict_auto_detect_mixed_styles():
         """
 
         meow: annotations.Bool
-        bork: typing_extensions.NotRequired[annotations.Str]
+        bork: typing.NotRequired[annotations.Str]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
     async def command(
-        ctx: tanjun.abc.Context, snarf: annotations.Float, **kwargs: typing_extensions.Unpack[TypedDict]
+        ctx: tanjun.abc.Context, snarf: annotations.Float, **kwargs: typing.Unpack[TypedDict]
     ) -> None:
         """A command.
 
@@ -1245,7 +1244,7 @@ def test_parses_unpacked_typed_dict_auto_detect_mixed_styles():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_parses_unpacked_typed_dict_passed_format():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         """Command options.
 
         Parameters
@@ -1259,7 +1258,7 @@ def test_parses_unpacked_typed_dict_passed_format():
     @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
     @tanchan.doc_parse.as_slash_command()
     async def command(
-        ctx: tanjun.abc.Context, pew: annotations.Str, **kwargs: typing_extensions.Unpack[TypedDict]
+        ctx: tanjun.abc.Context, pew: annotations.Str, **kwargs: typing.Unpack[TypedDict]
     ) -> None:
         """A command.
 
@@ -1279,7 +1278,7 @@ def test_parses_unpacked_typed_dict_passed_format():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_when_only_unpacked_typed_dict_has_doc():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         """Command options.
 
         Parameters
@@ -1291,11 +1290,11 @@ def test_when_only_unpacked_typed_dict_has_doc():
         """
 
         garf: annotations.Str
-        snarf: typing_extensions.NotRequired[annotations.Str]
+        snarf: typing.NotRequired[annotations.Str]
 
     @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
     @tanchan.doc_parse.as_slash_command(name="meow", description="pa pa")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None: ...
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None: ...
 
     assert command.build().options == [
         hikari.CommandOption(type=hikari.OptionType.STRING, name="garf", description="I'm a barf.", is_required=True),
@@ -1307,15 +1306,15 @@ def test_when_only_unpacked_typed_dict_has_doc():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_ignores_unparsable_typed_dict():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         """Not descript."""
 
         egg: annotations.Bool
-        jetsons: typing_extensions.NotRequired[annotations.Bool]
+        jetsons: typing.NotRequired[annotations.Bool]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         """Command.
 
         Parameters
@@ -1336,15 +1335,15 @@ def test_ignores_unparsable_typed_dict():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_ignores_docless_typed_dict():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         """"""  # noqa: D419
 
         dump: annotations.Bool
-        truck: typing_extensions.NotRequired[annotations.Bool]
+        truck: typing.NotRequired[annotations.Bool]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         """Command.
 
         Parameters
@@ -1367,13 +1366,13 @@ def test_ignores_docless_typed_dict():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_ignores_typed_dict_has_standard_doc():
-    typed_dict = typing_extensions.TypedDict(
-        "typed_dict", {"dump": annotations.Bool, "truck": typing_extensions.NotRequired[annotations.Bool]}
+    typed_dict = typing.TypedDict(
+        "typed_dict", {"dump": annotations.Bool, "truck": typing.NotRequired[annotations.Bool]}
     )
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[typed_dict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[typed_dict]) -> None:
         """Command.
 
         Parameters
@@ -1396,10 +1395,10 @@ def test_ignores_typed_dict_has_standard_doc():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_when_neither_typed_dict_nor_function_have_doc():
-    class TypedDict(typing_extensions.TypedDict): ...
+    class TypedDict(typing.TypedDict): ...
 
     @tanchan.doc_parse.as_slash_command(name="meow", description="yeet")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None: ...
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None: ...
 
     with pytest.raises(ValueError, match="Callback has no doc string"):
         tanchan.doc_parse.with_annotated_args(command)
@@ -1407,7 +1406,7 @@ def test_errors_when_neither_typed_dict_nor_function_have_doc():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_when_typed_dict_doc_has_no_params_and_function_has_no_doc():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         """Meow doc.
 
         Parameters
@@ -1415,7 +1414,7 @@ def test_errors_when_typed_dict_doc_has_no_params_and_function_has_no_doc():
         """
 
     @tanchan.doc_parse.as_slash_command(name="meow", description="yeet")
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None: ...
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None: ...
 
     with pytest.raises(ValueError, match="Callback has no doc string"):
         tanchan.doc_parse.with_annotated_args(command)
@@ -1437,7 +1436,7 @@ def test_errors_when_unpack_isnt_typed_dict():
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command(name="meow", description="yeet")
     async def command(
-        ctx: tanjun.abc.Context, meow: annotations.Str, **kwargs: typing_extensions.Unpack[TypedDict]  # type: ignore
+        ctx: tanjun.abc.Context, meow: annotations.Str, **kwargs: typing.Unpack[TypedDict]  # type: ignore
     ) -> None:
         """Bat me meow.
 
@@ -1456,7 +1455,7 @@ def test_errors_when_unpack_isnt_typed_dict():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_when_kwargs_type_isnt_unpacked():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         """Not descript.
 
         Parameters
@@ -1468,7 +1467,7 @@ def test_errors_when_kwargs_type_isnt_unpacked():
         """
 
         egg: annotations.Bool
-        jetsons: typing_extensions.NotRequired[annotations.Bool]
+        jetsons: typing.NotRequired[annotations.Bool]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
@@ -1488,7 +1487,7 @@ def test_errors_when_kwargs_type_isnt_unpacked():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_ignores_unpacked_typed_dict_for_varargs():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         """Not descript.
 
         Parameters
@@ -1500,12 +1499,12 @@ def test_errors_ignores_unpacked_typed_dict_for_varargs():
         """
 
         egg: annotations.Bool
-        jetsons: typing_extensions.NotRequired[annotations.Bool]
+        jetsons: typing.NotRequired[annotations.Bool]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
     async def command(
-        ctx: tanjun.abc.Context, meowen: annotations.Str, *args: typing_extensions.Unpack[TypedDict]  # type: ignore
+        ctx: tanjun.abc.Context, meowen: annotations.Str, *args: typing.Unpack[TypedDict]  # type: ignore
     ) -> None:
         """Command.
 
@@ -1522,7 +1521,7 @@ def test_errors_ignores_unpacked_typed_dict_for_varargs():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_errors_ignores_unpacked_typed_dict_for_normal_arg():
-    class TypedDict(typing_extensions.TypedDict):
+    class TypedDict(typing.TypedDict):
         """Not descript.
 
         Parameters
@@ -1534,12 +1533,12 @@ def test_errors_ignores_unpacked_typed_dict_for_normal_arg():
         """
 
         egg: annotations.Bool
-        jetsons: typing_extensions.NotRequired[annotations.Bool]
+        jetsons: typing.NotRequired[annotations.Bool]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
     async def command(
-        ctx: tanjun.abc.Context, listen: annotations.Str, args: typing_extensions.Unpack[TypedDict]  # type: ignore
+        ctx: tanjun.abc.Context, listen: annotations.Str, args: typing.Unpack[TypedDict]  # type: ignore
     ) -> None:
         """Command.
 
@@ -1560,7 +1559,7 @@ def test_when_typed_dict_has_no_doc_and_cant_detect_doc_style():
         """"""  # noqa: D419
 
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         """Description.
 
         Not empty.
@@ -1575,7 +1574,7 @@ def test_when_standard_typed_dict_doc_and_cant_detect_doc_style():
     typed_dict = typing.TypedDict("typed_dict", {})
 
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[typed_dict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[typed_dict]) -> None:
         """Description.
 
         Not empty.
@@ -1600,7 +1599,7 @@ def test_when_typed_dict_parameters_and_cant_detect_doc_style():
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         """Description.
 
         Not empty.
@@ -1622,7 +1621,7 @@ def test_when_cant_detect_doc_style_of_callback_nor_typed_dict_docs():
         value: annotations.Str
 
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         """Description.
 
         Not empty.
@@ -1644,7 +1643,7 @@ def test_when_cant_detect_typed_dict_docs_style():
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         """Description.
 
         Parameters
