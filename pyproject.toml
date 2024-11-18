@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 name = "tanchan"
 version = "0.4.2"
 readme = "README.md"
-requires-python = ">=3.9.0,<3.14"
+requires-python = ">=3.11.0,<3.14"
 license = {file = "LICENSE"}
 authors = [ {name = "Faster Speeding", email="lucina@lmbyrne.dev"} ]
 keywords = ["hikari"]
@@ -16,8 +16,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Natural Language :: English",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -45,7 +43,7 @@ extend-exclude = "^\\/tanchan\\/_internal\\/vendor\\/.*$"
 include = ".*pyi?$"
 line-length = 120
 skip-magic-trailing-comma = true
-target-version = ["py39"]
+target-version = ["py311"]
 
 [tool.coverage.run]
 concurrency = ["multiprocessing"]
@@ -78,7 +76,7 @@ max-complexity = 20
 max-function-length = 100
 # Technically this is 120, but black has a policy of "1 or 2 over is fine if it is tidier", so we have to raise this.
 max-line-length = 130
-min_python_version = "3.9"
+min_python_version = "3.11"
 pep585-activation = "always"
 show_source = false
 statistics = false
@@ -123,7 +121,7 @@ skip = ["tanchan/_internal/vendor"]
 
 [tool.mypy]
 # some good strict settings
-python_version = 3.9
+python_version = "3.11"
 strict = true
 warn_unreachable = true
 
@@ -165,7 +163,7 @@ top_level_targets = ["./docs_src", "./noxfile.py", "./tanchan", "./tests"]
 [tool.piped.github_actions.publish]
 [tool.piped.github_actions.py_test]
 codeclimate_token = "4bf1f4002804f947bebae669d631cad28e39b6516f6c3d4ead820c07949e57d1"
-python_versions = ["3.9", "3.10", "3.11", "3.12", "3.13-dev"]
+python_versions = ["3.11", "3.12", "3.13"]
 
 [tool.piped.github_actions.reformat]
 [tool.piped.github_actions.release_docs]
@@ -180,7 +178,7 @@ python_versions = ["3.9", "3.10", "3.11", "3.12", "3.13-dev"]
 exclude = ["tanchan/_internal/vendor"]
 include = ["docs_src", "tanchan", "noxfile.py", "tests"]
 
-pythonVersion = "3.9"
+pythonVersion = "3.11"
 typeCheckingMode = "strict"
 reportMissingModuleSource = "error"
 
