@@ -60,7 +60,7 @@ def test_when_cant_detect_doc_style():
 
 
 @pytest.mark.parametrize("doc_style", [None, "google", "numpy", "reST"])
-def test_when_only_description_in_docstring(doc_style: typing.Optional[typing.Literal["google", "numpy", "reST"]]):
+def test_when_only_description_in_docstring(doc_style: typing.Literal["google", "numpy", "reST"] | None):
     @tanchan.doc_parse.with_annotated_args(doc_style=doc_style)
     @tanchan.doc_parse.as_slash_command()
     async def aaaaaa_command(ctx: tanjun.abc.Context) -> None:
@@ -150,7 +150,7 @@ def test_as_slash_command_when_dict_overrides_passed():
 
 @pytest.mark.parametrize("doc_style", [None, "google", "numpy", "reST"])
 def test_with_annotated_args_when_has_no_doc_string(
-    doc_style: typing.Optional[typing.Literal["google", "numpy", "reST"]]
+    doc_style: typing.Literal["google", "numpy", "reST"] | None
 ):
     @tanjun.as_slash_command("name", "description")
     async def command(ctx: tanjun.abc.Context) -> None: ...
@@ -280,7 +280,7 @@ def test_google_when_starts_on_next_line():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def beat_command(
-        ctx: tanjun.abc.Context, respect: annotations.Bool, guillotine: typing.Optional[annotations.User] = None
+        ctx: tanjun.abc.Context, respect: annotations.Bool, guillotine: annotations.User | None = None
     ) -> None:
         """Nyaa nyaa.
 
@@ -486,7 +486,7 @@ def test_google_with_empty_args_section():
 def test_numpy():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def cc(ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Float] = None) -> None:
+    async def cc(ctx: tanjun.abc.Context, foo: annotations.Str, bar: annotations.Float | None = None) -> None:
         """I am very gay.
 
         Parameters
@@ -515,7 +515,7 @@ def test_numpy():
 def test_numpy_when_doc_style_explicitly_passed():
     @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
     @tanchan.doc_parse.as_slash_command()
-    async def cc(ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Float] = None) -> None:
+    async def cc(ctx: tanjun.abc.Context, foo: annotations.Str, bar: annotations.Float | None = None) -> None:
         """I am very gay.
 
         Parameters
@@ -806,7 +806,7 @@ def test_numpy_for_multi_line_descriptions():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def eep_command(
-        ctx: tanjun.abc.Context, foo: annotations.Str, bar: typing.Optional[annotations.Float] = None
+        ctx: tanjun.abc.Context, foo: annotations.Str, bar: annotations.Float | None = None
     ) -> None:
         """I am very catgirly.
 
@@ -898,7 +898,7 @@ def test_rest():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
-        ctx: tanjun.abc.Context, cat: annotations.User, pan: typing.Optional[annotations.Channel] = None
+        ctx: tanjun.abc.Context, cat: annotations.User, pan: annotations.Channel | None = None
     ) -> None:
         """I love cats.
 
@@ -927,7 +927,7 @@ def test_rest_when_doc_style_explicitly_passed():
     @tanchan.doc_parse.with_annotated_args(doc_style="reST")
     @tanchan.doc_parse.as_slash_command()
     async def a_command(
-        ctx: tanjun.abc.Context, user: annotations.User, channel: typing.Optional[annotations.Channel] = None
+        ctx: tanjun.abc.Context, user: annotations.User, channel: annotations.Channel | None = None
     ) -> None:
         """I love meowers.
 
@@ -956,7 +956,7 @@ def test_rest_with_no_type_hints():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def b_command(
-        ctx: tanjun.abc.Context, beep: annotations.User, op: typing.Optional[annotations.Channel] = None
+        ctx: tanjun.abc.Context, beep: annotations.User, op: annotations.Channel | None = None
     ) -> None:
         """I love nyans.
 
@@ -982,7 +982,7 @@ def test_rest_for_multi_line_descriptions():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
-        ctx: tanjun.abc.Context, member: annotations.Member, state: typing.Optional[annotations.Bool] = None
+        ctx: tanjun.abc.Context, member: annotations.Member, state: annotations.Bool | None = None
     ) -> None:
         """I love cats.
 
@@ -1013,7 +1013,7 @@ def test_rest_when_starts_on_next_line():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
-        ctx: tanjun.abc.Context, me: annotations.Channel, aaa: typing.Optional[annotations.Int] = None
+        ctx: tanjun.abc.Context, me: annotations.Channel, aaa: annotations.Int | None = None
     ) -> None:
         """I love cats.
 
@@ -1046,7 +1046,7 @@ def test_rest_when_trails_off():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
-        ctx: tanjun.abc.Context, member: annotations.Member, state: typing.Optional[annotations.Bool] = None
+        ctx: tanjun.abc.Context, member: annotations.Member, state: annotations.Bool | None = None
     ) -> None:
         """I love cats.
 
@@ -1078,7 +1078,7 @@ def test_rest_when_trails_off_with_multi_line_description():
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
-        ctx: tanjun.abc.Context, member: annotations.Member, state: typing.Optional[annotations.Bool] = None
+        ctx: tanjun.abc.Context, member: annotations.Member, state: annotations.Bool | None = None
     ) -> None:
         """I love cats.
 
@@ -1366,9 +1366,9 @@ def test_ignores_docless_typed_dict():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_ignores_typed_dict_has_standard_doc():
-    typed_dict = typing.TypedDict(
-        "typed_dict", {"dump": annotations.Bool, "truck": typing.NotRequired[annotations.Bool]}
-    )
+    class typed_dict(typing.TypedDict):
+        dump: annotations.Bool
+        truck: typing.NotRequired[annotations.Bool]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
@@ -1504,7 +1504,7 @@ def test_errors_ignores_unpacked_typed_dict_for_varargs():
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
     async def command(
-        ctx: tanjun.abc.Context, meowen: annotations.Str, *args: typing.Unpack[TypedDict]  # type: ignore
+        ctx: tanjun.abc.Context, meowen: annotations.Str, *args: *TypedDict  # type: ignore
     ) -> None:
         """Command.
 

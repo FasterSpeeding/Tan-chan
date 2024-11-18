@@ -69,7 +69,7 @@ class EvalConfig:
     (globally) and an empty collection ensures it isn't declared.
     """
 
-    def add_to_client(self, client: typing.Union[alluka.Client, tanjun.Client], /) -> None:
+    def add_to_client(self, client: alluka.Client | tanjun.Client, /) -> None:
         """Add this config to a Tanjun client.
 
         Parameters
@@ -118,7 +118,7 @@ class HelpConfig:
     description by default.
     """
 
-    def add_to_client(self, client: typing.Union[alluka.Client, tanjun.Client], /) -> None:
+    def add_to_client(self, client: alluka.Client | tanjun.Client, /) -> None:
         """Add this config to a Tanjun client.
 
         Parameters
@@ -149,7 +149,7 @@ class Config(EvalConfig, HelpConfig):
     ```
     """
 
-    def add_to_client(self, client: typing.Union[alluka.Client, tanjun.Client]) -> None:
+    def add_to_client(self, client: alluka.Client | tanjun.Client) -> None:
         """Add this config to a Tanjun client.
 
         Parameters

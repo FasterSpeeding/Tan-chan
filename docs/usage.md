@@ -17,7 +17,7 @@ as the command's description.
 ##### with_annotated_args
 
 ```py
---8<-- "./docs_src/usage.py:35:89"
+--8<-- "./docs_src/usage.py:35:88"
 ```
 
 [tanchan.doc_parse.with_annotated_args][] uses the functionality exposed in [tanjun.annotations][]

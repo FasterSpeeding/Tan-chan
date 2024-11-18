@@ -111,11 +111,11 @@ def _yields_results(*args: io.StringIO) -> collections.Iterator[str]:
 
 async def _eval_python_code(
     client: tanjun.abc.Client,
-    ctx: typing.Union[tanjun.abc.Context, yuyo.ComponentContext, yuyo.ModalContext],
+    ctx: tanjun.abc.Context | yuyo.ComponentContext | yuyo.ModalContext,
     code: str,
     /,
     *,
-    component: typing.Optional[tanjun.abc.Component] = None,
+    component: tanjun.abc.Component | None = None,
 ) -> tuple[io.StringIO, io.StringIO, int, bool]:
     """Evaluate python code while capturing the output."""
     stdout = io.StringIO()
@@ -144,11 +144,11 @@ async def _eval_python_code(
 
 async def _eval_python_code_no_capture(
     client: tanjun.abc.Client,
-    ctx: typing.Union[tanjun.abc.Context, yuyo.ComponentContext, yuyo.ModalContext],
+    ctx: tanjun.abc.Context | yuyo.ComponentContext | yuyo.ModalContext,
     code: str,
     /,
     *,
-    component: typing.Optional[tanjun.abc.Component] = None,
+    component: tanjun.abc.Component | None = None,
     file_name: str = "<string>",
 ) -> None:
     """Evaluate python code without capturing the output."""
@@ -171,7 +171,7 @@ async def _eval_python_code_no_capture(
 
 
 def _bytes_from_io(
-    stream: io.StringIO, name: str, mimetype: typing.Optional[str] = "text/x-python;charset=utf-8"
+    stream: io.StringIO, name: str, mimetype: str | None = "text/x-python;charset=utf-8"
 ) -> hikari.Bytes:
     """Build Hikari bytes from an StringIO object."""
     stream.seek(0)
@@ -182,7 +182,7 @@ async def _check_owner(
     client: tanjun.abc.Client,
     authors: tanjun.dependencies.AbstractOwners,
     # TODO: BaseContext needs stuff like the user attribute.
-    ctx: typing.Union[yuyo.ComponentContext, yuyo.ModalContext],
+    ctx: yuyo.ComponentContext | yuyo.ModalContext,
 ) -> None:
     """Assert that the user who used a component or modal is the bot's owner."""
     if not await authors.check_ownership(client, ctx.interaction.user):
@@ -232,7 +232,7 @@ async def _eval_modal(
 
 
 def _make_rows(
-    *, default: typing.Optional[str] = None, file_output: typing.Optional[bool] = None
+    *, default: str | None = None, file_output: bool | None = None
 ) -> collections.Sequence[hikari.api.ModalActionRowBuilder]:
     """Make a custom instance of the eval modal's rows with the eval content pre-set."""
     rows = list(_eval_modal.rows)
@@ -321,7 +321,7 @@ class _FileCallback:
         *,
         files: collections.Sequence[hikari.Resourceish] = (),
         make_files: typing.Optional[collections.Callable[[], collections.Sequence[hikari.Resourceish]]] = None,
-        post_components: typing.Optional[yuyo.ActionColumnExecutor] = None,
+        post_components: yuyo.ActionColumnExecutor | None = None,
     ) -> None:
         """Initialise a file callback.
 
@@ -396,14 +396,14 @@ def _add_file_button(
 @tanjun.annotations.with_annotated_args
 @tanjun.as_message_command("eval", "exec")
 async def _eval_message_command(
-    ctx: typing.Union[tanjun.abc.MessageContext, yuyo.ModalContext],
+    ctx: tanjun.abc.MessageContext | yuyo.ModalContext,
     client: alluka.Injected[tanjun.abc.Client],
     component_client: alluka.Injected[yuyo.ComponentClient],
     *,
-    content: typing.Optional[str] = None,
-    component: alluka.Injected[typing.Optional[tanjun.abc.Component]] = None,
+    content: str | None = None,
+    component: alluka.Injected[tanjun.abc.Component | None] = None,
     file_output: Annotated[Bool, Flag(empty_value=True, aliases=["-f", "--file-out", "--file"])] = False,
-    state_attachment: typing.Optional[hikari.Bytes] = None,
+    state_attachment: hikari.Bytes | None = None,
     suppress_response: Annotated[Bool, Flag(empty_value=True, aliases=["-s", "--suppress"])] = False,
 ) -> None:
     """Owner only command used to dynamically evaluate a script."""
@@ -490,7 +490,7 @@ def _try_deregister(client: yuyo.ComponentClient, message: hikari.Message) -> No
 
 
 async def _eval_slash_command(
-    ctx: tanjun.abc.SlashContext, file_output: typing.Optional[Bool] = None, private: Bool = False
+    ctx: tanjun.abc.SlashContext, file_output: Bool | None = None, private: Bool = False
 ) -> None:
     """Owner only command used to dynamically evaluate a script.
 
@@ -520,7 +520,7 @@ class _OnGuildCreate:
 
     async def __call__(
         self,
-        event: typing.Union[hikari.GuildJoinEvent, hikari.GuildAvailableEvent],
+        event: hikari.GuildJoinEvent | hikari.GuildAvailableEvent,
         eval_config: alluka.Injected[config.EvalConfig] = _DEFAULT_CONFIG,
     ) -> None:
         """Guild create listener which declares the eval slash command."""

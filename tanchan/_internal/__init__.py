@@ -44,7 +44,7 @@ if typing.TYPE_CHECKING:
     from tanjun import abc as tanjun
 
     class _WrappedProto(typing.Protocol):
-        wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]]
+        wrapped_command: tanjun.ExecutableCommand[typing.Any] | None
 
     _T = typing.TypeVar("_T")
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])

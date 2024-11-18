@@ -46,14 +46,11 @@ if typing.TYPE_CHECKING:
     import hikari
 
     _AnyCallbackSigT = typing.TypeVar("_AnyCallbackSigT", bound=collections.Callable[..., typing.Any])
-    _AnyCommandT = typing.Union[
-        tanjun.abc.MenuCommand[_AnyCallbackSigT, typing.Any],
-        tanjun.abc.MessageCommand[_AnyCallbackSigT],
-        tanjun.abc.SlashCommand[_AnyCallbackSigT],
-    ]
+    _AnyCommandT = tanjun.abc.MenuCommand[_AnyCallbackSigT, typing.Any] |tanjun.abc.MessageCommand[_AnyCallbackSigT] | tanjun.abc.SlashCommand[_AnyCallbackSigT]
+    # | style unions won't work here as it would result in a string, not type value.
     _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]
     _CommandUnionT = typing.TypeVar(
-        "_CommandUnionT", bound=typing.Union[tanjun.SlashCommand[typing.Any], tanjun.MessageCommand[typing.Any]]
+        "_CommandUnionT", bound=tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any]
     )
     _SlashCallbackSigT = typing.TypeVar("_SlashCallbackSigT", bound=tanjun.abc.SlashCallbackSig)
 
@@ -72,12 +69,12 @@ def _make_slash_command(
     /,
     *,
     always_defer: bool = False,
-    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
-    default_to_ephemeral: typing.Optional[bool] = None,
-    description: typing.Union[str, collections.Mapping[str, str], None] = None,
-    dm_enabled: typing.Optional[bool] = None,
+    default_member_permissions: hikari.Permissions | int | None = None,
+    default_to_ephemeral: bool | None = None,
+    description: str | collections.Mapping[str, str] | None = None,
+    dm_enabled: bool | None = None,
     is_global: bool = True,
-    name: typing.Union[str, collections.Mapping[str, str], None] = None,
+    name: str | collections.Mapping[str, str] | None = None,
     nsfw: bool = False,
     sort_options: bool = True,
     validate_arg_keys: bool = True,
@@ -119,12 +116,12 @@ def _make_slash_command(
 def as_slash_command(
     *,
     always_defer: bool = False,
-    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
-    default_to_ephemeral: typing.Optional[bool] = None,
-    description: typing.Union[str, collections.Mapping[str, str], None] = None,
-    dm_enabled: typing.Optional[bool] = None,
+    default_member_permissions: hikari.Permissions | int | None = None,
+    default_to_ephemeral: bool | None = None,
+    description: str | collections.Mapping[str, str] | None = None,
+    dm_enabled: bool | None = None,
     is_global: bool = True,
-    name: typing.Union[str, collections.Mapping[str, str], None] = None,
+    name: str | collections.Mapping[str, str] | None = None,
     nsfw: bool = False,
     sort_options: bool = True,
     validate_arg_keys: bool = True,
@@ -277,7 +274,7 @@ _GOOGLE_PATTERN = re.compile(r"(\w+).*:(.*)$")
 def _parse_google(lines: list[str], /) -> dict[str, str]:
     """Parse a Google style docstring for argument descriptions."""
     descriptions = _Descriptions(_GOOGLE_PATTERN)
-    start_index: typing.Optional[int] = None
+    start_index: int | None = None
 
     for index, line in enumerate(lines):
         if line.lower().strip() == "args:":
@@ -305,7 +302,7 @@ def _dedent_lines(lines: list[str], /) -> collections.Iterable[str]:
 def _parse_numpy(lines: list[str], /) -> dict[str, str]:
     """Parse a Numpy style docstring for argument descriptions."""
     descriptions = _Descriptions(_NUMPY_PATTERN)
-    start_index: typing.Optional[int] = None
+    start_index: int | None = None
 
     for index, line in enumerate(lines):
         try:
@@ -377,7 +374,7 @@ _MATCH_STYLE: list[tuple[re.Pattern[str], _DocStyleUnion]] = [
 """A list of regexes used to match docstring styles and the relevant style."""
 
 
-def _get_docstyle(doc_string: str, /) -> typing.Optional[_DocStyleUnion]:
+def _get_docstyle(doc_string: str, /) -> _DocStyleUnion | None:
     """Try to work out the style of a docstring to aid parsing."""
     for pattern, style in _MATCH_STYLE:
         if pattern.search(doc_string):
@@ -387,7 +384,7 @@ def _get_docstyle(doc_string: str, /) -> typing.Optional[_DocStyleUnion]:
 
 
 def _parse_descriptions(
-    callback: collections.Callable[..., typing.Any], /, *, doc_style: typing.Optional[_DocStyleUnion] = None
+    callback: collections.Callable[..., typing.Any], /, *, doc_style: _DocStyleUnion | None = None
 ) -> dict[str, str]:
     """Parse a callback's docstring and annotations for argument descriptions."""
     if doc_style and doc_style not in _PARSERS:
@@ -440,17 +437,17 @@ def with_annotated_args(command: _CommandUnionT, /) -> _CommandUnionT: ...
 
 @typing.overload
 def with_annotated_args(
-    *, doc_style: typing.Optional[_DocStyleUnion] = None, follow_wrapped: bool = False
+    *, doc_style: _DocStyleUnion | None = None, follow_wrapped: bool = False
 ) -> collections.Callable[[_CommandUnionT], _CommandUnionT]: ...
 
 
 def with_annotated_args(
-    command: typing.Optional[_CommandUnionT] = None,
+    command: _CommandUnionT | None = None,
     /,
     *,
-    doc_style: typing.Optional[_DocStyleUnion] = None,
+    doc_style: _DocStyleUnion | None = None,
     follow_wrapped: bool = False,
-) -> typing.Union[_CommandUnionT, collections.Callable[[_CommandUnionT], _CommandUnionT]]:
+) -> _CommandUnionT | collections.Callable[[_CommandUnionT], _CommandUnionT]:
     r"""Docstring parsing implementation of [tanjun.annotations.with_annotated_args][].
 
     Examples
@@ -514,11 +511,11 @@ class SlashCommandGroup(tanjun.SlashCommandGroup):
 
     def as_sub_command(
         self,
-        name: typing.Union[str, collections.Mapping[str, str], None] = None,
-        description: typing.Union[str, collections.Mapping[str, str], None] = None,
+        name: str | collections.Mapping[str, str] | None = None,
+        description: str | collections.Mapping[str, str] | None = None,
         *,
         always_defer: bool = False,
-        default_to_ephemeral: typing.Optional[bool] = None,
+        default_to_ephemeral: bool | None = None,
         sort_options: bool = True,
         validate_arg_keys: bool = True,
     ) -> collections.Callable[[_CallbackishT[_SlashCallbackSigT]], tanjun.SlashCommand[_SlashCallbackSigT]]:
@@ -597,11 +594,11 @@ class SlashCommandGroup(tanjun.SlashCommandGroup):
 
     def make_sub_group(
         self,
-        name: typing.Union[str, collections.Mapping[str, str]],
-        description: typing.Union[str, collections.Mapping[str, str]],
+        name: str | collections.Mapping[str, str],
+        description: str | collections.Mapping[str, str],
         /,
         *,
-        default_to_ephemeral: typing.Optional[bool] = None,
+        default_to_ephemeral: bool | None = None,
     ) -> SlashCommandGroup:
         r"""Create a sub-command group in this group.
 
@@ -642,13 +639,13 @@ class SlashCommandGroup(tanjun.SlashCommandGroup):
 
 
 def slash_command_group(
-    name: typing.Union[str, collections.Mapping[str, str]],
-    description: typing.Union[str, collections.Mapping[str, str]],
+    name: str | collections.Mapping[str, str],
+    description: str | collections.Mapping[str, str],
     /,
     *,
-    default_member_permissions: typing.Union[hikari.Permissions, int, None] = None,
-    default_to_ephemeral: typing.Optional[bool] = None,
-    dm_enabled: typing.Optional[bool] = None,
+    default_member_permissions: hikari.Permissions | int | None = None,
+    default_to_ephemeral: bool | None = None,
+    dm_enabled: bool | None = None,
     is_global: bool = True,
     nsfw: bool = False,
 ) -> SlashCommandGroup:
