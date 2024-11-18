@@ -1356,13 +1356,13 @@ def test_ignores_docless_typed_dict():
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
 def test_ignores_typed_dict_has_standard_doc():
-    class typed_dict(typing.TypedDict):
+    class TypedDict(typing.TypedDict):
         dump: annotations.Bool
         truck: typing.NotRequired[annotations.Bool]
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[typed_dict]) -> None:
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[TypedDict]) -> None:
         """Command.
 
         Parameters
