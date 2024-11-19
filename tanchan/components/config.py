@@ -62,7 +62,7 @@ class EvalConfig:
     ```
     """
 
-    eval_guild_ids: typing.Optional[collections.Collection[int]] = attrs.field(default=())
+    eval_guild_ids: collections.Collection[int] | None = attrs.field(default=())
     """ID of the guilds the eval slash command should be declared in.
 
     If [None][] then the slash command will be declared in every guild

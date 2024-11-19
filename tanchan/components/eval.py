@@ -320,7 +320,7 @@ class _FileCallback:
         /,
         *,
         files: collections.Sequence[hikari.Resourceish] = (),
-        make_files: typing.Optional[collections.Callable[[], collections.Sequence[hikari.Resourceish]]] = None,
+        make_files: collections.Callable[[], collections.Sequence[hikari.Resourceish]] | None = None,
         post_components: yuyo.ActionColumnExecutor | None = None,
     ) -> None:
         """Initialise a file callback.
@@ -366,7 +366,7 @@ def _add_file_button(
     /,
     *,
     files: collections.Sequence[hikari.Resourceish] = (),
-    make_files: typing.Optional[collections.Callable[[], collections.Sequence[hikari.Resourceish]]] = None,
+    make_files: collections.Callable[[], collections.Sequence[hikari.Resourceish]] | None = None,
 ) -> None:
     """Add a file button to a component column.
 

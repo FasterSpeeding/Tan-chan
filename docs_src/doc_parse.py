@@ -8,7 +8,6 @@
 #
 # You should have received a copy of the CC0 Public Domain Dedication along with this software.
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
-import sys
 import time
 import typing
 
@@ -16,8 +15,6 @@ import tanjun
 from tanjun import annotations
 
 from tanchan import doc_parse
-
-assert sys.version_info >= (3, 11)
 
 
 def as_slash_command_example():
