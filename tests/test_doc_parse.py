@@ -1493,7 +1493,7 @@ def test_errors_ignores_unpacked_typed_dict_for_varargs():
 
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
-    async def command(ctx: tanjun.abc.Context, meowen: annotations.Str, *args: *TypedDict) -> None:  # type: ignore
+    async def command(ctx: tanjun.abc.Context, meowen: annotations.Str, *args: typing.Unpack[TypedDict]) -> None:  # type: ignore
         """Command.
 
         Parameters
