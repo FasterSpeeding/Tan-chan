@@ -8,6 +8,10 @@
 #
 # You should have received a copy of the CC0 Public Domain Dedication along with this software.
 # If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
+
+# pyright: reportUnusedFunction=none
+# pyright: reportUnusedVariable=none
+
 import time
 import typing
 
@@ -53,7 +57,9 @@ def with_annotated_args_example():
 
     @doc_parse.with_annotated_args
     @doc_parse.as_slash_command()
-    async def unban_user(ctx: tanjun.abc.Context, user: annotations.User, reason: str = None) -> None:
+    async def unban_user(
+        ctx: tanjun.abc.Context, user: annotations.User, reason: annotations.Str | None = None
+    ) -> None:
         """Unban a user from this guild.
 
         :param user: The user to unban.
@@ -79,13 +85,13 @@ def with_annotated_args_typed_dict_example():
     @doc_parse.with_annotated_args
     @doc_parse.as_slash_command()
     async def delete_messages(
-        ctx: tanjun.abc.Context, reason: str = None, **kwargs: typing.Unpack[BulkMessagOptions]
+        ctx: tanjun.abc.Context, reason: annotations.Str | None = None, **kwargs: typing.Unpack[BulkMessagOptions]
     ) -> None:
         """Toggle this setting for a user.
 
         Parameters
         ----------
-        reasom
+        reason
             Why you're bulk deleting these messages.
         """
 
@@ -94,11 +100,11 @@ def slash_command_group_example():
     help_group = doc_parse.slash_command_group("help", "get help")
 
     @tanjun.with_str_slash_option("command_name", "command name")
-    @help_group.as_sub_command
-    async def help(ctx: tanjun.abc.SlashContext, command_name: str) -> None:
+    @help_group.as_sub_command()
+    async def help(ctx: tanjun.abc.SlashContext, command_name: annotations.Str) -> None:
         """Get help with a command."""
 
-    @help_group.as_sub_command
+    @help_group.as_sub_command()
     async def me(ctx: tanjun.abc.SlashContext) -> None:
         """Help me."""
 

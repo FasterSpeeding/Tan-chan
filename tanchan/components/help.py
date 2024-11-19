@@ -498,7 +498,7 @@ class _NumberModal(yuyo.modals.Modal):
         super().__init__(ephemeral_default=True)
         self._index = index
 
-    async def callback(
+    async def callback(  # pyright: ignore[reportIncompatibleVariableOverride]  # TODO: fix?
         self,
         ctx: yuyo.ModalContext,
         field: str = yuyo.modals.text_input("Page number", min_length=1),
