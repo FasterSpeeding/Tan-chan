@@ -93,10 +93,10 @@ _NUMBERS_MODAL_ID = "tanchan.help.select_page"
 
 
 def with_help(
-    description: typing.Union[str, collections.Mapping[str, str], None] = None,
+    description: str | collections.Mapping[str, str] | None = None,
     /,
     *,
-    category: typing.Optional[str] = None,
+    category: str | None = None,
     follow_wrapped: bool = False,
 ) -> collections.Callable[[_CommandT], _CommandT]:
     """Override the help string for the command.
@@ -145,7 +145,7 @@ def with_help(
     return decorator
 
 
-def _to_cmd_info(cmd: tanjun.abc.ExecutableCommand[typing.Any], /) -> tuple[str, typing.Optional[hikari.CommandType]]:
+def _to_cmd_info(cmd: tanjun.abc.ExecutableCommand[typing.Any], /) -> tuple[str, hikari.CommandType | None]:
     """Get the main name and type of a command."""
     if isinstance(cmd, tanjun.abc.AppCommand):
         return cmd.name, cmd.type
@@ -166,8 +166,8 @@ def hide_from_help(*, follow_wrapped: bool = False) -> collections.Callable[[_Co
 
 
 def hide_from_help(
-    cmd: typing.Optional[_CommandT] = None, /, *, follow_wrapped: bool = False
-) -> typing.Union[_CommandT, collections.Callable[[_CommandT], _CommandT]]:
+    cmd: _CommandT | None = None, /, *, follow_wrapped: bool = False
+) -> _CommandT | collections.Callable[[_CommandT], _CommandT]:
     """Hide a global command from the help command.
 
     Parameters
@@ -235,7 +235,7 @@ class _Page:
         self._page_number = page_number
 
     def _localise(
-        self, locale: typing.Optional[hikari.Locale], localiser: typing.Optional[tanjun.dependencies.AbstractLocaliser]
+        self, locale: hikari.Locale | None, localiser: tanjun.dependencies.AbstractLocaliser | None
     ) -> tuple[str, str]:
         if locale is None:
             description = "\n".join(f"{name}: " + field.default_value.split("\n", 1)[0] for name, field in self._fields)
@@ -249,10 +249,7 @@ class _Page:
         return title, description
 
     def to_content(
-        self,
-        *,
-        locale: typing.Optional[hikari.Locale] = None,
-        localiser: typing.Optional[tanjun.dependencies.AbstractLocaliser] = None,
+        self, *, locale: hikari.Locale | None = None, localiser: tanjun.dependencies.AbstractLocaliser | None = None
     ) -> str:
         """Create a message content representation of this page.
 
@@ -272,10 +269,7 @@ class _Page:
         return f"```md\n{title}\n{description}\n```"
 
     def to_embed(
-        self,
-        *,
-        locale: typing.Optional[hikari.Locale] = None,
-        localiser: typing.Optional[tanjun.dependencies.AbstractLocaliser] = None,
+        self, *, locale: hikari.Locale | None = None, localiser: tanjun.dependencies.AbstractLocaliser | None = None
     ) -> hikari.Embed:
         """Create a Discord embed representation of this page.
 
@@ -331,11 +325,11 @@ class _HelpIndex:
 
     async def to_response(
         self,
-        ctx: typing.Union[yuyo.ComponentContext, yuyo.ModalContext],
+        ctx: yuyo.ComponentContext | yuyo.ModalContext,
         page_number: int,
         /,
         *,
-        localiser: typing.Optional[tanjun.dependencies.AbstractLocaliser],
+        localiser: tanjun.dependencies.AbstractLocaliser | None,
     ) -> None:
         """Respond to a component or modal context with a specific page."""
         try:
@@ -428,7 +422,7 @@ class _HelpIndex:
         """Event listener which handles component changes."""
         return self.reload(client, help_config)
 
-    def find_command(self, command_name: str, /) -> typing.Optional[_internal.MaybeLocalised]:
+    def find_command(self, command_name: str, /) -> _internal.MaybeLocalised | None:
         """Find a command's help page by name."""
         return self._descriptions.get(tuple(_split_name(command_name)))
 
@@ -504,11 +498,11 @@ class _NumberModal(yuyo.modals.Modal):
         super().__init__(ephemeral_default=True)
         self._index = index
 
-    async def callback(
+    async def callback(  # pyright: ignore[reportIncompatibleVariableOverride]  # TODO: fix?
         self,
         ctx: yuyo.ModalContext,
         field: str = yuyo.modals.text_input("Page number", min_length=1),
-        localiser: alluka.Injected[typing.Optional[tanjun.dependencies.AbstractLocaliser]] = None,
+        localiser: alluka.Injected[tanjun.dependencies.AbstractLocaliser | None] = None,
     ) -> None:
         try:
             page_number = int(field)
@@ -531,9 +525,7 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
 
     __slots__ = ("_index",)
 
-    def __init__(
-        self, index: _HelpIndex, /, *, author: typing.Optional[hikari.Snowflake] = None, page: int = 0
-    ) -> None:
+    def __init__(self, index: _HelpIndex, /, *, author: hikari.Snowflake | None = None, page: int = 0) -> None:
         metadata = f"{_HASH_KEY}={index.hash}&{_PAGE_NUM_KEY}={page}"
         if author:
             metadata += f"&{buttons.OWNER_QS_KEY}={int(author)}"
@@ -574,7 +566,7 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
     async def jump_to_start(
         self,
         ctx: yuyo.ComponentContext,
-        localiser: alluka.Injected[typing.Optional[tanjun.dependencies.AbstractLocaliser]] = None,
+        localiser: alluka.Injected[tanjun.dependencies.AbstractLocaliser | None] = None,
     ) -> None:
         self._process_metadata(ctx)
         await self._index.to_response(ctx, 0, localiser=localiser)
@@ -583,7 +575,7 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
     async def previous_button(
         self,
         ctx: yuyo.ComponentContext,
-        localiser: alluka.Injected[typing.Optional[tanjun.dependencies.AbstractLocaliser]] = None,
+        localiser: alluka.Injected[tanjun.dependencies.AbstractLocaliser | None] = None,
     ) -> None:
         page_number = self._process_metadata(ctx)
         if page_number <= 0:
@@ -602,7 +594,7 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
     async def next_button(
         self,
         ctx: yuyo.ComponentContext,
-        localiser: alluka.Injected[typing.Optional[tanjun.dependencies.AbstractLocaliser]] = None,
+        localiser: alluka.Injected[tanjun.dependencies.AbstractLocaliser | None] = None,
     ) -> None:
         page_number = self._process_metadata(ctx)
         if page_number >= (len(self._index.pages) - 1):
@@ -615,7 +607,7 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
     async def jump_to_last(
         self,
         ctx: yuyo.ComponentContext,
-        localiser: alluka.Injected[typing.Optional[tanjun.dependencies.AbstractLocaliser]] = None,
+        localiser: alluka.Injected[tanjun.dependencies.AbstractLocaliser | None] = None,
     ) -> None:
         self._process_metadata(ctx)
         await self._index.to_response(ctx, len(self._index.pages) - 1, localiser=localiser)
@@ -627,11 +619,11 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
 
 
 async def _help_command(
-    ctx: typing.Union[tanjun.abc.MessageContext, tanjun.abc.SlashContext],
+    ctx: tanjun.abc.MessageContext | tanjun.abc.SlashContext,
     *,
-    command_name: Annotated[typing.Optional[Str], Positional()] = None,
+    command_name: Annotated[Str | None, Positional()] = None,
     index: alluka.Injected[_HelpIndex],
-    localiser: alluka.Injected[typing.Optional[tanjun.dependencies.AbstractLocaliser]] = None,
+    localiser: alluka.Injected[tanjun.dependencies.AbstractLocaliser | None] = None,
     # TODO: switch cached_inject over to using an injected cache to avoid
     # edge case state issues
     # This could likely also include adding a "ScopedState" return class

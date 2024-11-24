@@ -4,7 +4,7 @@ A utility library which extends Tanjun.
 
 # Installation
 
-You can install Tan-chan from PyPI using the following command in any Python 3.9 or above environment.
+You can install Tan-chan from PyPI using the following command in any Python 3.11 or above environment.
 
 ```
 python -m pip install -U tanchan

@@ -31,28 +31,26 @@
 """Internal utility classes and functions used by Tanchan."""
 from __future__ import annotations
 
-__all__: list[str] = ["MaybeLocalised", "inspect"]
+__all__: list[str] = ["MaybeLocalised"]
 
 import typing
 
 from .localisation import MaybeLocalised
-from .vendor import inspect
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-    import typing_extensions
     from alluka import abc as alluka
     from tanjun import abc as tanjun
 
     class _WrappedProto(typing.Protocol):
-        wrapped_command: typing.Optional[tanjun.ExecutableCommand[typing.Any]]
+        wrapped_command: tanjun.ExecutableCommand[typing.Any] | None
 
     _T = typing.TypeVar("_T")
     _CommandT = typing.TypeVar("_CommandT", bound=tanjun.ExecutableCommand[typing.Any])
 
 
-def _has_wrapped(value: typing.Any, /) -> typing_extensions.TypeGuard[_WrappedProto]:
+def _has_wrapped(value: typing.Any, /) -> typing.TypeGuard[_WrappedProto]:
     try:
         value.wrapped_command
 

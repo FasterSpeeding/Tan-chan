@@ -65,13 +65,17 @@ def make_delete_id(author: hikari.SnowflakeishOr[hikari.User], /, *authors: hika
 
 
 def delete_row(
-    ctx_or_author: typing.Union[
-        hikari.Snowflakeish, tanjun.abc.Context, tanjun.abc.AutocompleteContext, yuyo.components.BaseContext[typing.Any]
-    ],
+    ctx_or_author: (
+        hikari.Snowflakeish
+        | tanjun.abc.Context
+        | tanjun.abc.AutocompleteContext
+        | yuyo.components.BaseContext[typing.Any]
+    ),
     /,
-    *ctx_or_authors: typing.Union[
-        hikari.Snowflakeish, tanjun.abc.Context, tanjun.abc.AutocompleteContext, yuyo.components.BaseContext[typing.Any]
-    ],
+    *ctx_or_authors: hikari.Snowflakeish
+    | tanjun.abc.Context
+    | tanjun.abc.AutocompleteContext
+    | yuyo.components.BaseContext[typing.Any],
 ) -> hikari.impl.MessageActionRowBuilder:
     """Make an action row builder with a delete button from a list of authors.
 

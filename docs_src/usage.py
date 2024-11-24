@@ -33,7 +33,6 @@ def doc_parse_example() -> None:
 
 def as_slash_command_example() -> None:
     from typing import Annotated
-    from typing import Optional
 
     import tanjun
     from tanjun import annotations
@@ -46,7 +45,7 @@ def as_slash_command_example() -> None:
     async def ban(
         ctx: tanjun.abc.SlashContext,
         user: annotations.User,
-        reason: Optional[Annotated[annotations.Int, annotations.Length(460)]] = None,
+        reason: Annotated[annotations.Int, annotations.Length(460)] | None = None,
     ) -> None:
         """Ban a user from this guild.
 
@@ -62,7 +61,7 @@ def as_slash_command_example() -> None:
     async def kick(
         ctx: tanjun.abc.SlashContext,
         member: annotations.Member,
-        reason: Optional[Annotated[annotations.Int, annotations.Length(460)]] = None,
+        reason: Annotated[annotations.Int, annotations.Length(460)] | None = None,
     ) -> None:
         """Kick a member from this guild.
 
@@ -79,7 +78,7 @@ def as_slash_command_example() -> None:
     @doc_parse.with_annotated_args
     @doc_parse.as_slash_command()
     async def echo(
-        ctx: tanjun.abc.SlashContext, content: annotations.Str, channel: Optional[annotations.Channel] = None
+        ctx: tanjun.abc.SlashContext, content: annotations.Str, channel: annotations.Channel | None = None
     ) -> None:
         """Make the bot echo a message.
 

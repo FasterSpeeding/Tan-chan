@@ -43,7 +43,7 @@ if typing.TYPE_CHECKING:
 
 # TODO: expand tanjun's special casing of * to cover other command fields like responses here
 _CommandTypes = typing.Literal["message", "message_menu", "slash", "user_menu"]
-_TYPE_TO_STR: dict[typing.Optional[hikari.CommandType], _CommandTypes] = {
+_TYPE_TO_STR: dict[hikari.CommandType | None, _CommandTypes] = {
     hikari.CommandType.MESSAGE: "message_menu",
     hikari.CommandType.SLASH: "slash",
     hikari.CommandType.USER: "user_menu",
@@ -60,11 +60,11 @@ class MaybeLocalised:
     def __init__(
         self,
         field_type: _FieldTypes,
-        field: typing.Union[str, collections.Mapping[str, str], collections.Iterable[tuple[str, str]]],
+        field: str | collections.Mapping[str, str] | collections.Iterable[tuple[str, str]],
         /,
         *,
-        cmd_type: typing.Union[hikari.CommandType, None] = None,
-        name: typing.Optional[str] = None,
+        cmd_type: hikari.CommandType | None = None,
+        name: str | None = None,
     ) -> None:
         """Initialise an instance of MaybeLocalised.
 
@@ -101,7 +101,7 @@ class MaybeLocalised:
         """
         if isinstance(field, str):
             self.default_value = field
-            self.id: typing.Optional[str] = None
+            self.id: str | None = None
             self.localised_values: dict[str, str] = {}
 
         else:
@@ -142,7 +142,7 @@ class MaybeLocalised:
             descriptions = [(key, value.split("\n", 1)[0]) for key, value in self.localised_values.items()]
             return f"{self.default_value};{sorted(descriptions)!r}"
 
-    def localise(self, locale: hikari.Locale, localiser: typing.Optional[tanjun.dependencies.AbstractLocaliser]) -> str:
+    def localise(self, locale: hikari.Locale, localiser: tanjun.dependencies.AbstractLocaliser | None) -> str:
         """Get the localised value for a context.
 
         Parameters
