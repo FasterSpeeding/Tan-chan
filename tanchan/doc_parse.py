@@ -38,6 +38,7 @@ import re
 import typing
 
 import tanjun
+import typing_extensions
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -386,6 +387,9 @@ def _get_docstyle(doc_string: str, /) -> _DocStyleUnion | None:
     return None
 
 
+_UNPACK_TYPES = {typing.Unpack, typing_extensions.Unpack}
+
+
 def _parse_descriptions(
     callback: collections.Callable[..., typing.Any], /, *, doc_style: _DocStyleUnion | None = None
 ) -> dict[str, str]:
@@ -398,11 +402,11 @@ def _parse_descriptions(
         if parameter.kind is not parameter.VAR_KEYWORD:
             continue
 
-        if typing.get_origin(parameter.annotation) is not typing.Unpack:
+        if typing.get_origin(parameter.annotation) not in _UNPACK_TYPES:
             break
 
         typed_dict = typing.get_args(parameter.annotation)[0]
-        if not typing.is_typeddict(typed_dict):
+        if not typing_extensions.is_typeddict(typed_dict):
             break
 
         if typed_dict_doc := inspect.getdoc(typed_dict):

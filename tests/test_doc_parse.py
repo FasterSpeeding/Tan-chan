@@ -40,6 +40,7 @@ import hikari
 import packaging.version
 import pytest
 import tanjun
+import typing_extensions
 from tanjun import annotations
 
 import tanchan
@@ -1642,6 +1643,29 @@ def test_when_cant_detect_typed_dict_docs_style():
 
     assert command.build().options == [
         hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="Meow meow!", is_required=True)
+    ]
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_when_typing_extensions_unpack_and_typeddict():
+    class TypedDict(typing_extensions.TypedDict):
+        """Description.
+
+        Parameters
+        ----------
+        value
+            Nyaa!
+        """
+
+        value: annotations.Str
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Description."""
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="Nyaa!", is_required=True)
     ]
 
 

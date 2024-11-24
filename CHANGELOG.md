@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- [tanchan.doc_parse][] now consistently supports both the `typing` and
+  `typing_extensions` implementations of [typing.Unpack][] and [typing.TypedDict].
+
 ### Removed
 - Support for Python 3.9 and 3.10.
 
