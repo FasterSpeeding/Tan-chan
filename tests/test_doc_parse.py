@@ -1645,6 +1645,38 @@ def test_when_cant_detect_typed_dict_docs_style():
     ]
 
 
+
+
+@pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
+def test_when_typing_extensions_unpack_and_typeddict():
+    class TypedDict(typing_extensions.TypedDict):
+        """Description.
+
+        Parameters
+        ----------
+        value
+            Nyaa!
+        """
+
+        value: annotations.Str
+
+    @tanchan.doc_parse.with_annotated_args
+    @tanchan.doc_parse.as_slash_command()
+    async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
+        """Description.
+
+        Parameters
+        ----------
+        value
+            Meow meow!
+        """
+
+    assert command.build().options == [
+        hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="Nyaa!", is_required=True)
+    ]
+
+
+
 class TestSlashCommandGroup:
     def test_as_sub_command(self):
         group = tanchan.doc_parse.SlashCommandGroup("name", "description")
