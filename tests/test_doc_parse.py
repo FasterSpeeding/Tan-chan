@@ -37,10 +37,10 @@ import typing
 from unittest import mock
 
 import hikari
-import typing_extensions
 import packaging.version
 import pytest
 import tanjun
+import typing_extensions
 from tanjun import annotations
 
 import tanchan
