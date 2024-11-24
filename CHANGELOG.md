@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.4.3] - 2024-11-24
 ### Fixed
 - [tanchan.doc_parse][] now consistently supports both the `typing` and
   `typing_extensions` implementations of [typing.Unpack][] and [typing.TypedDict].
@@ -91,7 +92,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   descriptions (including for options) from the command callback's docstring +
   using the callback's name as the command's name.
 
-[Unreleased]: https://github.com/FasterSpeeding/tanchan/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/FasterSpeeding/tanchan/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/FasterSpeeding/tanchan/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/FasterSpeeding/tanchan/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/FasterSpeeding/tanchan/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/FasterSpeeding/tanchan/compare/v0.3.1...v0.4.0
