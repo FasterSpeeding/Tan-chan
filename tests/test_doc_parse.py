@@ -37,6 +37,7 @@ import typing
 from unittest import mock
 
 import hikari
+import typing_extensions
 import packaging.version
 import pytest
 import tanjun
