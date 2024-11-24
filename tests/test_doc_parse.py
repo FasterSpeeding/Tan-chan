@@ -1662,13 +1662,7 @@ def test_when_typing_extensions_unpack_and_typeddict():
     @tanchan.doc_parse.with_annotated_args
     @tanchan.doc_parse.as_slash_command()
     async def command(ctx: tanjun.abc.Context, **kwargs: typing_extensions.Unpack[TypedDict]) -> None:
-        """Description.
-
-        Parameters
-        ----------
-        value
-            Meow meow!
-        """
+        """Description."""
 
     assert command.build().options == [
         hikari.CommandOption(type=hikari.OptionType.STRING, name="value", description="Nyaa!", is_required=True)
