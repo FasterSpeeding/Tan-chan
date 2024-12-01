@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2022-2024, Faster Speeding
@@ -52,7 +51,7 @@ if typing.TYPE_CHECKING:
         | tanjun.abc.SlashCommand[_AnyCallbackSigT]
     )
     # | style unions won't work here as it would result in a string, not type value.
-    _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]
+    _CallbackishT = typing.Union["_SlashCallbackSigT", _AnyCommandT["_SlashCallbackSigT"]]  # noqa: UP007
     _CommandUnionT = typing.TypeVar(
         "_CommandUnionT", bound=tanjun.SlashCommand[typing.Any] | tanjun.MessageCommand[typing.Any]
     )
@@ -83,7 +82,7 @@ def _make_slash_command(
     sort_options: bool = True,
     validate_arg_keys: bool = True,
 ) -> tanjun.SlashCommand[_SlashCallbackSigT]:
-    if isinstance(callback, (tanjun.abc.MenuCommand, tanjun.abc.MessageCommand, tanjun.abc.SlashCommand)):
+    if isinstance(callback, tanjun.abc.MenuCommand | tanjun.abc.MessageCommand | tanjun.abc.SlashCommand):
         wrapped_command = callback
         # Cast needed cause of pyright bug
         callback = typing.cast("_SlashCallbackSigT", callback.callback)
@@ -94,7 +93,8 @@ def _make_slash_command(
     if description is None:
         doc_string = inspect.getdoc(callback)
         if not doc_string:
-            raise ValueError("Callback has no doc string")
+            error_message = "Callback has no doc string"
+            raise ValueError(error_message)
 
         description = doc_string.split("\n", 1)[0].strip()
 
@@ -214,7 +214,7 @@ def as_slash_command(
         * If the command name is over 32 characters long.
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
-    """  # noqa: D202, E501
+    """
 
     def decorator(callback: _CallbackishT[_SlashCallbackSigT], /) -> tanjun.SlashCommand[_SlashCallbackSigT]:
         return _make_slash_command(
@@ -395,7 +395,8 @@ def _parse_descriptions(
 ) -> dict[str, str]:
     """Parse a callback's docstring and annotations for argument descriptions."""
     if doc_style and doc_style not in _PARSERS:
-        raise ValueError(f"Unsupported docstring style {doc_style!r}")
+        error_message = f"Unsupported docstring style {doc_style!r}"
+        raise ValueError(error_message)
 
     kwargs: dict[str, typing.Any] = {}
     for parameter in inspect.signature(callback, eval_str=True).parameters.values():
@@ -428,12 +429,14 @@ def _parse_descriptions(
             if kwargs:
                 return kwargs
 
-            raise RuntimeError("Couldn't detect the docstring style")
+            error_message = "Couldn't detect the docstring style"
+            raise RuntimeError(error_message)
 
         kwargs.update(_PARSERS[doc_style](lines))
 
     elif not kwargs:
-        raise ValueError("Callback has no doc string")
+        error_message = "Callback has no doc string"
+        raise ValueError(error_message)
 
     return kwargs
 
@@ -455,7 +458,6 @@ def with_annotated_args(
 
     Examples
     --------
-
     This will parse command option descriptions from the command's docstring.
 
     ```py
@@ -578,7 +580,7 @@ class SlashCommandGroup(tanjun.SlashCommandGroup):
             * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """  # noqa: D202, E501
+        """
 
         def decorator(callback: _CallbackishT[_SlashCallbackSigT]) -> tanjun.SlashCommand[_SlashCallbackSigT]:
             return self.with_command(
@@ -637,7 +639,7 @@ class SlashCommandGroup(tanjun.SlashCommandGroup):
             * If the command name doesn't fit Discord's requirements.
             * If the command name has uppercase characters.
             * If the description is over 100 characters long.
-        """  # noqa: E501
+        """
         return self.with_command(slash_command_group(name, description, default_to_ephemeral=default_to_ephemeral))
 
 
@@ -722,7 +724,7 @@ def slash_command_group(
         * If the command name doesn't fit Discord's requirements.
         * If the command name has uppercase characters.
         * If the description is over 100 characters long.
-    """  # noqa: E501
+    """
     return SlashCommandGroup(
         name,
         description,

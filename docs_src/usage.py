@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Tanchan Examples - A collection of examples for Tanchan.
 # Written in 2023 by Lucina Lucina@lmbyrne.dev
 #

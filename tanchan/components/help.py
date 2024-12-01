@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2023-2024, Faster Speeding
@@ -41,20 +40,22 @@ import typing
 import urllib.parse
 from typing import Annotated
 
-import alluka
 import hikari
 import tanjun
 import yuyo
 from tanjun.annotations import Positional
 from tanjun.annotations import Str
 
-from .. import _internal
-from .. import doc_parse
+from tanchan import _internal
+from tanchan import doc_parse
+
 from . import buttons
 from . import config
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
+
+    import alluka
 
 _CommandT = typing.TypeVar("_CommandT", bound=tanjun.abc.ExecutableCommand[typing.Any])
 
@@ -152,9 +153,10 @@ def _to_cmd_info(cmd: tanjun.abc.ExecutableCommand[typing.Any], /) -> tuple[str,
 
     if isinstance(cmd, tanjun.abc.MessageCommand):
         # TODO: upgrade cmd.names to a sequence to insure order
-        return tuple(cmd.names)[0], None
+        return next(iter(cmd.names)), None
 
-    raise NotImplementedError(f"Unsupported command type {type(cmd)}")
+    error_message = f"Unsupported command type {type(cmd)}"
+    raise NotImplementedError(error_message)
 
 
 @typing.overload
@@ -336,7 +338,8 @@ class _HelpIndex:
             page = self._pages[page_number]
 
         except IndexError:
-            raise yuyo.InteractionError("Page not found", component=buttons.delete_row(ctx.author.id)) from None
+            error_message = "Page not found"
+            raise yuyo.InteractionError(error_message, component=buttons.delete_row(ctx.author.id)) from None
 
         permissions = ctx.interaction.app_permissions
         # perms is None indicates a DM where we will always have embed links.
@@ -387,7 +390,8 @@ class _HelpIndex:
             # TODO: handle inheriting this state from parent commands
             category = command.metadata.get(_CATEGORY_KEY) or component_name
             if not isinstance(category, str):
-                raise TypeError(f"Invalid category name: {category!r}")
+                error_message = f"Invalid category name: {category!r}"
+                raise TypeError(error_message)
 
             for name in names:
                 descriptions[name] = description
@@ -400,8 +404,8 @@ class _HelpIndex:
                 categories[category] = [entry]
 
         page_number = 0
-        for cateory, commands in sorted(categories.items(), key=lambda v: v[0]):
-            cateory = _internal.MaybeLocalised("help.category", cateory)
+        for raw_cateory, commands in sorted(categories.items(), key=lambda v: v[0]):
+            cateory = _internal.MaybeLocalised("help.category", raw_cateory)
             page_count = math.ceil(len(commands) / 10)
             for index in range(page_count):
                 page_number += 1
@@ -433,13 +437,13 @@ def _collect_msg_cmds(
 ) -> collections.ItemsView[tanjun.abc.MessageCommand[typing.Any], list[tuple[str, ...]]]:
     results: dict[tanjun.abc.MessageCommand[typing.Any], list[tuple[str, ...]]] = {}
 
-    for names, command in _follow_msg_children(command, help_config):
-        names = tuple(names)
+    for raw_names, sub_command in _follow_msg_children(command, help_config):
+        names = tuple(raw_names)
         try:
-            results[command].append(names)
+            results[sub_command].append(names)
 
         except KeyError:
-            results[command] = [names]
+            results[sub_command] = [names]
 
     return results.items()
 
@@ -463,8 +467,8 @@ def _collect_slash_cmds(
 ) -> collections.ItemsView[tanjun.abc.SlashCommand[typing.Any], list[tuple[str, ...]]]:
     results: dict[tanjun.abc.SlashCommand[typing.Any], list[tuple[str, ...]]] = {}
 
-    for names, cmd in _follow_slash_children(command, help_config):
-        names = tuple(names)
+    for raw_names, cmd in _follow_slash_children(command, help_config):
+        names = tuple(raw_names)
         try:
             results[cmd].append(names)
 
@@ -507,10 +511,12 @@ class _NumberModal(yuyo.modals.Modal):
         try:
             page_number = int(field)
         except ValueError:
-            raise yuyo.InteractionError("Not a valid number", component=buttons.delete_row(ctx.author.id)) from None
+            error_message = "Not a valid number"
+            raise yuyo.InteractionError(error_message, component=buttons.delete_row(ctx.author.id)) from None
 
         if page_number < 1:
-            raise yuyo.InteractionError("Page not found", component=buttons.delete_row(ctx.author.id)) from None
+            error_message = "Page not found"
+            raise yuyo.InteractionError(error_message, component=buttons.delete_row(ctx.author.id)) from None
 
         # TODO: what is ctx.interaction.app_permissions when the app itself isn't present?
         await self._index.to_response(ctx, page_number - 1, localiser=localiser)
@@ -553,12 +559,12 @@ class _HelpColumn(yuyo.ActionColumnExecutor):
         metadata = urllib.parse.parse_qs(ctx.id_metadata)
 
         if int(metadata[buttons.OWNER_QS_KEY][0]) != ctx.author.id:
-            raise yuyo.InteractionError("You cannot use this button", component=buttons.delete_row(ctx.author.id))
+            error_message = "You cannot use this button"
+            raise yuyo.InteractionError(error_message, component=buttons.delete_row(ctx.author.id))
 
         if metadata[_HASH_KEY][0] != self._index.hash:
-            raise yuyo.InteractionError(
-                "This help command instance is out of date", component=buttons.delete_row(ctx.author.id)
-            )
+            error_message = "This help command instance is out of date"
+            raise yuyo.InteractionError(error_message, component=buttons.delete_row(ctx.author.id))
 
         return int(metadata[_PAGE_NUM_KEY][0])
 
@@ -628,7 +634,7 @@ async def _help_command(
     # edge case state issues
     # This could likely also include adding a "ScopedState" return class
     # which lets you scope them per specific resource (e.g. user, member)
-    me: hikari.OwnUser = tanjun.cached_inject(tanjun.dependencies.fetch_my_user),
+    me: hikari.OwnUser = tanjun.cached_inject(tanjun.dependencies.fetch_my_user),  # noqa: B008
 ) -> None:
     """Get information about the bot's commands.
 
@@ -648,7 +654,8 @@ async def _help_command(
         components: collections.Sequence[hikari.api.MessageActionRowBuilder] = [buttons.delete_row(ctx.author.id)]
 
         if not content:
-            raise tanjun.CommandError("Couldn't find command", component=buttons.delete_row(ctx.author.id))
+            error_message = "Couldn't find command"
+            raise tanjun.CommandError(error_message, component=buttons.delete_row(ctx.author.id))
 
         content = content.localise(locale, localiser) if locale else content.default_value
         if await _check_embed_links(ctx, me):
@@ -664,7 +671,8 @@ async def _help_command(
             page = index.pages[0]
 
         except IndexError:
-            raise tanjun.CommandError("No commands") from None
+            error_message = "No commands"
+            raise tanjun.CommandError(error_message) from None
 
         components = _HelpColumn(index, author=ctx.author.id).rows
 
