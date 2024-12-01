@@ -152,7 +152,7 @@ def as_slash_command(
     Examples
     --------
     ```py
-    --8<-- "./docs_src/doc_parse.py:25:31"
+    --8<-- "./docs_src/doc_parse.py:24:30"
     ```
 
     Parameters
@@ -461,14 +461,14 @@ def with_annotated_args(
     This will parse command option descriptions from the command's docstring.
 
     ```py
-    --8<-- "./docs_src/doc_parse.py:35:67"
+    --8<-- "./docs_src/doc_parse.py:34:66"
     ```
 
     This also supports parsing option descriptions from the typed dict that's
     being used as the unpacked `**kwargs` type-hint.
 
     ```py
-    --8<-- "./docs_src/doc_parse.py:71:96"
+    --8<-- "./docs_src/doc_parse.py:70:95"
     ```
 
     Parameters
@@ -676,7 +676,7 @@ def slash_command_group(
     the following decorator based approach:
 
     ```python
-    --8<-- "./docs_src/doc_parse.py:100:111"
+    --8<-- "./docs_src/doc_parse.py:99:110"
     ```
 
     Parameters
