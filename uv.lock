@@ -1429,10 +1429,11 @@ wheels = [
 
 [[package]]
 name = "tanchan"
-version = "0.4.2"
+version = "0.4.3"
 source = { editable = "." }
 dependencies = [
     { name = "hikari-tanjun" },
+    { name = "typing-extensions" },
 ]
 
 [package.optional-dependencies]
@@ -1479,6 +1480,7 @@ tests = [
     { name = "pytest-xdist" },
 ]
 type-checking = [
+    { name = "hikari-yuyo" },
     { name = "mypy" },
     { name = "nox" },
     { name = "packaging" },
@@ -1494,6 +1496,7 @@ type-checking = [
 requires-dist = [
     { name = "hikari-tanjun", specifier = ">=2.16,<3" },
     { name = "hikari-yuyo", marker = "extra == 'yuyo'", specifier = ">=1.18.0,<2" },
+    { name = "typing-extensions", specifier = ">=4.5,<5" },
 ]
 
 [package.metadata.requires-dev]
@@ -1529,6 +1532,7 @@ tests = [
     { name = "pytest-xdist", specifier = ">=3.1" },
 ]
 type-checking = [
+    { name = "hikari-yuyo", specifier = ">=1.18.0,<2" },
     { name = "mypy", specifier = ">=0.991" },
     { name = "nox" },
     { name = "packaging", specifier = ">=23.0" },
