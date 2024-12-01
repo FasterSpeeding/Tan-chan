@@ -105,8 +105,8 @@ def delete_row(
 async def on_delete_button(ctx: yuyo.ComponentContext, /) -> None:
     """Constant callback used by delete buttons.
 
-    This is the default implementation which can be overriden by registering
-    your own callback for [yuyo.components.buttons.DELETE_CUSTOM_ID][DELETE_CUSTOM_ID]
+    This is the default implementation which can be overridden by registering
+    your own callback for [DELETE_CUSTOM_ID][yuyo.components.buttons.DELETE_CUSTOM_ID]
 
     Parameters
     ----------
