@@ -1,4 +1,4 @@
-name: Lint
+name: Verify type-completeness
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
+  verify-types:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,14 +27,5 @@ jobs:
       - name: Install Python
         uses: ./.github/actions/setup-py
 
-      - name: Lint markup
-        run: nox -s verify-markup
-
-      - name: Check spelling
-        run: nox -s spell-check
-
-      - name: Lint with Ruff
-        run: nox -s lint
-
-      - name: Check slotting
-        run: nox -s slot-check
+      - name: Run verify types
+        run: nox -s verify-types
