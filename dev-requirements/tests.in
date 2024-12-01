@@ -1,4 +1,0 @@
--r ../piped/python/base-requirements/tests.in
-
-packaging>=23.0
-pytest-xdist>=3.1
