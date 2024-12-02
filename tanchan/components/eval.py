@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -49,21 +48,23 @@ import typing
 import urllib.parse
 from typing import Annotated
 
-import alluka
+import alluka  # noqa: TC002
 import hikari
 import tanjun
 import yuyo
 from tanjun.annotations import Bool
 from tanjun.annotations import Flag
 
-from .. import _internal
-from .. import doc_parse
+from tanchan import _internal
+from tanchan import doc_parse
+
 from . import buttons
 from . import config
 from . import help as help_commands
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
+
 
 _COMPONENT_NAME = "tanchan.sudo"
 """Name of this module's component."""
@@ -103,7 +104,7 @@ _EVAL_MODAL_ID = "TC_EVAL"
 
 def _yields_results(*args: io.StringIO) -> collections.Iterator[str]:
     """Create an iterator of the lines of an eval call's output."""
-    for name, stream in zip(("stdout", "stderr"), args):
+    for name, stream in zip(("stdout", "stderr"), args, strict=True):
         yield f"- /dev/{name}:"
         while lines := stream.readlines(25):
             yield from (line[:-1] for line in lines)
@@ -131,7 +132,7 @@ async def _eval_python_code(
             await _eval_python_code_no_capture(client, ctx, code, component=component)
 
         failed = False
-    except Exception:
+    except Exception:  # noqa: BLE001
         traceback.print_exc(file=stderr)
         failed = True
     finally:
@@ -186,7 +187,8 @@ async def _check_owner(
 ) -> None:
     """Assert that the user who used a component or modal is the bot's owner."""
     if not await authors.check_ownership(client, ctx.interaction.user):
-        raise yuyo.InteractionError("You cannot use this button")
+        error_message = "You cannot use this button"
+        raise yuyo.InteractionError(error_message)
 
 
 @yuyo.modals.as_modal(ephemeral_default=True, parse_signature=True)
@@ -206,7 +208,8 @@ async def _eval_modal(
         file_output = tanjun.conversion.to_bool(raw_file_output)
 
     except ValueError:
-        raise yuyo.InteractionError("Invalid value passed for File output") from None
+        error_message = "Invalid value passed for File output"
+        raise yuyo.InteractionError(error_message) from None
 
     await _check_owner(client, authors, ctx)
     if ctx.interaction.message:
@@ -305,14 +308,15 @@ async def _on_edit_button(
     await ctx.create_modal_response("Edit eval", _EVAL_MODAL_ID, components=rows)
 
 
-async def _never(ctx: yuyo.ComponentContext) -> None:
-    raise RuntimeError("Shouldn't be reached")
+async def _never(_: yuyo.ComponentContext, /) -> None:
+    error_message = "Shouldn't be reached"
+    raise RuntimeError(error_message)
 
 
 class _FileCallback:
     """Callback logic used for to file buttons."""
 
-    __slots__ = ("_custom_id", "_files", "_make_files", "_post_components", "__weakref__")
+    __slots__ = ("__weakref__", "_custom_id", "_files", "_make_files", "_post_components")
 
     def __init__(
         self,
@@ -413,7 +417,8 @@ async def _eval_message_command(
         respond = ctx.respond
 
         if not code:
-            raise tanjun.CommandError("Expected a python code block.", component=buttons.delete_row(ctx.author.id))
+            error_message = "Expected a python code block."
+            raise tanjun.CommandError(error_message, component=buttons.delete_row(ctx.author.id))
 
         code = code[0]
 
@@ -490,7 +495,7 @@ def _try_deregister(client: yuyo.ComponentClient, message: hikari.Message) -> No
 
 
 async def _eval_slash_command(
-    ctx: tanjun.abc.SlashContext, file_output: Bool | None = None, private: Bool = False
+    ctx: tanjun.abc.SlashContext, file_output: Bool | None = None, *, private: Bool = False
 ) -> None:
     """Owner only command used to dynamically evaluate a script.
 
@@ -512,7 +517,7 @@ async def _eval_slash_command(
 class _OnGuildCreate:
     """Handles creating the eval slash command for the whitelisted guilds on guild create."""
 
-    __slots__ = ("_command", "__weakref__")
+    __slots__ = ("__weakref__", "_command")
 
     # TODO: tanjun just needs type var defaults at this point
     def __init__(self, command: tanjun.abc.SlashCommand[typing.Any], /) -> None:

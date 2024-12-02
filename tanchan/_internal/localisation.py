@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2023-2024, Faster Speeding
@@ -35,10 +34,11 @@ __all__: list[str] = []
 import typing
 
 import hikari
-import tanjun
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
+
+    import tanjun
 
 
 # TODO: expand tanjun's special casing of * to cover other command fields like responses here
@@ -55,7 +55,7 @@ _FieldTypes = typing.Literal["help.category", "help.name", "help.description"]
 class MaybeLocalised:
     """Class used for handling name and description localisation."""
 
-    __slots__ = ("default_value", "id", "_localise_id", "localised_values")
+    __slots__ = ("_localise_id", "default_value", "id", "localised_values")
 
     def __init__(
         self,
@@ -112,20 +112,23 @@ class MaybeLocalised:
                 entry = next(iter(self.localised_values.values()), None)
 
             if entry is None:
-                raise RuntimeError(f"No default {field_type} given")
+                error_message = f"No default {field_type} given"
+                raise RuntimeError(error_message)
 
             self.default_value = entry
 
         if field_type == "help.category":
             if name is not None:
-                raise RuntimeError("`name` cannot be passed for help.category fields")
+                error_message = "`name` cannot be passed for help.category fields"
+                raise RuntimeError(error_message)
 
             # TODO: tanjun needs to also accept using the raw ":" string for getting localisations
             self._localise_id = f"*:*:help.category:{self.default_value}"
 
         else:
             if name is None:
-                raise ValueError(f"`name` must be passed for {field_type} fields")
+                error_message = f"`name` must be passed for {field_type} fields"
+                raise ValueError(error_message)
 
             self._localise_id = f"{_TYPE_TO_STR[cmd_type]}:{name}:{field_type}"
 
@@ -137,10 +140,9 @@ class MaybeLocalised:
         if not self.localised_values:
             return self.default_value.split("\n", 1)[0]
 
-        else:
-            # Only care about the first line for pagination.
-            descriptions = [(key, value.split("\n", 1)[0]) for key, value in self.localised_values.items()]
-            return f"{self.default_value};{sorted(descriptions)!r}"
+        # Only care about the first line for pagination.
+        descriptions = [(key, value.split("\n", 1)[0]) for key, value in self.localised_values.items()]
+        return f"{self.default_value};{sorted(descriptions)!r}"
 
     def localise(self, locale: hikari.Locale, localiser: tanjun.dependencies.AbstractLocaliser | None) -> str:
         """Get the localised value for a context.

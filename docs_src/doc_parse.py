@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Tanchan Examples - A collection of examples for Tanchan.
 # Written in 2023 by Lucina Lucina@lmbyrne.dev
 #
@@ -21,7 +20,7 @@ from tanjun import annotations
 from tanchan import doc_parse
 
 
-def as_slash_command_example():
+def as_slash_command_example() -> None:
     @doc_parse.as_slash_command()  # This command will be called "ping"
     async def ping(ctx: tanjun.abc.SlashContext) -> None:
         """Get the bot's latency."""
@@ -31,7 +30,7 @@ def as_slash_command_example():
         await ctx.respond(f"PONG\n - REST: {time_taken:.0f}mss")
 
 
-def with_annotated_args_example():
+def with_annotated_args_example() -> None:
     @doc_parse.with_annotated_args
     @doc_parse.as_slash_command()
     async def toggle_setting(ctx: tanjun.abc.Context, user: annotations.User, state: annotations.Bool = False) -> None:
@@ -67,7 +66,7 @@ def with_annotated_args_example():
         """
 
 
-def with_annotated_args_typed_dict_example():
+def with_annotated_args_typed_dict_example() -> None:
     class BulkMessagOptions(typing.TypedDict, total=False):
         """Reused bulk message command options.
 
@@ -96,12 +95,12 @@ def with_annotated_args_typed_dict_example():
         """
 
 
-def slash_command_group_example():
+def slash_command_group_example() -> None:
     help_group = doc_parse.slash_command_group("help", "get help")
 
     @tanjun.with_str_slash_option("command_name", "command name")
-    @help_group.as_sub_command()
-    async def help(ctx: tanjun.abc.SlashContext, command_name: annotations.Str) -> None:
+    @help_group.as_sub_command(name="help")
+    async def help_command(ctx: tanjun.abc.SlashContext, command_name: annotations.Str) -> None:
         """Get help with a command."""
 
     @help_group.as_sub_command()

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -52,7 +51,7 @@ if typing.TYPE_CHECKING:
 
 def _has_wrapped(value: typing.Any, /) -> typing.TypeGuard[_WrappedProto]:
     try:
-        value.wrapped_command
+        value.wrapped_command  # noqa: B018
 
     except AttributeError:
         return False

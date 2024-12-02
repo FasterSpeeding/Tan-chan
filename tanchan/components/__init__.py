@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2022-2024, Faster Speeding
@@ -41,7 +40,7 @@ __all__: list[str] = [
     "unload_sudo",
 ]
 
-from . import config as config
+from . import config
 from .buttons import load_buttons
 from .buttons import unload_buttons
 from .eval import load_sudo

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2020-2024, Faster Speeding
@@ -41,7 +40,7 @@ import hikari
 import tanjun
 import yuyo
 
-from .. import _internal
+from tanchan import _internal
 
 if typing.TYPE_CHECKING:
     from collections import abc as collections
@@ -104,7 +103,10 @@ def delete_row(
 
 @yuyo.components.as_single_executor(DELETE_CUSTOM_ID)
 async def on_delete_button(ctx: yuyo.ComponentContext, /) -> None:
-    """Default implementation of a constant callback used by delete buttons.
+    """Constant callback used by delete buttons.
+
+    This is the default implementation which can be overridden by registering
+    your own callback for [DELETE_CUSTOM_ID][tanchan.components.buttons.DELETE_CUSTOM_ID].
 
     Parameters
     ----------
@@ -124,8 +126,7 @@ async def on_delete_button(ctx: yuyo.ComponentContext, /) -> None:
     if (
         not author_ids  # no IDs == public
         or ctx.interaction.user.id in author_ids
-        or ctx.interaction.member
-        and author_ids.intersection(ctx.interaction.member.role_ids)
+        or (ctx.interaction.member and author_ids.intersection(ctx.interaction.member.role_ids))
     ):
         await ctx.defer(defer_type=hikari.ResponseType.DEFERRED_MESSAGE_UPDATE)
         await ctx.delete_initial_response()

@@ -7,7 +7,7 @@
 [tanchan.doc_parse][] exposes two methods which help with declaring slash commands:
 
 ```py
---8<-- "./docs_src/usage.py:16:31"
+--8<-- "./docs_src/usage.py:15:30"
 ```
 
 [tanchan.doc_parse.as_slash_command][] acts as an extension to [tanjun.as_slash_command][]
@@ -17,7 +17,7 @@ as the command's description.
 ##### with_annotated_args
 
 ```py
---8<-- "./docs_src/usage.py:35:88"
+--8<-- "./docs_src/usage.py:34:87"
 ```
 
 [tanchan.doc_parse.with_annotated_args][] uses the functionality exposed in [tanjun.annotations][]

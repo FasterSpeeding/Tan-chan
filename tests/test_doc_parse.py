@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # BSD 3-Clause License
 #
 # Copyright (c) 2022-2024, Faster Speeding
@@ -48,7 +47,7 @@ import tanchan
 TANJUN_VERSION = packaging.version.parse(importlib.metadata.version("hikari-tanjun"))
 
 
-def test_when_cant_detect_doc_style():
+def test_when_cant_detect_doc_style() -> None:
     @tanchan.doc_parse.as_slash_command()
     async def command(ctx: tanjun.abc.Context) -> None:
         """Description.
@@ -61,7 +60,7 @@ def test_when_cant_detect_doc_style():
 
 
 @pytest.mark.parametrize("doc_style", [None, "google", "numpy", "reST"])
-def test_when_only_description_in_docstring(doc_style: typing.Literal["google", "numpy", "reST"] | None):
+def test_when_only_description_in_docstring(doc_style: typing.Literal["google", "numpy", "reST"] | None) -> None:
     @tanchan.doc_parse.with_annotated_args(doc_style=doc_style)
     @tanchan.doc_parse.as_slash_command()
     async def aaaaaa_command(ctx: tanjun.abc.Context) -> None:
@@ -73,7 +72,7 @@ def test_when_only_description_in_docstring(doc_style: typing.Literal["google", 
     assert len(aaaaaa_command.build().options) == 0
 
 
-def test_when_invalid_doc_style_passed():
+def test_when_invalid_doc_style_passed() -> None:
     @tanchan.doc_parse.as_slash_command()
     async def command(ctx: tanjun.abc.Context) -> None:
         """Description.
@@ -85,14 +84,14 @@ def test_when_invalid_doc_style_passed():
         tanchan.doc_parse.with_annotated_args(doc_style="catgirl-ml")(command)  # type: ignore
 
 
-def test_as_slash_command_when_has_no_doc_string():
+def test_as_slash_command_when_has_no_doc_string() -> None:
     async def command(ctx: tanjun.abc.Context) -> None: ...
 
     with pytest.raises(ValueError, match="Callback has no doc string"):
         tanchan.doc_parse.as_slash_command()(command)
 
 
-def test_as_slash_command_when_all_args_passed():
+def test_as_slash_command_when_all_args_passed() -> None:
     @tanchan.doc_parse.as_slash_command(
         always_defer=True,
         default_member_permissions=123,
@@ -120,7 +119,7 @@ def test_as_slash_command_when_all_args_passed():
     assert command.is_nsfw is True
 
 
-def test_as_slash_command_with_arg_defaults():
+def test_as_slash_command_with_arg_defaults() -> None:
     @tanchan.doc_parse.as_slash_command(description="Meow meow meow meow!")
     async def command(ctx: tanjun.abc.Context) -> None:
         """Meow me meow."""
@@ -133,7 +132,7 @@ def test_as_slash_command_with_arg_defaults():
     assert command.is_nsfw is False
 
 
-def test_as_slash_command_when_dict_overrides_passed():
+def test_as_slash_command_when_dict_overrides_passed() -> None:
     @tanchan.doc_parse.as_slash_command(
         name={hikari.Locale.BG: "background", "default": "hihi", hikari.Locale.EN_GB: "scott"},
         description={hikari.Locale.DA: "drum man", "default": "Meow meow!", hikari.Locale.EL: "salvador"},
@@ -150,7 +149,9 @@ def test_as_slash_command_when_dict_overrides_passed():
 
 
 @pytest.mark.parametrize("doc_style", [None, "google", "numpy", "reST"])
-def test_with_annotated_args_when_has_no_doc_string(doc_style: typing.Literal["google", "numpy", "reST"] | None):
+def test_with_annotated_args_when_has_no_doc_string(
+    doc_style: typing.Literal["google", "numpy", "reST"] | None
+) -> None:
     @tanjun.as_slash_command("name", "description")
     async def command(ctx: tanjun.abc.Context) -> None: ...
 
@@ -158,7 +159,7 @@ def test_with_annotated_args_when_has_no_doc_string(doc_style: typing.Literal["g
         tanchan.doc_parse.with_annotated_args(doc_style=doc_style)(command)
 
 
-def test_google():
+def test_google() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def eat_command(ctx: tanjun.abc.Context, meow: annotations.Int, nyaa: annotations.Str = "") -> None:
@@ -183,7 +184,7 @@ def test_google():
     assert options[1].description == "go home"
 
 
-def test_google_when_doc_style_explicitly_passed():
+def test_google_when_doc_style_explicitly_passed() -> None:
     @tanchan.doc_parse.with_annotated_args(doc_style="google")
     @tanchan.doc_parse.as_slash_command()
     async def eat_command(ctx: tanjun.abc.Context, meow: annotations.Int, nyaa: annotations.Str = "") -> None:
@@ -208,7 +209,7 @@ def test_google_when_doc_style_explicitly_passed():
     assert options[1].description == "go home"
 
 
-def test_google_when_no_args():
+def test_google_when_no_args() -> None:
     @tanchan.doc_parse.with_annotated_args(doc_style="google")
     @tanchan.doc_parse.as_slash_command()
     async def eat_command(ctx: tanjun.abc.Context) -> None:
@@ -221,7 +222,7 @@ def test_google_when_no_args():
     assert len(eat_command.build().options) == 0
 
 
-def test_google_with_type_hint():
+def test_google_with_type_hint() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def neat_command(ctx: tanjun.abc.Context, sicko: annotations.Int, echo: annotations.Str = "") -> None:
@@ -246,7 +247,7 @@ def test_google_with_type_hint():
     assert options[1].description == "go to work"
 
 
-def test_google_multi_line():
+def test_google_multi_line() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def meat_command(ctx: tanjun.abc.Context, sick: annotations.Int, stuff: annotations.Str = "") -> None:
@@ -275,7 +276,7 @@ def test_google_multi_line():
     assert options[1].description == "go to work blep blep"
 
 
-def test_google_when_starts_on_next_line():
+def test_google_when_starts_on_next_line() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def beat_command(
@@ -309,7 +310,7 @@ def test_google_when_starts_on_next_line():
     assert options[1].description == "Neon Genesis Evangelion gonna happen soon."
 
 
-def test_google_with_other_section_after():
+def test_google_with_other_section_after() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
@@ -340,7 +341,7 @@ def test_google_with_other_section_after():
     assert options[1].description == "a beep"
 
 
-def test_google_with_other_section_after_squashed():
+def test_google_with_other_section_after_squashed() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
@@ -369,7 +370,7 @@ def test_google_with_other_section_after_squashed():
     assert options[1].description == "a beep"
 
 
-def test_google_with_other_section_before():
+def test_google_with_other_section_before() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def catgirls(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
@@ -400,7 +401,7 @@ def test_google_with_other_section_before():
     assert options[1].description == "a beep"
 
 
-def test_google_with_other_section_before_squashed():
+def test_google_with_other_section_before_squashed() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def catgirls(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
@@ -429,7 +430,7 @@ def test_google_with_other_section_before_squashed():
     assert options[1].description == "a beep"
 
 
-def test_google_when_trails_off():
+def test_google_when_trails_off() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def feet_command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
@@ -455,7 +456,7 @@ def test_google_when_trails_off():
     assert options[1].description == "a beep"
 
 
-def test_google_with_empty_args_section():
+def test_google_with_empty_args_section() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def feet_command(ctx: tanjun.abc.Context, beep: annotations.Int, sheep: annotations.Str = "") -> None:
@@ -467,7 +468,7 @@ def test_google_with_empty_args_section():
             extra: yeet
 
         Args:
-        """  # noqa: D414
+        """
 
     builder = feet_command.build()
 
@@ -482,7 +483,7 @@ def test_google_with_empty_args_section():
     assert options[1].description == "a beep"
 
 
-def test_numpy():
+def test_numpy() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def cc(ctx: tanjun.abc.Context, foo: annotations.Str, bar: annotations.Float | None = None) -> None:
@@ -511,7 +512,7 @@ def test_numpy():
     assert options[1].description == "meowers"
 
 
-def test_numpy_when_doc_style_explicitly_passed():
+def test_numpy_when_doc_style_explicitly_passed() -> None:
     @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
     @tanchan.doc_parse.as_slash_command()
     async def cc(ctx: tanjun.abc.Context, foo: annotations.Str, bar: annotations.Float | None = None) -> None:
@@ -540,7 +541,7 @@ def test_numpy_when_doc_style_explicitly_passed():
     assert options[1].description == "meowers"
 
 
-def test_numpy_when_no_parameters():
+def test_numpy_when_no_parameters() -> None:
     @tanchan.doc_parse.with_annotated_args(doc_style="numpy")
     @tanchan.doc_parse.as_slash_command()
     async def cc(ctx: tanjun.abc.Context) -> None:
@@ -555,10 +556,10 @@ def test_numpy_when_no_parameters():
     assert len(cc.build().options) == 0
 
 
-def test_numpy_ended_by_nameless_terminator_after():
+def test_numpy_ended_by_nameless_terminator_after() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def eep_command(ctx: tanjun.abc.Context, echo: annotations.Bool, zulu: annotations.Str = ""):
+    async def eep_command(ctx: tanjun.abc.Context, echo: annotations.Bool, zulu: annotations.Str = "") -> None:
         """You're a catgirl; I know right (sleepy). [];';-o0-
 
         Parameters
@@ -590,10 +591,10 @@ def test_numpy_ended_by_nameless_terminator_after():
     assert options[1].description == "nyaners"
 
 
-def test_numpy_ended_by_nameless_terminator_after_squashed():
+def test_numpy_ended_by_nameless_terminator_after_squashed() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def eep_command(ctx: tanjun.abc.Context, echo: annotations.Bool, zulu: annotations.Str = ""):
+    async def eep_command(ctx: tanjun.abc.Context, echo: annotations.Bool, zulu: annotations.Str = "") -> None:
         """You're a catgirl; I know right (sleepy). [];';-o0-
 
         Parameters
@@ -624,11 +625,11 @@ def test_numpy_ended_by_nameless_terminator_after_squashed():
     assert options[1].description == "nyaners"
 
 
-def test_numpy_after_named_section():
+def test_numpy_after_named_section() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312):
-        """sleepers meow
+    async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312) -> None:
+        """Sleepers meow
 
         Returns
         -------
@@ -648,7 +649,7 @@ def test_numpy_after_named_section():
     builder = aaaaaa.build()
 
     assert builder.name == aaaaaa.name == "aaaaaa"
-    assert builder.description == aaaaaa.description == "sleepers meow"
+    assert builder.description == aaaaaa.description == "Sleepers meow"
 
     options = builder.options
     assert len(options) == 2
@@ -658,11 +659,11 @@ def test_numpy_after_named_section():
     assert options[1].description == "other race"
 
 
-def test_numpy_after_named_section_squashed():
+def test_numpy_after_named_section_squashed() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312):
-        """sleepers meow
+    async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312) -> None:
+        """Sleepers meow
 
         Returns
         -------
@@ -681,7 +682,7 @@ def test_numpy_after_named_section_squashed():
     builder = aaaaaa.build()
 
     assert builder.name == aaaaaa.name == "aaaaaa"
-    assert builder.description == aaaaaa.description == "sleepers meow"
+    assert builder.description == aaaaaa.description == "Sleepers meow"
 
     options = builder.options
     assert len(options) == 2
@@ -691,11 +692,11 @@ def test_numpy_after_named_section_squashed():
     assert options[1].description == "other race"
 
 
-def test_numpy_ended_by_named_section():
+def test_numpy_ended_by_named_section() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312):
-        """sleepers meow
+    async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312) -> None:
+        """Sleepers meow
 
         Parameters
         ----------
@@ -715,7 +716,7 @@ def test_numpy_ended_by_named_section():
     builder = aaaaaa.build()
 
     assert builder.name == aaaaaa.name == "aaaaaa"
-    assert builder.description == aaaaaa.description == "sleepers meow"
+    assert builder.description == aaaaaa.description == "Sleepers meow"
 
     options = builder.options
     assert len(options) == 2
@@ -725,11 +726,11 @@ def test_numpy_ended_by_named_section():
     assert options[1].description == "other race"
 
 
-def test_numpy_ended_by_named_section_squashed():
+def test_numpy_ended_by_named_section_squashed() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312):
-        """sleepers meow
+    async def aaaaaa(ctx: tanjun.abc.Context, meow: annotations.Int = 0, nyaa: annotations.Float = 123.312) -> None:
+        """Sleepers meow
 
         Parameters
         ----------
@@ -748,7 +749,7 @@ def test_numpy_ended_by_named_section_squashed():
     builder = aaaaaa.build()
 
     assert builder.name == aaaaaa.name == "aaaaaa"
-    assert builder.description == aaaaaa.description == "sleepers meow"
+    assert builder.description == aaaaaa.description == "Sleepers meow"
 
     options = builder.options
     assert len(options) == 2
@@ -758,10 +759,12 @@ def test_numpy_ended_by_named_section_squashed():
     assert options[1].description == "other race"
 
 
-def test_numpy_with_other_parameters():
+def test_numpy_with_other_parameters() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
-    async def cool_girl(ctx: tanjun.abc.Context, the: annotations.User, go: annotations.Int, cat: annotations.Member):
+    async def cool_girl(
+        ctx: tanjun.abc.Context, the: annotations.User, go: annotations.Int, cat: annotations.Member
+    ) -> None:
         """blep
 
         Parameters
@@ -801,7 +804,7 @@ def test_numpy_with_other_parameters():
     assert options[2].description == "box"
 
 
-def test_numpy_for_multi_line_descriptions():
+def test_numpy_for_multi_line_descriptions() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def eep_command(ctx: tanjun.abc.Context, foo: annotations.Str, bar: annotations.Float | None = None) -> None:
@@ -833,7 +836,7 @@ def test_numpy_for_multi_line_descriptions():
     assert options[1].description == "meowers in the streets, nyanners in the sheets"
 
 
-def test_numpy_when_trails_off():
+def test_numpy_when_trails_off() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def eep_command(ctx: tanjun.abc.Context, foo: annotations.Str) -> None:
@@ -861,7 +864,7 @@ def test_numpy_when_trails_off():
     assert options[0].description == "go home boss nyaa extra"
 
 
-def test_numpy_when_empty_section():
+def test_numpy_when_empty_section() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def eep_command(ctx: tanjun.abc.Context, foo: annotations.Str) -> None:
@@ -891,7 +894,7 @@ def test_numpy_when_empty_section():
     assert options[0].description == "go home boss nyaa extra"
 
 
-def test_rest():
+def test_rest() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
@@ -920,7 +923,7 @@ def test_rest():
     assert options[1].description == "The channel of my dreams."
 
 
-def test_rest_when_doc_style_explicitly_passed():
+def test_rest_when_doc_style_explicitly_passed() -> None:
     @tanchan.doc_parse.with_annotated_args(doc_style="reST")
     @tanchan.doc_parse.as_slash_command()
     async def a_command(
@@ -949,7 +952,7 @@ def test_rest_when_doc_style_explicitly_passed():
     assert options[1].description == "The cat."
 
 
-def test_rest_with_no_type_hints():
+def test_rest_with_no_type_hints() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def b_command(ctx: tanjun.abc.Context, beep: annotations.User, op: annotations.Channel | None = None) -> None:
@@ -973,7 +976,7 @@ def test_rest_with_no_type_hints():
     assert options[1].description == "The catty cat."
 
 
-def test_rest_for_multi_line_descriptions():
+def test_rest_for_multi_line_descriptions() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
@@ -1004,7 +1007,7 @@ def test_rest_for_multi_line_descriptions():
     assert options[1].description == "The state of my dreams. If I bool, if I bool."
 
 
-def test_rest_when_starts_on_next_line():
+def test_rest_when_starts_on_next_line() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
@@ -1037,7 +1040,7 @@ def test_rest_when_starts_on_next_line():
     assert options[1].description == "Cats I'm a kitty girl and I Nyaa Nyaa Nyaa and i Nyaa Nyaa Nyaa."
 
 
-def test_rest_when_trails_off():
+def test_rest_when_trails_off() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
@@ -1069,7 +1072,7 @@ def test_rest_when_trails_off():
     assert options[1].description == "The state of my dreams. If I bool, if I bool."
 
 
-def test_rest_when_trails_off_with_multi_line_description():
+def test_rest_when_trails_off_with_multi_line_description() -> None:
     @tanchan.doc_parse.with_annotated_args()
     @tanchan.doc_parse.as_slash_command()
     async def sphinx_command(
@@ -1102,11 +1105,11 @@ def test_rest_when_trails_off_with_multi_line_description():
     assert options[1].description == "The state of my dreams. If I bool, if I bool."
 
 
-TANJUN_SUPPORTS_TYPED_DICT = TANJUN_VERSION >= packaging.version.parse("2.12.0")
+TANJUN_SUPPORTS_TYPED_DICT = packaging.version.parse("2.12.0") <= TANJUN_VERSION
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_parses_unpacked_typed_dict_auto_detect_google():
+def test_parses_unpacked_typed_dict_auto_detect_google() -> None:
     class TypedDict(typing.TypedDict):
         """Command options.
 
@@ -1137,7 +1140,7 @@ def test_parses_unpacked_typed_dict_auto_detect_google():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_parses_unpacked_typed_dict_auto_detect_numpy():
+def test_parses_unpacked_typed_dict_auto_detect_numpy() -> None:
     class TypedDict(typing.TypedDict):
         """Command options.
 
@@ -1169,7 +1172,7 @@ def test_parses_unpacked_typed_dict_auto_detect_numpy():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_parses_unpacked_typed_dict_auto_detect_rest():
+def test_parses_unpacked_typed_dict_auto_detect_rest() -> None:
     class TypedDict(typing.TypedDict):
         """Command options.
 
@@ -1197,7 +1200,7 @@ def test_parses_unpacked_typed_dict_auto_detect_rest():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_parses_unpacked_typed_dict_auto_detect_mixed_styles():
+def test_parses_unpacked_typed_dict_auto_detect_mixed_styles() -> None:
     class TypedDict(typing.TypedDict):
         """Command options.
 
@@ -1236,7 +1239,7 @@ def test_parses_unpacked_typed_dict_auto_detect_mixed_styles():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_parses_unpacked_typed_dict_passed_format():
+def test_parses_unpacked_typed_dict_passed_format() -> None:
     class TypedDict(typing.TypedDict):
         """Command options.
 
@@ -1268,7 +1271,7 @@ def test_parses_unpacked_typed_dict_passed_format():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_when_only_unpacked_typed_dict_has_doc():
+def test_when_only_unpacked_typed_dict_has_doc() -> None:
     class TypedDict(typing.TypedDict):
         """Command options.
 
@@ -1296,7 +1299,7 @@ def test_when_only_unpacked_typed_dict_has_doc():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_ignores_unparsable_typed_dict():
+def test_ignores_unparsable_typed_dict() -> None:
     class TypedDict(typing.TypedDict):
         """Not descript."""
 
@@ -1325,7 +1328,7 @@ def test_ignores_unparsable_typed_dict():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_ignores_docless_typed_dict():
+def test_ignores_docless_typed_dict() -> None:
     class TypedDict(typing.TypedDict):
         """"""  # noqa: D419
 
@@ -1356,7 +1359,7 @@ def test_ignores_docless_typed_dict():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_ignores_typed_dict_has_standard_doc():
+def test_ignores_typed_dict_has_standard_doc() -> None:
     class TypedDict(typing.TypedDict):
         dump: annotations.Bool
         truck: typing.NotRequired[annotations.Bool]
@@ -1385,7 +1388,7 @@ def test_ignores_typed_dict_has_standard_doc():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_errors_when_neither_typed_dict_nor_function_have_doc():
+def test_errors_when_neither_typed_dict_nor_function_have_doc() -> None:
     class TypedDict(typing.TypedDict): ...
 
     @tanchan.doc_parse.as_slash_command(name="meow", description="yeet")
@@ -1396,7 +1399,7 @@ def test_errors_when_neither_typed_dict_nor_function_have_doc():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_errors_when_typed_dict_doc_has_no_params_and_function_has_no_doc():
+def test_errors_when_typed_dict_doc_has_no_params_and_function_has_no_doc() -> None:
     class TypedDict(typing.TypedDict):
         """Meow doc.
 
@@ -1412,7 +1415,7 @@ def test_errors_when_typed_dict_doc_has_no_params_and_function_has_no_doc():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_errors_when_unpack_isnt_typed_dict():
+def test_errors_when_unpack_isnt_typed_dict() -> None:
     class TypedDict:
         """Meow doc.
 
@@ -1445,7 +1448,7 @@ def test_errors_when_unpack_isnt_typed_dict():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_errors_when_kwargs_type_isnt_unpacked():
+def test_errors_when_kwargs_type_isnt_unpacked() -> None:
     class TypedDict(typing.TypedDict):
         """Not descript.
 
@@ -1477,7 +1480,7 @@ def test_errors_when_kwargs_type_isnt_unpacked():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_errors_ignores_unpacked_typed_dict_for_varargs():
+def test_errors_ignores_unpacked_typed_dict_for_varargs() -> None:
     class TypedDict(typing.TypedDict):
         """Not descript.
 
@@ -1509,7 +1512,7 @@ def test_errors_ignores_unpacked_typed_dict_for_varargs():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_errors_ignores_unpacked_typed_dict_for_normal_arg():
+def test_errors_ignores_unpacked_typed_dict_for_normal_arg() -> None:
     class TypedDict(typing.TypedDict):
         """Not descript.
 
@@ -1543,7 +1546,7 @@ def test_errors_ignores_unpacked_typed_dict_for_normal_arg():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_when_typed_dict_has_no_doc_and_cant_detect_doc_style():
+def test_when_typed_dict_has_no_doc_and_cant_detect_doc_style() -> None:
     class TypedDict(typing.TypedDict):
         """"""  # noqa: D419
 
@@ -1559,8 +1562,8 @@ def test_when_typed_dict_has_no_doc_and_cant_detect_doc_style():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_when_standard_typed_dict_doc_and_cant_detect_doc_style():
-    typed_dict = typing.TypedDict("typed_dict", {})
+def test_when_standard_typed_dict_doc_and_cant_detect_doc_style() -> None:
+    typed_dict = typing.TypedDict("typed_dict", {})  # noqa: UP013
 
     @tanchan.doc_parse.as_slash_command()
     async def command(ctx: tanjun.abc.Context, **kwargs: typing.Unpack[typed_dict]) -> None:
@@ -1574,7 +1577,7 @@ def test_when_standard_typed_dict_doc_and_cant_detect_doc_style():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_when_typed_dict_parameters_and_cant_detect_doc_style():
+def test_when_typed_dict_parameters_and_cant_detect_doc_style() -> None:
     class TypedDict(typing.TypedDict):
         """Description.
 
@@ -1600,7 +1603,7 @@ def test_when_typed_dict_parameters_and_cant_detect_doc_style():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_when_cant_detect_doc_style_of_callback_nor_typed_dict_docs():
+def test_when_cant_detect_doc_style_of_callback_nor_typed_dict_docs() -> None:
     class TypedDict(typing.TypedDict):
         """Typed dict.
 
@@ -1621,7 +1624,7 @@ def test_when_cant_detect_doc_style_of_callback_nor_typed_dict_docs():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_when_cant_detect_typed_dict_docs_style():
+def test_when_cant_detect_typed_dict_docs_style() -> None:
     class TypedDict(typing.TypedDict):
         """Typed dict.
 
@@ -1647,7 +1650,7 @@ def test_when_cant_detect_typed_dict_docs_style():
 
 
 @pytest.mark.skipif(not TANJUN_SUPPORTS_TYPED_DICT, reason="Tanjun version doesn't support typed dict parsing")
-def test_when_typing_extensions_unpack_and_typeddict():
+def test_when_typing_extensions_unpack_and_typeddict() -> None:
     class TypedDict(typing_extensions.TypedDict):
         """Description.
 
@@ -1670,11 +1673,11 @@ def test_when_typing_extensions_unpack_and_typeddict():
 
 
 class TestSlashCommandGroup:
-    def test_as_sub_command(self):
+    def test_as_sub_command(self) -> None:
         group = tanchan.doc_parse.SlashCommandGroup("name", "description")
 
         @group.as_sub_command()
-        async def super_name_nyaa(ctx: tanjun.abc.Context):
+        async def super_name_nyaa(ctx: tanjun.abc.Context) -> None:
             """Command me meowy."""
 
         assert super_name_nyaa in group.commands
@@ -1685,7 +1688,7 @@ class TestSlashCommandGroup:
     @pytest.mark.parametrize(
         "wrapped_type", [tanjun.abc.MenuCommand, tanjun.abc.MessageCommand, tanjun.abc.SlashCommand]
     )
-    def test_as_sub_command_when_wrapping_other_command(self, wrapped_type: type[typing.Any]):
+    def test_as_sub_command_when_wrapping_other_command(self, wrapped_type: type[typing.Any]) -> None:
         def meow_callback() -> None:
             """Meow indeed mr Bond."""
 
@@ -1698,18 +1701,18 @@ class TestSlashCommandGroup:
         assert command.description == "Meow indeed mr Bond."
         assert command.callback is meow_callback
 
-    def test_as_sub_command_when_optional_parameters_passed(self):
+    def test_as_sub_command_when_optional_parameters_passed(self) -> None:
         group = tanchan.doc_parse.SlashCommandGroup("name", "description")
 
         @group.as_sub_command(name="xd_nuz", description="descriptor", default_to_ephemeral=True)
-        async def super_nyaa(ctx: tanjun.abc.Context):
+        async def super_nyaa(ctx: tanjun.abc.Context) -> None:
             """Command meow."""
 
         assert super_nyaa.name == "xd_nuz"
         assert super_nyaa.description == "descriptor"
         assert super_nyaa.defaults_to_ephemeral is True
 
-    def test_as_sub_command_when_has_no_doc_string(self):
+    def test_as_sub_command_when_has_no_doc_string(self) -> None:
         group = tanchan.doc_parse.SlashCommandGroup("name", "description")
 
         async def command(ctx: tanjun.abc.Context) -> None: ...
@@ -1717,22 +1720,22 @@ class TestSlashCommandGroup:
         with pytest.raises(ValueError, match="Callback has no doc string"):
             group.as_sub_command()(command)
 
-    def test_as_sub_command_when_dict_overrides_passed(self):
+    def test_as_sub_command_when_dict_overrides_passed(self) -> None:
         group = tanchan.doc_parse.SlashCommandGroup("name", "description")
 
         @group.as_sub_command(
             name={hikari.Locale.EN_GB: "hhh", hikari.Locale.FR: "hon_hon"},
             description={hikari.Locale.HR: "H", hikari.Locale.DE: "nein"},
         )
-        async def super_(ctx: tanjun.abc.Context):
-            """meow."""
+        async def super_(ctx: tanjun.abc.Context) -> None:
+            """Meow."""
 
         assert super_.name == "hhh"
         assert super_.name_localisations == {hikari.Locale.EN_GB: "hhh", hikari.Locale.FR: "hon_hon"}
         assert super_.description == "H"
         assert super_.description_localisations == {hikari.Locale.HR: "H", hikari.Locale.DE: "nein"}
 
-    def test_make_sub_group(self):
+    def test_make_sub_group(self) -> None:
         group = tanchan.doc_parse.slash_command_group("echo", "meow")
 
         sub_group = group.make_sub_group("aaaa", "very descript of you Sherlock")
@@ -1743,7 +1746,7 @@ class TestSlashCommandGroup:
         assert sub_group.description == "very descript of you Sherlock"
         assert sub_group.defaults_to_ephemeral is None
 
-    def test_make_sub_group_when_optional_args_passed(self):
+    def test_make_sub_group_when_optional_args_passed(self) -> None:
         group = tanchan.doc_parse.slash_command_group("echo", "meow")
 
         sub_group = group.make_sub_group("fancy", "music time!!!", default_to_ephemeral=True)
@@ -1755,7 +1758,7 @@ class TestSlashCommandGroup:
         assert sub_group.defaults_to_ephemeral is True
 
 
-def test_slash_command_group():
+def test_slash_command_group() -> None:
     group = tanchan.doc_parse.slash_command_group("name_me", "Describe me")
 
     assert group.name == "name_me"
@@ -1766,7 +1769,7 @@ def test_slash_command_group():
     assert group.is_nsfw is False
 
 
-def test_slash_command_group_with_optional_args():
+def test_slash_command_group_with_optional_args() -> None:
     group = tanchan.doc_parse.slash_command_group(
         "name_her", "Describe her", default_member_permissions=123321, dm_enabled=True, is_global=False, nsfw=True
     )
