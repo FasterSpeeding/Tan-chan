@@ -48,6 +48,7 @@ import typing
 import urllib.parse
 from typing import Annotated
 
+import alluka  # noqa: TC002
 import hikari
 import tanjun
 import yuyo
@@ -64,7 +65,6 @@ from . import help as help_commands
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-    import alluka
 
 _COMPONENT_NAME = "tanchan.sudo"
 """Name of this module's component."""

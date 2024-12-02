@@ -40,6 +40,7 @@ import typing
 import urllib.parse
 from typing import Annotated
 
+import alluka  # noqa: TC002
 import hikari
 import tanjun
 import yuyo
@@ -55,7 +56,6 @@ from . import config
 if typing.TYPE_CHECKING:
     from collections import abc as collections
 
-    import alluka
 
 _CommandT = typing.TypeVar("_CommandT", bound=tanjun.abc.ExecutableCommand[typing.Any])
 
