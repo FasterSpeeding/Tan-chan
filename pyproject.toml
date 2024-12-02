@@ -133,11 +133,13 @@ default_sessions = [
     "test",
     "verify-types",
 ]
-extra_test_installs = ["."]
 mypy_allowed_to_fail = true
 mypy_targets = ["./tanchan"]
 project_name = "tanchan"
 top_level_targets = ["./docs_src", "./noxfile.py", "./tanchan", "./tests"]
+
+[tool.piped.extra_installs]
+slot_check = [".[yuyo]"]
 
 [tool.piped.github_actions.freeze_for_pr]
 [tool.piped.github_actions.lint]
