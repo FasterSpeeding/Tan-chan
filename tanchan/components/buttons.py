@@ -106,7 +106,7 @@ async def on_delete_button(ctx: yuyo.ComponentContext, /) -> None:
     """Constant callback used by delete buttons.
 
     This is the default implementation which can be overridden by registering
-    your own callback for [DELETE_CUSTOM_ID][yuyo.components.DELETE_CUSTOM_ID]
+    your own callback for [DELETE_CUSTOM_ID][tanchan.components.buttons.DELETE_CUSTOM_ID].
 
     Parameters
     ----------
