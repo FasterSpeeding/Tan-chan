@@ -765,7 +765,7 @@ def test_numpy_with_other_parameters() -> None:
     async def cool_girl(
         ctx: tanjun.abc.Context, the: annotations.User, go: annotations.Int, cat: annotations.Member
     ) -> None:
-        """blep
+        """Blep
 
         Parameters
         ----------
@@ -792,7 +792,7 @@ def test_numpy_with_other_parameters() -> None:
     builder = cool_girl.build()
 
     assert builder.name == cool_girl.name == "cool_girl"
-    assert builder.description == cool_girl.description == "blep"
+    assert builder.description == cool_girl.description == "Blep"
 
     options = builder.options
     assert len(options) == 3
