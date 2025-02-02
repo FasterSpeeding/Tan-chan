@@ -150,7 +150,7 @@ def test_as_slash_command_when_dict_overrides_passed() -> None:
 
 @pytest.mark.parametrize("doc_style", [None, "google", "numpy", "reST"])
 def test_with_annotated_args_when_has_no_doc_string(
-    doc_style: typing.Literal["google", "numpy", "reST"] | None
+    doc_style: typing.Literal["google", "numpy", "reST"] | None,
 ) -> None:
     @tanjun.as_slash_command("name", "description")
     async def command(ctx: tanjun.abc.Context) -> None: ...
