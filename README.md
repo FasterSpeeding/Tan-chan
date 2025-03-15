@@ -21,7 +21,7 @@ For usage see the [documentation](https://tanchan.cursed.solutions/) and the
 
 # Support
 
-Go to the [support server](https://discord.gg/bZ7BrYJ63g) for support with Tanjun.
+Go to the [support server](https://discord.gg/bZ7BrYJ63g) for support.
 
 # Contributing
 
